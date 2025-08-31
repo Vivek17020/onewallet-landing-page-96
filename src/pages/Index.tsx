@@ -66,9 +66,10 @@ const Index = () => {
                   variant="hero" 
                   size="lg"
                   className="text-lg px-8 py-4 h-auto min-w-[200px]"
+                  onClick={() => window.location.href = '/dashboard/assets'}
                 >
                   <Shield className="w-5 h-5 mr-2" />
-                  Wallet Connected
+                  Open Dashboard
                 </Button>
               )}
               <Button 
