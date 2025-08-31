@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Wallet, Shield, Zap, Globe } from "lucide-react";
+import { useWallet } from "@/contexts/WalletContext";
+import WalletButton from "@/components/WalletButton";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Index = () => {
+  const { isConnected, connectWallet } = useWallet();
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Navigation */}
@@ -16,9 +19,7 @@ const Index = () => {
             OneWallet
           </span>
         </div>
-        <Button variant="outline" size="sm">
-          Sign In
-        </Button>
+        <WalletButton />
       </nav>
 
       {/* Hero Section */}
@@ -50,14 +51,26 @@ const Index = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
-              <Button 
-                variant="connect" 
-                size="lg"
-                className="text-lg px-8 py-4 h-auto min-w-[200px]"
-              >
-                <Wallet className="w-5 h-5 mr-2" />
-                Connect Wallet
-              </Button>
+              {!isConnected ? (
+                <Button 
+                  variant="connect" 
+                  size="lg"
+                  className="text-lg px-8 py-4 h-auto min-w-[200px]"
+                  onClick={connectWallet}
+                >
+                  <Wallet className="w-5 h-5 mr-2" />
+                  Connect Wallet
+                </Button>
+              ) : (
+                <Button 
+                  variant="hero" 
+                  size="lg"
+                  className="text-lg px-8 py-4 h-auto min-w-[200px]"
+                >
+                  <Shield className="w-5 h-5 mr-2" />
+                  Wallet Connected
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 size="lg"
