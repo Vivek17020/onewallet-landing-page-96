@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Eye, EyeOff, Copy, ExternalLink } from "lucide-react";
+import { TrendingUp, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 
@@ -11,36 +11,42 @@ const mockAssets = [
     name: "Ethereum",
     balance: "2.4567",
     usdValue: "$4,123.45",
-    change24h: "+5.67%",
-    isPositive: true,
-    icon: "⟠"
+    logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png"
   },
   {
     symbol: "BTC",
     name: "Bitcoin",
     balance: "0.1234",
     usdValue: "$5,432.10",
-    change24h: "-2.34%",
-    isPositive: false,
-    icon: "₿"
+    logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.png"
   },
   {
     symbol: "USDC",
     name: "USD Coin",
     balance: "1,250.00",
     usdValue: "$1,250.00",
-    change24h: "+0.01%",
-    isPositive: true,
-    icon: "💰"
+    logo: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
   },
   {
     symbol: "MATIC",
     name: "Polygon",
     balance: "456.789",
     usdValue: "$367.03",
-    change24h: "+12.45%",
-    isPositive: true,
-    icon: "🟣"
+    logo: "https://cryptologos.cc/logos/polygon-matic-logo.png"
+  },
+  {
+    symbol: "LINK",
+    name: "Chainlink",
+    balance: "89.123",
+    usdValue: "$1,234.56",
+    logo: "https://cryptologos.cc/logos/chainlink-link-logo.png"
+  },
+  {
+    symbol: "UNI",
+    name: "Uniswap",
+    balance: "25.456",
+    usdValue: "$178.90",
+    logo: "https://cryptologos.cc/logos/uniswap-uni-logo.png"
   }
 ];
 
@@ -105,7 +111,7 @@ export default function Assets() {
       </Card>
 
       {/* Assets List */}
-      <div className="grid gap-4">
+      <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Your Assets</h2>
           <Button variant="outline" size="sm">
@@ -114,44 +120,53 @@ export default function Assets() {
           </Button>
         </div>
 
-        <div className="grid gap-4">
-          {mockAssets.map((asset) => (
-            <Card key={asset.symbol} className="hover:bg-muted/50 transition-colors">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-hidden">
+              {mockAssets.map((asset, index) => (
+                <div 
+                  key={asset.symbol}
+                  className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${
+                    index !== mockAssets.length - 1 ? 'border-b border-border' : ''
+                  }`}
+                >
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center text-xl">
-                      {asset.icon}
+                    <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={asset.logo} 
+                        alt={asset.name}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          // Fallback to colored circle with symbol
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-8 h-8 bg-gradient-primary rounded-full items-center justify-center text-sm font-semibold text-primary-foreground hidden">
+                        {asset.symbol.charAt(0)}
+                      </div>
                     </div>
                     <div>
-                      <div className="font-semibold">{asset.symbol}</div>
+                      <div className="font-semibold text-foreground">{asset.symbol}</div>
                       <div className="text-sm text-muted-foreground">{asset.name}</div>
                     </div>
                   </div>
                   
                   <div className="text-right">
-                    <div className="font-semibold">
+                    <div className="font-semibold text-foreground">
                       {balanceVisible ? asset.balance : "••••"} {asset.symbol}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {balanceVisible ? asset.usdValue : "••••••"}
                     </div>
                   </div>
-                  
-                  <div className="text-right">
-                    <Badge 
-                      variant={asset.isPositive ? "default" : "destructive"}
-                      className={asset.isPositive ? "bg-green-500/10 text-green-500" : ""}
-                    >
-                      {asset.isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                      {asset.change24h}
-                    </Badge>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
