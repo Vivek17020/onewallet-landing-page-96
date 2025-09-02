@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Wallet, Shield, Zap, Globe } from "lucide-react";
@@ -7,6 +8,7 @@ import heroImage from "@/assets/hero-bg.jpg";
 
 const Index = () => {
   const { isConnected, connectWallet } = useWallet();
+  
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Navigation */}
@@ -51,7 +53,15 @@ const Index = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
-              {!isConnected ? (
+              {isConnected ? (
+                <Link 
+                  to="/app/assets" 
+                  className="inline-flex items-center justify-center rounded-lg bg-gradient-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-glow-primary transition-all duration-300 hover:shadow-glow-secondary hover:scale-105"
+                >
+                  <Shield className="w-5 h-5 mr-2" />
+                  Open Dashboard
+                </Link>
+              ) : (
                 <Button 
                   variant="connect" 
                   size="lg"
@@ -60,16 +70,6 @@ const Index = () => {
                 >
                   <Wallet className="w-5 h-5 mr-2" />
                   Connect Wallet
-                </Button>
-              ) : (
-                <Button 
-                  variant="hero" 
-                  size="lg"
-                  className="text-lg px-8 py-4 h-auto min-w-[200px]"
-                  onClick={() => window.location.href = '/dashboard/assets'}
-                >
-                  <Shield className="w-5 h-5 mr-2" />
-                  Open Dashboard
                 </Button>
               )}
               <Button 

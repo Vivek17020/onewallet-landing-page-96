@@ -70,15 +70,18 @@ export default {
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-secondary': 'var(--gradient-secondary)',
-				'gradient-hero': 'var(--gradient-hero)'
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-card': 'var(--gradient-card)'
 			},
 			boxShadow: {
 				'glow-primary': 'var(--glow-primary)',
-				'glow-secondary': 'var(--glow-secondary)'
+				'glow-secondary': 'var(--glow-secondary)',
+				'elevated': 'var(--shadow-elevated)'
 			},
 			transitionProperty: {
 				'smooth': 'var(--transition-smooth)',
-				'glow': 'var(--transition-glow)'
+				'glow': 'var(--transition-glow)',
+				'bounce': 'var(--transition-bounce)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

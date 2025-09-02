@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Assets", url: "/dashboard/assets", icon: TrendingUp },
-  { title: "Swap", url: "/dashboard/swap", icon: ArrowUpDown },
-  { title: "History", url: "/dashboard/history", icon: History },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Assets", url: "/app/assets", icon: TrendingUp },
+  { title: "Swap", url: "/app/swap", icon: ArrowUpDown },
+  { title: "History", url: "/app/history", icon: History },
+  { title: "Settings", url: "/app/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
