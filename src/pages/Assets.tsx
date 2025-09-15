@@ -1,297 +1,249 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { TrendingUp, TrendingDown, Eye, EyeOff, ExternalLink, ChevronDown, Copy, BarChart3 } from "lucide-react";
-import { useWallet } from "@/contexts/WalletContext";
+import { Button } from "@/components/ui/button";
+import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown } from "lucide-react";
+import { useWalletStore } from "@/stores/walletStore";
+import { useBalances } from "@/hooks/useBalances";
 import { useState } from "react";
 
-const mockAssets = [
+interface Token {
+  symbol: string;
+  name: string;
+  logo: string;
+  balance: string;
+  fiatValue: number;
+  change24h: number;
+  price: number;
+}
+
+const mockTokens: Token[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
+    logo: "🔷",
     balance: "2.4567",
-    usdValue: "$4,123.45",
-    change24h: "+5.67%",
-    isPositive: true,
-    contractAddress: "0xa0b86a33e6c3a31d5b2f5b0f8e6b3f8c7a0b86a33e6c3a31d",
-    logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png"
-  },
-  {
-    symbol: "BTC",
-    name: "Bitcoin",
-    balance: "0.1234",
-    usdValue: "$5,432.10",
-    change24h: "-2.34%",
-    isPositive: false,
-    contractAddress: "0xb1c86a33e6c3a31d5b2f5b0f8e6b3f8c7a0b86a33e6c3a31d",
-    logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.png"
+    fiatValue: 6234.89,
+    change24h: 3.45,
+    price: 2540.12,
   },
   {
     symbol: "USDC",
     name: "USD Coin",
+    logo: "🔵",
     balance: "1,250.00",
-    usdValue: "$1,250.00",
-    change24h: "+0.01%",
-    isPositive: true,
-    contractAddress: "0xa0b173e43e73e73e73e73e73e73e73e73e73e73e73e73e73e7",
-    logo: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png"
-  },
-  {
-    symbol: "MATIC",
-    name: "Polygon",
-    balance: "456.789",
-    usdValue: "$367.03",
-    change24h: "+12.45%",
-    isPositive: true,
-    contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
-    logo: "https://cryptologos.cc/logos/polygon-matic-logo.png"
-  },
-  {
-    symbol: "LINK",
-    name: "Chainlink",
-    balance: "89.123",
-    usdValue: "$1,234.56",
-    change24h: "+8.92%",
-    isPositive: true,
-    contractAddress: "0x514910771af9ca656af840dff83e8264ecf986ca",
-    logo: "https://cryptologos.cc/logos/chainlink-link-logo.png"
+    fiatValue: 1250.00,
+    change24h: 0.01,
+    price: 1.00,
   },
   {
     symbol: "UNI",
     name: "Uniswap",
-    balance: "25.456",
-    usdValue: "$178.90",
-    change24h: "-3.21%",
-    isPositive: false,
-    contractAddress: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    logo: "https://cryptologos.cc/logos/uniswap-uni-logo.png"
-  }
+    logo: "🦄",
+    balance: "45.123",
+    fiatValue: 567.82,
+    change24h: -2.18,
+    price: 12.59,
+  },
+  {
+    symbol: "LINK",
+    name: "Chainlink",
+    logo: "🔗",
+    balance: "28.5",
+    fiatValue: 485.25,
+    change24h: 5.67,
+    price: 17.03,
+  },
+  {
+    symbol: "AAVE",
+    name: "Aave",
+    logo: "👻",
+    balance: "3.789",
+    fiatValue: 341.01,
+    change24h: -1.23,
+    price: 89.99,
+  },
 ];
 
-export default function Assets() {
-  const { isConnected, account } = useWallet();
-  const [balanceVisible, setBalanceVisible] = useState(true);
-  const [expandedAssets, setExpandedAssets] = useState<string[]>([]);
-  
-  const totalValue = "$11,172.58";
+const Assets = () => {
+  const { address, isConnected, totalUsdValue } = useWalletStore();
+  const { nativeBalance, isLoading } = useBalances();
+  const [hideBalances, setHideBalances] = useState(false);
 
-  const toggleAssetExpanded = (symbol: string) => {
-    setExpandedAssets(prev => 
-      prev.includes(symbol) 
-        ? prev.filter(s => s !== symbol)
-        : [...prev, symbol]
-    );
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(value);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const formatPercentage = (value: number) => {
+    return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`;
   };
+
+  const totalPortfolioValue = mockTokens.reduce((sum, token) => sum + token.fiatValue, 0);
 
   if (!isConnected) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Card className="p-8 text-center max-w-md">
-            <CardContent className="space-y-4">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
-                <TrendingUp className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold">Connect Your Wallet</h3>
-              <p className="text-muted-foreground">
-                Connect your wallet to view your assets and portfolio
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full text-center">
+          <CardHeader>
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Wallet className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <CardTitle>Connect Your Wallet</CardTitle>
+            <CardDescription>
+              Connect your wallet to view your asset portfolio and balances.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="flex-1 space-y-6 p-4 md:p-6">
       {/* Portfolio Overview */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Portfolio</h1>
-          <p className="text-muted-foreground">Manage your crypto assets across multiple chains</p>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setBalanceVisible(!balanceVisible)}
-        >
-          {balanceVisible ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-          {balanceVisible ? "Hide" : "Show"} Balance
-        </Button>
-      </div>
-
-      {/* Total Portfolio Value */}
-      <Card className="bg-gradient-secondary border-primary/20">
-        <CardHeader>
-          <CardTitle className="text-lg">Total Portfolio Value</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-4xl font-bold mb-2">
-            {balanceVisible ? totalValue : "••••••"}
-          </div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-green-500" />
-            <span className="text-green-500 font-medium">+8.34% (24h)</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Assets List */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Your Assets</h2>
-          <Button variant="outline" size="sm">
-            <ExternalLink className="w-4 h-4 mr-2" />
-            View on Explorer
-          </Button>
-        </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setHideBalances(!hideBalances)}
+            >
+              {hideBalances ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {hideBalances ? "••••••" : formatCurrency(totalPortfolioValue)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Across {mockTokens.length} tokens
+            </p>
+          </CardContent>
+        </Card>
 
         <Card>
-          <CardContent className="p-0">
-            <div className="overflow-hidden">
-              {mockAssets.map((asset, index) => (
-                <Collapsible 
-                  key={asset.symbol}
-                  open={expandedAssets.includes(asset.symbol)}
-                  onOpenChange={() => toggleAssetExpanded(asset.symbol)}
-                >
-                  <CollapsibleTrigger asChild>
-                    <div 
-                      className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
-                        index !== mockAssets.length - 1 ? 'border-b border-border' : ''
-                      }`}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center overflow-hidden">
-                          <img 
-                            src={asset.logo} 
-                            alt={asset.name}
-                            className="w-8 h-8 object-contain"
-                            onError={(e) => {
-                              // Fallback to colored circle with symbol
-                              const target = e.currentTarget as HTMLImageElement;
-                              target.style.display = 'none';
-                              const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
-                            }}
-                          />
-                          <div className="w-8 h-8 bg-gradient-primary rounded-full items-center justify-center text-sm font-semibold text-primary-foreground hidden">
-                            {asset.symbol.charAt(0)}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-semibold text-foreground">{asset.symbol}</div>
-                          <div className="text-sm text-muted-foreground">{asset.name}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="font-semibold text-foreground">
-                            {balanceVisible ? asset.balance : "••••"} {asset.symbol}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {balanceVisible ? asset.usdValue : "••••••"}
-                          </div>
-                        </div>
-                        
-                        <Badge 
-                          variant={asset.isPositive ? "default" : "destructive"}
-                          className={asset.isPositive ? "bg-green-500/10 text-green-500 border-green-500/20" : ""}
-                        >
-                          {asset.isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                          {asset.change24h}
-                        </Badge>
-                        
-                        <ChevronDown 
-                          className={`w-5 h-5 text-muted-foreground transition-transform ${
-                            expandedAssets.includes(asset.symbol) ? 'rotate-180' : ''
-                          }`} 
-                        />
-                      </div>
-                    </div>
-                  </CollapsibleTrigger>
-                  
-                  <CollapsibleContent>
-                    <div className="p-4 pt-0 bg-muted/20">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Price Chart Placeholder */}
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-medium text-muted-foreground">Price Chart (7D)</h4>
-                          <div className="h-32 bg-card rounded-lg border border-border flex items-center justify-center">
-                            <div className="text-center text-muted-foreground">
-                              <BarChart3 className="w-8 h-8 mx-auto mb-2" />
-                              <p className="text-sm">Chart Coming Soon</p>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Token Details */}
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Token Details</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">24h Change</span>
-                                <Badge 
-                                  variant={asset.isPositive ? "default" : "destructive"}
-                                  className={asset.isPositive ? "bg-green-500/10 text-green-500 border-green-500/20" : ""}
-                                >
-                                  {asset.isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                                  {asset.change24h}
-                                </Badge>
-                              </div>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">Balance</span>
-                                <span className="font-medium">
-                                  {balanceVisible ? `${asset.balance} ${asset.symbol}` : "••••••"}
-                                </span>
-                              </div>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">USD Value</span>
-                                <span className="font-medium">
-                                  {balanceVisible ? asset.usdValue : "••••••"}
-                                </span>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <span className="text-sm text-muted-foreground">Contract Address</span>
-                                <div className="flex items-center space-x-2 p-2 bg-card rounded border">
-                                  <code className="text-xs font-mono flex-1 truncate">
-                                    {asset.contractAddress}
-                                  </code>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      copyToClipboard(asset.contractAddress);
-                                    }}
-                                  >
-                                    <Copy className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              ))}
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">24h Change</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-600">+2.3%</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {hideBalances ? "••••" : "+$142.67"} today
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Network</CardTitle>
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Ethereum</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Mainnet
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <div className="flex gap-2 flex-wrap">
+        <Button className="flex-1 min-w-[120px]">
+          <Send className="w-4 h-4 mr-2" />
+          Send
+        </Button>
+        <Button variant="outline" className="flex-1 min-w-[120px]">
+          <Plus className="w-4 h-4 mr-2" />
+          Receive
+        </Button>
+        <Button variant="outline" className="flex-1 min-w-[120px]">
+          <ArrowUpDown className="w-4 h-4 mr-2" />
+          Swap
+        </Button>
+      </div>
+
+      {/* Assets Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Assets</CardTitle>
+          <CardDescription>
+            View and manage your token portfolio
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Asset</TableHead>
+                  <TableHead className="text-right">Balance</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                  <TableHead className="text-right">24h Change</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {mockTokens.map((token) => (
+                  <TableRow key={token.symbol} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="text-2xl">{token.logo}</div>
+                        <div>
+                          <div className="font-medium">{token.symbol}</div>
+                          <div className="text-sm text-muted-foreground">{token.name}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="font-medium">
+                        {hideBalances ? "••••••" : token.balance}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{token.symbol}</div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="font-medium">
+                        {hideBalances ? "••••••" : formatCurrency(token.fiatValue)}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge
+                        variant={token.change24h >= 0 ? "default" : "destructive"}
+                        className={`${
+                          token.change24h >= 0 
+                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-100" 
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center space-x-1">
+                          {token.change24h >= 0 ? (
+                            <TrendingUp className="w-3 h-3" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3" />
+                          )}
+                          <span>{formatPercentage(token.change24h)}</span>
+                        </div>
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="font-medium">{formatCurrency(token.price)}</div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default Assets;
