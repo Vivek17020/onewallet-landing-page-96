@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { WagmiProvider } from 'wagmi';
+import { config } from '@/config/wagmi';
 import { WalletProvider } from "@/contexts/WalletContext";
 import Index from "./pages/Index";
 import Assets from "./pages/Assets";
@@ -16,23 +18,25 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <WalletProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/app/assets" element={<AppShell><Assets /></AppShell>} />
-            <Route path="/app/swap" element={<AppShell><Swap /></AppShell>} />
-            <Route path="/app/history" element={<AppShell><History /></AppShell>} />
-            <Route path="/app/settings" element={<AppShell><SettingsPage /></AppShell>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </WalletProvider>
+    <WagmiProvider config={config}>
+      <WalletProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/app/assets" element={<AppShell><Assets /></AppShell>} />
+              <Route path="/app/swap" element={<AppShell><Swap /></AppShell>} />
+              <Route path="/app/history" element={<AppShell><History /></AppShell>} />
+              <Route path="/app/settings" element={<AppShell><SettingsPage /></AppShell>} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </WalletProvider>
+    </WagmiProvider>
   </QueryClientProvider>
 );
 

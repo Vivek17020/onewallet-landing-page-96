@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { useWallet } from "@/contexts/WalletContext";
-import { Wallet, LogOut, ChevronDown } from "lucide-react";
+import { Wallet, LogOut, ChevronDown, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 const WalletButton = () => {
-  const { account, isConnected, connectWallet, disconnectWallet, shortenAddress } = useWallet();
+  const { account, isConnected, connectWallet, disconnectWallet, shortenAddress, connectors } = useWallet();
 
   if (isConnected && account) {
     return (
@@ -26,6 +27,10 @@ const WalletButton = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem className="font-medium">
+            {shortenAddress(account)}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={disconnectWallet}
             className="text-destructive focus:text-destructive cursor-pointer"
@@ -39,15 +44,31 @@ const WalletButton = () => {
   }
 
   return (
-    <Button 
-      variant="outline" 
-      size="sm"
-      onClick={connectWallet}
-      className="border-primary/30 hover:border-primary"
-    >
-      <Wallet className="w-4 h-4 mr-2" />
-      Connect Wallet
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="connect" 
+          size="sm"
+          className="animate-glow-pulse"
+        >
+          <Wallet className="w-4 h-4 mr-2" />
+          Connect Wallet
+          <ChevronDown className="w-4 h-4 ml-2" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        {connectors.map((connector) => (
+          <DropdownMenuItem 
+            key={connector.id}
+            onClick={() => connectWallet(connector.id)}
+            className="cursor-pointer"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Connect {connector.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

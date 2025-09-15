@@ -66,7 +66,7 @@ const Index = () => {
                   variant="connect" 
                   size="lg"
                   className="text-lg px-8 py-4 h-auto min-w-[200px]"
-                  onClick={connectWallet}
+                  onClick={() => connectWallet()}
                 >
                   <Wallet className="w-5 h-5 mr-2" />
                   Connect Wallet
