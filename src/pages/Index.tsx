@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Wallet, Shield, Zap, Globe } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
+import { useWalletStore } from "@/stores/walletStore";
 import WalletButton from "@/components/WalletButton";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Index = () => {
   const { isConnected, connectWallet } = useWallet();
+  const { address } = useWalletStore();
   
   return (
     <div className="min-h-screen bg-gradient-hero">

@@ -1,11 +1,13 @@
-import { createContext, useContext, ReactNode } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { createContext, useContext, ReactNode, useEffect } from 'react';
+import { useAccount, useConnect, useDisconnect, useChainId } from 'wagmi';
 import { toast } from '@/hooks/use-toast';
+import { useWalletStore } from '@/stores/walletStore';
 import type { Connector } from 'wagmi';
 
 interface WalletContextType {
   account: string | null;
   isConnected: boolean;
+  activeChain: number | null;
   connectWallet: (connectorId?: string) => Promise<void>;
   disconnectWallet: () => void;
   shortenAddress: (address: string) => string;
@@ -20,8 +22,44 @@ interface WalletProviderProps {
 
 export const WalletProvider = ({ children }: WalletProviderProps) => {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  
+  // Zustand store
+  const {
+    setAddress,
+    setActiveChain,
+    setIsConnected,
+    autoConnect,
+    lastConnectedConnector,
+    setAutoConnect,
+    setLastConnectedConnector,
+    reset,
+  } = useWalletStore();
+
+  // Sync wagmi state with Zustand store
+  useEffect(() => {
+    setAddress(address || null);
+  }, [address, setAddress]);
+
+  useEffect(() => {
+    setActiveChain(chainId || null);
+  }, [chainId, setActiveChain]);
+
+  useEffect(() => {
+    setIsConnected(isConnected);
+  }, [isConnected, setIsConnected]);
+
+  // Auto-connect on mount if previously connected
+  useEffect(() => {
+    if (autoConnect && lastConnectedConnector && !isConnected) {
+      const connector = connectors.find(c => c.id === lastConnectedConnector);
+      if (connector) {
+        connect({ connector });
+      }
+    }
+  }, [autoConnect, lastConnectedConnector, isConnected, connectors, connect]);
 
   const shortenAddress = (address: string): string => {
     if (!address) return '';
@@ -35,6 +73,10 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
         : connectors[0];
       
       await connect({ connector });
+      
+      // Store connection for persistence
+      setAutoConnect(true);
+      setLastConnectedConnector(connector.id);
       
       toast({
         title: "Wallet Connected!",
@@ -52,6 +94,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
 
   const disconnectWallet = () => {
     disconnect();
+    reset(); // Reset all store state
     toast({
       title: "Wallet Disconnected",
       description: "Your wallet has been disconnected.",
@@ -63,6 +106,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
       value={{
         account: address || null,
         isConnected,
+        activeChain: chainId || null,
         connectWallet,
         disconnectWallet,
         shortenAddress,
