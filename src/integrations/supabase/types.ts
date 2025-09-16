@@ -20,7 +20,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_token_prices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          current_price: number
+          price_change_24h: number
+          price_change_percentage_24h: number
+          symbol: string
+          token_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
