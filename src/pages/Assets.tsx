@@ -2,10 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown } from "lucide-react";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown, Copy, X } from "lucide-react";
 import { useWalletStore } from "@/stores/walletStore";
 import { useBalances } from "@/hooks/useBalances";
 import { useState } from "react";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { toast } from "sonner";
 
 interface Token {
   symbol: string;
@@ -15,6 +19,8 @@ interface Token {
   fiatValue: number;
   change24h: number;
   price: number;
+  address: string;
+  chartData: Array<{ time: string; price: number }>;
 }
 
 const mockTokens: Token[] = [
@@ -26,6 +32,15 @@ const mockTokens: Token[] = [
     fiatValue: 6234.89,
     change24h: 3.45,
     price: 2540.12,
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    chartData: [
+      { time: "00:00", price: 2440 },
+      { time: "04:00", price: 2520 },
+      { time: "08:00", price: 2480 },
+      { time: "12:00", price: 2590 },
+      { time: "16:00", price: 2535 },
+      { time: "20:00", price: 2540 },
+    ],
   },
   {
     symbol: "USDC",
@@ -35,6 +50,15 @@ const mockTokens: Token[] = [
     fiatValue: 1250.00,
     change24h: 0.01,
     price: 1.00,
+    address: "0xA0b86a33E6441C8c3F31C41171A5b3B1b1b1F2e4",
+    chartData: [
+      { time: "00:00", price: 1.0001 },
+      { time: "04:00", price: 0.9999 },
+      { time: "08:00", price: 1.0000 },
+      { time: "12:00", price: 1.0001 },
+      { time: "16:00", price: 0.9998 },
+      { time: "20:00", price: 1.0000 },
+    ],
   },
   {
     symbol: "UNI",
@@ -44,6 +68,15 @@ const mockTokens: Token[] = [
     fiatValue: 567.82,
     change24h: -2.18,
     price: 12.59,
+    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    chartData: [
+      { time: "00:00", price: 12.87 },
+      { time: "04:00", price: 12.65 },
+      { time: "08:00", price: 12.42 },
+      { time: "12:00", price: 12.71 },
+      { time: "16:00", price: 12.53 },
+      { time: "20:00", price: 12.59 },
+    ],
   },
   {
     symbol: "LINK",
@@ -53,6 +86,15 @@ const mockTokens: Token[] = [
     fiatValue: 485.25,
     change24h: 5.67,
     price: 17.03,
+    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    chartData: [
+      { time: "00:00", price: 16.12 },
+      { time: "04:00", price: 16.45 },
+      { time: "08:00", price: 16.78 },
+      { time: "12:00", price: 16.92 },
+      { time: "16:00", price: 17.15 },
+      { time: "20:00", price: 17.03 },
+    ],
   },
   {
     symbol: "AAVE",
@@ -62,6 +104,15 @@ const mockTokens: Token[] = [
     fiatValue: 341.01,
     change24h: -1.23,
     price: 89.99,
+    address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+    chartData: [
+      { time: "00:00", price: 91.12 },
+      { time: "04:00", price: 90.78 },
+      { time: "08:00", price: 89.65 },
+      { time: "12:00", price: 90.23 },
+      { time: "16:00", price: 89.87 },
+      { time: "20:00", price: 89.99 },
+    ],
   },
 ];
 
@@ -69,6 +120,8 @@ const Assets = () => {
   const { address, isConnected, totalUsdValue } = useWalletStore();
   const { nativeBalance, isLoading } = useBalances();
   const [hideBalances, setHideBalances] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -82,6 +135,27 @@ const Assets = () => {
   };
 
   const totalPortfolioValue = mockTokens.reduce((sum, token) => sum + token.fiatValue, 0);
+
+  const handleTokenClick = (token: Token) => {
+    setSelectedToken(token);
+    setDrawerOpen(true);
+  };
+
+  const copyAddress = async (address: string) => {
+    try {
+      await navigator.clipboard.writeText(address);
+      toast.success("Address copied to clipboard");
+    } catch (error) {
+      toast.error("Failed to copy address");
+    }
+  };
+
+  const chartConfig = {
+    price: {
+      label: "Price",
+      color: "hsl(var(--primary))",
+    },
+  };
 
   if (!isConnected) {
     return (
@@ -192,7 +266,11 @@ const Assets = () => {
               </TableHeader>
               <TableBody>
                 {mockTokens.map((token) => (
-                  <TableRow key={token.symbol} className="cursor-pointer hover:bg-muted/50">
+                  <TableRow 
+                    key={token.symbol} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleTokenClick(token)}
+                  >
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <div className="text-2xl">{token.logo}</div>
@@ -242,6 +320,115 @@ const Assets = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Token Detail Drawer */}
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent className="max-h-[80vh]">
+          <DrawerHeader className="text-center">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">{selectedToken?.logo}</div>
+                <div>
+                  <DrawerTitle className="text-left">{selectedToken?.name}</DrawerTitle>
+                  <DrawerDescription className="text-left">{selectedToken?.symbol}</DrawerDescription>
+                </div>
+              </div>
+              <DrawerClose asChild>
+                <Button variant="ghost" size="icon">
+                  <X className="h-4 w-4" />
+                </Button>
+              </DrawerClose>
+            </div>
+          </DrawerHeader>
+          
+          <div className="px-4 pb-6 space-y-6">
+            {/* Price and Change */}
+            <div className="text-center space-y-2">
+              <div className="text-3xl font-bold">
+                {selectedToken && formatCurrency(selectedToken.price)}
+              </div>
+              <Badge
+                variant={selectedToken && selectedToken.change24h >= 0 ? "default" : "destructive"}
+                className={`${
+                  selectedToken && selectedToken.change24h >= 0 
+                    ? "bg-emerald-100 text-emerald-800" 
+                    : ""
+                }`}
+              >
+                <div className="flex items-center space-x-1">
+                  {selectedToken && selectedToken.change24h >= 0 ? (
+                    <TrendingUp className="w-3 h-3" />
+                  ) : (
+                    <TrendingDown className="w-3 h-3" />
+                  )}
+                  <span>{selectedToken && formatPercentage(selectedToken.change24h)}</span>
+                </div>
+              </Badge>
+            </div>
+
+            {/* Mini Chart */}
+            <div className="h-32">
+              <ChartContainer config={chartConfig}>
+                <LineChart data={selectedToken?.chartData}>
+                  <XAxis 
+                    dataKey="time" 
+                    hide 
+                  />
+                  <YAxis hide />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke="var(--color-price)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </div>
+
+            {/* Balance */}
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Your Balance</div>
+              <div className="text-xl font-semibold">
+                {selectedToken && !hideBalances ? selectedToken.balance : "••••••"} {selectedToken?.symbol}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {selectedToken && !hideBalances ? formatCurrency(selectedToken.fiatValue) : "••••••"}
+              </div>
+            </div>
+
+            {/* Contract Address */}
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Contract Address</div>
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                <div className="text-sm font-mono text-muted-foreground truncate">
+                  {selectedToken?.address}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => selectedToken && copyAddress(selectedToken.address)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button className="w-full">
+                <Send className="w-4 h-4 mr-2" />
+                Send
+              </Button>
+              <Button variant="outline" className="w-full">
+                <ArrowUpDown className="w-4 h-4 mr-2" />
+                Swap
+              </Button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
