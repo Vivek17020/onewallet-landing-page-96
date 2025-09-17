@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown, Copy, X, RefreshCw, AlertCircle } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown, Copy, X, RefreshCw, AlertCircle, Loader2 } from "lucide-react";
 import { usePortfolioData, UnifiedToken } from "@/hooks/usePortfolioData";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import CurrencySelector, { Currency } from "@/components/CurrencySelector";
+import { useCurrencyConverter } from "@/hooks/useCurrencyConverter";
 
 export default function Assets() {
   const { 
@@ -24,15 +26,23 @@ export default function Assets() {
   
   const [selectedToken, setSelectedToken] = useState<UnifiedToken | null>(null);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
+  
+  const { formatCurrency } = useCurrencyConverter(selectedCurrency);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  };
+  // Show error toast when there's an error
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load token prices", {
+        description: error,
+        action: {
+          label: "Retry",
+          onClick: () => window.location.reload(),
+        },
+      });
+    }
+  }, [error]);
+
 
   const formatPercentage = (value: number) => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
@@ -83,10 +93,18 @@ export default function Assets() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Assets</h1>
-        <p className="text-muted-foreground">
-          Your crypto portfolio overview and token balances
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Assets</h1>
+            <p className="text-muted-foreground">
+              Your crypto portfolio overview and token balances
+            </p>
+          </div>
+          <CurrencySelector 
+            selectedCurrency={selectedCurrency}
+            onCurrencyChange={setSelectedCurrency}
+          />
+        </div>
       </div>
 
       {/* Portfolio Overview Cards */}
@@ -106,8 +124,8 @@ export default function Assets() {
           <CardContent>
             <div className="text-2xl font-bold">
               {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <RefreshCw className="h-4 w-4 animate-spin" />
+                <div className="flex items-center space-x-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   <span>Loading...</span>
                 </div>
               ) : isBalanceVisible ? (
@@ -206,8 +224,8 @@ export default function Assets() {
               {isLoading ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8">
-                    <div className="flex items-center justify-center space-x-2">
-                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    <div className="flex items-center justify-center space-x-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       <span>Loading portfolio...</span>
                     </div>
                   </TableCell>
