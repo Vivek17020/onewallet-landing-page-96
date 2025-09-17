@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CurrencySelector, { Currency } from "@/components/CurrencySelector";
 import { useCurrencyConverter } from "@/hooks/useCurrencyConverter";
+import TokenChart from "@/components/TokenChart";
 
 export default function Assets() {
   const { 
@@ -279,124 +280,37 @@ export default function Assets() {
         </CardContent>
       </Card>
 
-      {/* Token Detail Drawer */}
+      {/* Enhanced Token Detail Drawer */}
       <Drawer open={!!selectedToken} onOpenChange={() => setSelectedToken(null)}>
-        <DrawerContent className="max-h-[85vh]">
+        <DrawerContent className="max-h-[90vh] overflow-y-auto">
           {selectedToken && (
-            <>
-              <DrawerHeader className="text-left">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-3xl">{selectedToken.logo}</div>
-                    <div>
-                      <DrawerTitle className="text-xl">{selectedToken.name}</DrawerTitle>
-                      <DrawerDescription>{selectedToken.symbol}</DrawerDescription>
-                    </div>
-                  </div>
-                  <DrawerClose asChild>
-                    <Button variant="ghost" size="sm">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </DrawerClose>
-                </div>
-              </DrawerHeader>
-
-              <div className="px-4 pb-6 space-y-6">
-                {/* Token Statistics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold">{selectedToken.balance}</div>
-                    <div className="text-sm text-muted-foreground">Balance</div>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold">{formatCurrency(selectedToken.price)}</div>
-                    <div className="text-sm text-muted-foreground">Price</div>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold">{formatCurrency(selectedToken.fiatValue)}</div>
-                    <div className="text-sm text-muted-foreground">Value</div>
-                  </div>
-                  <div className="text-center p-4 rounded-lg bg-muted/50">
-                    <div className={`text-2xl font-bold ${
-                      selectedToken.change24h >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {formatPercentage(selectedToken.change24h)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">24h Change</div>
-                  </div>
-                </div>
-
-                {/* Mini Price Chart */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">24h Price Chart</h3>
-                  <div className="h-48 w-full">
-                    <ChartContainer
-                      config={{
-                        price: {
-                          label: "Price",
-                          color: "hsl(var(--primary))",
-                        },
-                      }}
-                      className="h-full w-full"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={selectedToken.chartData}>
-                          <XAxis 
-                            dataKey="time" 
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <YAxis 
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: 12 }}
-                            domain={['dataMin', 'dataMax']}
-                          />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Line
-                            type="monotone"
-                            dataKey="price"
-                            stroke="var(--color-price)"
-                            strokeWidth={2}
-                            dot={false}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
-                </div>
-
-                {/* Contract Address */}
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">Contract Address</h3>
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <code className="text-sm font-mono">
-                      {selectedToken.address.slice(0, 20)}...{selectedToken.address.slice(-20)}
-                    </code>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => copyAddress(selectedToken.address)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <Button className="flex-1">
-                    <Send className="h-4 w-4 mr-2" />
-                    Send {selectedToken.symbol}
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-foreground">Token Details</h2>
+                <DrawerClose asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <X className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" className="flex-1">
-                    <ArrowUpDown className="h-4 w-4 mr-2" />
-                    Swap {selectedToken.symbol}
-                  </Button>
-                </div>
+                </DrawerClose>
               </div>
-            </>
+              
+              <TokenChart 
+                token={selectedToken} 
+                selectedCurrency={selectedCurrency}
+              />
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-6 pt-6 border-t border-border">
+                <Button className="flex-1 bg-primary hover:bg-primary/90">
+                  <Send className="h-4 w-4 mr-2" />
+                  Send {selectedToken.symbol}
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  Swap {selectedToken.symbol}
+                </Button>
+              </div>
+            </div>
           )}
         </DrawerContent>
       </Drawer>
