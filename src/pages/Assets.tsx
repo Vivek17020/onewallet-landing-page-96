@@ -2,9 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from "@/components/ui/drawer";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown, Copy, X, RefreshCw, AlertCircle, Loader2 } from "lucide-react";
+import { Wallet, TrendingUp, TrendingDown, Eye, EyeOff, Plus, Send, ArrowUpDown, Copy, X, RefreshCw, AlertCircle, Loader2, Search, ChevronUp, ChevronDown } from "lucide-react";
 import { usePortfolioData, UnifiedToken } from "@/hooks/usePortfolioData";
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
@@ -28,8 +29,42 @@ export default function Assets() {
   const [selectedToken, setSelectedToken] = useState<UnifiedToken | null>(null);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('USD');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'value' | 'change'>('value');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   
   const { formatCurrency } = useCurrencyConverter(selectedCurrency);
+
+  // Filter and sort tokens
+  const filteredAndSortedTokens = tokens
+    .filter(token => 
+      token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      token.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'value':
+          comparison = a.fiatValue - b.fiatValue;
+          break;
+        case 'change':
+          comparison = a.change24h - b.change24h;
+          break;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+  const handleSort = (column: 'name' | 'value' | 'change') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('desc');
+    }
+  };
 
   // Show error toast when there's an error
   useEffect(() => {
@@ -203,6 +238,19 @@ export default function Assets() {
         </Button>
       </div>
 
+      {/* Search and Filter */}
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search tokens..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
       {/* Assets Table */}
       <Card>
         <CardHeader>
@@ -215,10 +263,40 @@ export default function Assets() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Asset</TableHead>
+                <TableHead 
+                  className="cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('name')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Asset</span>
+                    {sortBy === 'name' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
                 <TableHead className="text-right">Balance</TableHead>
-                <TableHead className="text-right">Value</TableHead>
-                <TableHead className="text-right">24h Change</TableHead>
+                <TableHead 
+                  className="text-right cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('value')}
+                >
+                  <div className="flex items-center justify-end space-x-1">
+                    <span>Value</span>
+                    {sortBy === 'value' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead 
+                  className="text-right cursor-pointer hover:bg-muted/50 select-none"
+                  onClick={() => handleSort('change')}
+                >
+                  <div className="flex items-center justify-end space-x-1">
+                    <span>24h Change</span>
+                    {sortBy === 'change' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    )}
+                  </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -231,14 +309,14 @@ export default function Assets() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : tokens.length === 0 ? (
+              ) : filteredAndSortedTokens.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    No tokens found in your wallet
+                    {tokens.length === 0 ? "No tokens found in your wallet" : "No tokens match your search"}
                   </TableCell>
                 </TableRow>
               ) : (
-                tokens.map((token) => (
+                filteredAndSortedTokens.map((token) => (
                   <TableRow 
                     key={token.symbol} 
                     className="cursor-pointer hover:bg-muted/50"
