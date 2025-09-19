@@ -210,81 +210,98 @@ export default function History() {
         </Card>
       )}
 
-      <div className="space-y-3">
-        {filteredTransactions.map((tx) => (
-          <Card key={tx.id} className="hover:shadow-md transition-all duration-200 border-border/50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-secondary rounded-xl flex items-center justify-center border border-border/20">
-                    {getTypeIcon(tx.type)}
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="font-semibold text-foreground">
-                      {getTypeDisplay(tx)}
+      <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="text-left p-4 font-semibold text-sm">Type</th>
+                <th className="text-left p-4 font-semibold text-sm">Token</th>
+                <th className="text-right p-4 font-semibold text-sm">Amount</th>
+                <th className="text-left p-4 font-semibold text-sm">Chain</th>
+                <th className="text-left p-4 font-semibold text-sm">Timestamp</th>
+                <th className="text-center p-4 font-semibold text-sm">Status</th>
+                <th className="text-center p-4 font-semibold text-sm">Explorer</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTransactions.map((tx, index) => (
+                <tr key={tx.id} className={`border-b hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}`}>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gradient-secondary rounded-lg flex items-center justify-center border border-border/20">
+                        {getTypeIcon(tx.type)}
+                      </div>
+                      <span className="capitalize font-medium">{tx.type}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-2">
-                      <span>{tx.network}</span>
-                      <span>•</span>
-                      <span>{tx.timeAgo}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="font-medium">
+                      {tx.type === "swap" 
+                        ? `${tx.fromToken} → ${tx.toToken}`
+                        : tx.fromToken
+                      }
                     </div>
-                  </div>
-                </div>
-
-                <div className="text-right space-y-1">
-                  <div className="font-semibold text-foreground">
-                    {tx.type === "swap" 
-                      ? `${tx.fromAmount} ${tx.fromToken} → ${tx.toAmount} ${tx.toToken}`
-                      : `${tx.type === "send" ? "-" : "+"}${tx.fromAmount} ${tx.fromToken}`
-                    }
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {tx.value} {tx.fee !== "$0.00" && `• Fee: ${tx.fee}`}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge 
-                      variant="outline"
-                      className={`${getStatusColor(tx.status)} capitalize font-medium px-3 py-1`}
-                    >
-                      {tx.status}
-                    </Badge>
-                    {tx.tags?.includes('SIMULATED') && (
-                      <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                        SIMULATED
+                  </td>
+                  <td className="p-4 text-right">
+                    <div className="font-semibold">
+                      {tx.type === "swap" 
+                        ? `${tx.fromAmount} → ${tx.toAmount}`
+                        : `${tx.type === "send" ? "-" : "+"}${tx.fromAmount}`
+                      }
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {tx.value}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <span className="text-sm font-medium">{tx.network}</span>
+                  </td>
+                  <td className="p-4">
+                    <div className="text-sm">
+                      <div className="font-medium">{tx.timeAgo}</div>
+                      <div className="text-muted-foreground text-xs">
+                        {new Date(tx.timestamp).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4 text-center">
+                    <div className="flex flex-col items-center gap-1">
+                      <Badge 
+                        variant="outline"
+                        className={`${getStatusColor(tx.status)} capitalize font-medium px-2 py-1 text-xs`}
+                      >
+                        {tx.status}
                       </Badge>
-                    )}
-                  </div>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="w-9 h-9 hover:bg-muted/80"
-                    onClick={() => {
-                      const explorerUrl = tx.network === "Bitcoin" 
-                        ? `https://blockchair.com/bitcoin/transaction/${tx.hash}`
-                        : tx.network === "Polygon"
-                        ? `https://polygonscan.com/tx/${tx.hash}`
-                        : `https://etherscan.io/tx/${tx.hash}`;
-                      window.open(explorerUrl, '_blank');
-                    }}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="mt-3 pt-3 border-t border-border/30">
-                <div className="text-xs text-muted-foreground font-mono">
-                  Transaction ID: {tx.id}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                      {tx.tags?.includes('SIMULATED') && (
+                        <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                          SIM
+                        </Badge>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-4 text-center">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="w-8 h-8 hover:bg-muted/80"
+                      onClick={() => {
+                        const explorerUrl = tx.network === "Bitcoin" 
+                          ? `https://blockchair.com/bitcoin/transaction/${tx.hash}`
+                          : tx.network === "Polygon"
+                          ? `https://polygonscan.com/tx/${tx.hash}`
+                          : `https://etherscan.io/tx/${tx.hash}`;
+                        window.open(explorerUrl, '_blank');
+                      }}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {filteredTransactions.length === 0 && allTransactions.length > 0 && (
