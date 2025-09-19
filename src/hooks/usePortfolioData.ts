@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useWalletStore } from '@/stores/walletStore';
 import { useBalances } from '@/hooks/useBalances';
 import { useTokenPrices } from '@/hooks/useTokenPrices';
+import { useSwapStore } from '@/stores/swapStore';
 
 export interface UnifiedToken {
   symbol: string;
@@ -19,6 +20,7 @@ export interface UnifiedToken {
 export const usePortfolioData = () => {
   const { address, isConnected } = useWalletStore();
   const { nativeBalance, isLoading: balancesLoading, symbol } = useBalances();
+  const { tokens: storeTokens } = useSwapStore();
 
   // Define tokens we want to fetch prices for
   const tokens = useMemo(() => [
@@ -38,33 +40,34 @@ export const usePortfolioData = () => {
 
   // Create unified token data
   const portfolioTokens = useMemo<UnifiedToken[]>(() => {
-    if (!isConnected || !nativeBalance) {
+    if (!isConnected) {
       return [];
     }
 
-    const ethPrice = getPriceForToken('ETH');
-    
-    if (!ethPrice) {
-      return [];
-    }
-
-    // For now, only show native ETH balance
-    // In the future, this would include all token balances from the wallet
-    const nativeToken: UnifiedToken = {
-      symbol: 'ETH',
-      name: 'Ethereum',
-      logo: '🔷',
-      balance: parseFloat(nativeBalance).toFixed(4),
-      rawBalance: nativeBalance,
-      fiatValue: parseFloat(nativeBalance) * ethPrice.current_price,
-      change24h: ethPrice.price_change_percentage_24h,
-      price: ethPrice.current_price,
-      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH address as placeholder
-      chartData: generateMockChartData(ethPrice.current_price, ethPrice.price_change_percentage_24h),
-    };
-
-    return [nativeToken];
-  }, [nativeBalance, isConnected, getPriceForToken]);
+    // Use store tokens (includes simulated balances)
+    return storeTokens.map(token => {
+      const tokenPrice = getPriceForToken(token.symbol) || { 
+        current_price: token.price, 
+        price_change_percentage_24h: Math.random() * 10 - 5 // Mock change
+      };
+      
+      const balance = parseFloat(token.balance.replace(/,/g, ''));
+      const fiatValue = balance * tokenPrice.current_price;
+      
+      return {
+        symbol: token.symbol,
+        name: token.name,
+        logo: token.icon,
+        balance: balance.toFixed(6),
+        rawBalance: balance.toString(),
+        fiatValue,
+        change24h: tokenPrice.price_change_percentage_24h,
+        price: tokenPrice.current_price,
+        address: token.address,
+        chartData: generateMockChartData(tokenPrice.current_price, tokenPrice.price_change_percentage_24h),
+      };
+    });
+  }, [isConnected, storeTokens, getPriceForToken]);
 
   // Calculate total portfolio value
   const totalValue = useMemo(() => {

@@ -10,49 +10,12 @@ import { useToast } from "@/hooks/use-toast";
 import { use1inchApi } from "@/hooks/use1inchApi";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { ReviewSwapModal } from "@/components/ReviewSwapModal";
-
-const tokens = [
-  { 
-    symbol: "ETH", 
-    name: "Ethereum", 
-    icon: "https://cryptologos.cc/logos/ethereum-eth-logo.png", 
-    balance: "2.4567",
-    price: 2678.34,
-    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH native token
-    decimals: 18
-  },
-  { 
-    symbol: "USDC", 
-    name: "USD Coin", 
-    icon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png", 
-    balance: "1,250.00",
-    price: 1.00,
-    address: "0xA0b86a33E6441E71de9E6A8669B3aBbEe9B4A6a5",
-    decimals: 6
-  },
-  { 
-    symbol: "MATIC", 
-    name: "Polygon", 
-    icon: "https://cryptologos.cc/logos/polygon-matic-logo.png", 
-    balance: "456.789",
-    price: 0.87,
-    address: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
-    decimals: 18
-  },
-  { 
-    symbol: "LINK", 
-    name: "Chainlink", 
-    icon: "https://cryptologos.cc/logos/chainlink-link-logo.png", 
-    balance: "89.123",
-    price: 13.45,
-    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
-    decimals: 18
-  },
-];
+import { useSwapStore } from "@/stores/swapStore";
 
 export default function Swap() {
   const { isConnected } = useWallet();
   const { toast } = useToast();
+  const { tokens, executeSwap, getTokenBalance } = useSwapStore();
   const [fromToken, setFromToken] = useState("ETH");
   const [toToken, setToToken] = useState("USDC");
   const [fromAmount, setFromAmount] = useState("");
@@ -146,9 +109,12 @@ export default function Swap() {
       // Simulate swap transaction
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      // Execute the swap simulation (update balances and add transaction)
+      executeSwap(fromToken, toToken, fromAmount, toAmount, "$12.45");
+      
       toast({
-        title: "Swap Successful!",
-        description: `Successfully swapped ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
+        title: "Swap Simulated Successfully!",
+        description: `Simulated swap of ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`,
       });
       
       // Reset form
@@ -161,8 +127,8 @@ export default function Swap() {
       setShowReviewModal(false);
     } catch (error) {
       toast({
-        title: "Swap Failed",
-        description: "The swap transaction failed. Please try again.",
+        title: "Swap Simulation Failed",
+        description: "The swap simulation failed. Please try again.",
         variant: "destructive",
       });
     } finally {

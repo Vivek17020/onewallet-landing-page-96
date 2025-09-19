@@ -5,87 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowUpRight, ArrowDownLeft, ExternalLink, Clock, RefreshCw, Filter, TrendingUp, TrendingDown } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
-
-const mockTransactions = [
-  {
-    id: "0x1234...5678",
-    type: "swap",
-    fromToken: "ETH",
-    toToken: "USDC",
-    fromAmount: "1.5",
-    toAmount: "2,517.45",
-    status: "completed",
-    timestamp: "2024-09-01T14:30:00Z",
-    timeAgo: "2 hours ago",
-    hash: "0x1234567890abcdef1234567890abcdef12345678",
-    network: "Ethereum",
-    fee: "$12.45",
-    value: "$4,022.14"
-  },
-  {
-    id: "0x2345...6789",
-    type: "send",
-    fromToken: "BTC",
-    toToken: null,
-    fromAmount: "0.05",
-    toAmount: null,
-    status: "completed",
-    timestamp: "2024-09-01T11:30:00Z",
-    timeAgo: "5 hours ago",
-    hash: "0x2345678901bcdef12345678901bcdef123456789",
-    network: "Bitcoin",
-    fee: "$8.20",
-    value: "$2,206.18"
-  },
-  {
-    id: "0x3456...7890",
-    type: "receive",
-    fromToken: "MATIC",
-    toToken: null,
-    fromAmount: "100",
-    toAmount: null,
-    status: "pending",
-    timestamp: "2024-08-31T14:30:00Z",
-    timeAgo: "1 day ago",
-    hash: "0x3456789012cdef123456789012cdef1234567890",
-    network: "Polygon",
-    fee: "$0.02",
-    value: "$87.00"
-  },
-  {
-    id: "0x4567...8901",
-    type: "swap",
-    fromToken: "USDC",
-    toToken: "ETH",
-    fromAmount: "1,000",
-    toAmount: "0.596",
-    status: "failed",
-    timestamp: "2024-08-29T14:30:00Z",
-    timeAgo: "3 days ago",
-    hash: "0x456789013def12345678903def12345678901",
-    network: "Ethereum",
-    fee: "$0.00",
-    value: "$1,000.00"
-  },
-  {
-    id: "0x5678...9012",
-    type: "receive",
-    fromToken: "ETH",
-    toToken: null,
-    fromAmount: "0.25",
-    toAmount: null,
-    status: "completed",
-    timestamp: "2024-08-28T10:15:00Z",
-    timeAgo: "4 days ago",
-    hash: "0x56789012def123456789012def123456789012",
-    network: "Ethereum",
-    fee: "$0.00",
-    value: "$669.59"
-  }
-];
+import { useSwapStore } from "@/stores/swapStore";
 
 export default function History() {
   const { isConnected } = useWallet();
+  const { transactions } = useSwapStore();
   const [filter, setFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -97,6 +21,8 @@ export default function History() {
         return "bg-amber-500/10 text-amber-600 border-amber-200 dark:text-amber-400 dark:border-amber-800";
       case "failed":
         return "bg-red-500/10 text-red-600 border-red-200 dark:text-red-400 dark:border-red-800";
+      case "simulated":
+        return "bg-blue-500/10 text-blue-600 border-blue-200 dark:text-blue-400 dark:border-blue-800";
       default:
         return "bg-muted";
     }
@@ -128,7 +54,7 @@ export default function History() {
     }
   };
 
-  const filteredTransactions = mockTransactions.filter(tx => {
+  const filteredTransactions = transactions.filter(tx => {
     const typeMatch = filter === "all" || tx.type === filter;
     const statusMatch = statusFilter === "all" || tx.status === statusFilter;
     return typeMatch && statusMatch;
@@ -185,6 +111,7 @@ export default function History() {
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="simulated">Simulated</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -225,12 +152,19 @@ export default function History() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <Badge 
-                    variant="outline"
-                    className={`${getStatusColor(tx.status)} capitalize font-medium px-3 py-1`}
-                  >
-                    {tx.status}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge 
+                      variant="outline"
+                      className={`${getStatusColor(tx.status)} capitalize font-medium px-3 py-1`}
+                    >
+                      {tx.status}
+                    </Badge>
+                    {tx.tags?.includes('SIMULATED') && (
+                      <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                        SIMULATED
+                      </Badge>
+                    )}
+                  </div>
                   
                   <Button 
                     variant="ghost" 
@@ -260,7 +194,7 @@ export default function History() {
         ))}
       </div>
 
-      {filteredTransactions.length === 0 && mockTransactions.length > 0 && (
+      {filteredTransactions.length === 0 && transactions.length > 0 && (
         <Card className="p-8 text-center">
           <CardContent>
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -274,7 +208,7 @@ export default function History() {
         </Card>
       )}
 
-      {mockTransactions.length === 0 && (
+      {transactions.length === 0 && (
         <Card className="p-8 text-center">
           <CardContent>
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
