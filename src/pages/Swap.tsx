@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowUpDown, RefreshCw, Info, AlertTriangle, Settings } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { use1inchApi } from "@/hooks/use1inchApi";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
+import { ReviewSwapModal } from "@/components/ReviewSwapModal";
 
 const tokens = [
   { 
@@ -58,7 +58,7 @@ export default function Swap() {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
   const [isCalculating, setIsCalculating] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [slippage, setSlippage] = useState(0.5);
   const [showSettings, setShowSettings] = useState(false);
@@ -154,7 +154,11 @@ export default function Swap() {
       // Reset form
       setFromAmount("");
       setToAmount("");
-      setShowConfirmModal(false);
+      setQuoteData(null);
+      setProtocols([]);
+      setGasEstimate(0);
+      setPriceImpact(0);
+      setShowReviewModal(false);
     } catch (error) {
       toast({
         title: "Swap Failed",
@@ -480,7 +484,7 @@ export default function Swap() {
               size="lg"
               variant="connect"
               disabled={!fromAmount || !toAmount || isCalculating || isLoadingQuote}
-              onClick={() => setShowConfirmModal(true)}
+              onClick={() => setShowReviewModal(true)}
             >
               {isCalculating || isLoadingQuote ? (
                 <>
@@ -503,108 +507,23 @@ export default function Swap() {
         </Card>
       </div>
 
-      {/* Confirmation Modal */}
-      <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Confirm Swap
-            </DialogTitle>
-            <DialogDescription>
-              Please review your swap details before confirming the transaction.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            {/* Swap Summary */}
-            <Card className="bg-muted/30">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={tokens.find(t => t.symbol === fromToken)?.icon} 
-                      alt={fromToken}
-                      className="w-6 h-6"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                    <span className="font-semibold">{fromAmount} {fromToken}</span>
-                  </div>
-                  <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={tokens.find(t => t.symbol === toToken)?.icon} 
-                      alt={toToken}
-                      className="w-6 h-6"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                    <span className="font-semibold">{toAmount} {toToken}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Transaction Details */}
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Exchange Rate</span>
-                <span>1 {fromToken} = {getExchangeRate().toFixed(6)} {toToken}</span>
-              </div>
-              
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Network Fee</span>
-                <span className="text-amber-500">~$12.45</span>
-              </div>
-              
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Price Impact</span>
-                <span className="text-green-500">{'<'} 0.1%</span>
-              </div>
-              
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Minimum Received</span>
-                <span>{(Number(toAmount) * (1 - slippage / 100)).toFixed(6)} {toToken}</span>
-              </div>
-              
-              <div className="flex justify-between font-semibold pt-2 border-t">
-                <span>Total Cost</span>
-                <span>${((Number(fromAmount) * (tokens.find(t => t.symbol === fromToken)?.price || 0)) + 12.45).toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowConfirmModal(false)}
-              disabled={isSwapping}
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmSwap}
-              disabled={isSwapping}
-              className="w-full sm:w-auto"
-            >
-              {isSwapping ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Swapping...
-                </>
-              ) : (
-                `Confirm Swap`
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Review Swap Modal */}
+      <ReviewSwapModal
+        open={showReviewModal}
+        onOpenChange={setShowReviewModal}
+        fromToken={fromToken}
+        toToken={toToken}
+        fromAmount={fromAmount}
+        toAmount={toAmount}
+        slippage={slippage}
+        priceImpact={priceImpact}
+        gasEstimate={gasEstimate}
+        protocols={protocols}
+        minReceived={(Number(toAmount) * (1 - slippage / 100)).toFixed(6)}
+        isSwapping={isSwapping}
+        onConfirm={handleConfirmSwap}
+        onCancel={() => setShowReviewModal(false)}
+      />
 
       {/* API Key Modal */}
       <ApiKeyInput
