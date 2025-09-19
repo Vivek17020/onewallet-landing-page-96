@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useWallet } from '@/contexts/WalletContext';
 import { useToast } from '@/hooks/use-toast';
+import { useChainStore } from '@/stores/chainStore';
 import type { Transaction } from '@/stores/swapStore';
 
 interface EtherscanTransaction {
@@ -114,6 +115,7 @@ export const useTransactionHistory = () => {
   
   const { account } = useWallet();
   const { toast } = useToast();
+  const { selectedChain } = useChainStore();
 
   const saveApiKey = useCallback((network: 'etherscan' | 'polygonscan', key: string) => {
     setApiKeys(prev => ({ ...prev, [network]: key }));
@@ -169,18 +171,24 @@ export const useTransactionHistory = () => {
     try {
       const promises: Promise<Transaction[]>[] = [];
       
-      // Fetch from Etherscan if API key is available
-      if (apiKeys.etherscan) {
+      // Fetch based on selected chain
+      if (selectedChain.id === 1 && apiKeys.etherscan) {
+        // Ethereum mainnet
         promises.push(fetchEtherscanTransactions(account, apiKeys.etherscan));
-      }
-      
-      // Fetch from Polygonscan if API key is available
-      if (apiKeys.polygonscan) {
+      } else if (selectedChain.id === 137 && apiKeys.polygonscan) {
+        // Polygon
         promises.push(fetchPolygonscanTransactions(account, apiKeys.polygonscan));
       }
+      // TODO: Add support for Arbitrum and Base APIs
       
       if (promises.length === 0) {
-        setError('Please set API keys for Etherscan and/or Polygonscan to fetch transaction history');
+        if (selectedChain.id === 1) {
+          setError('Please set Etherscan API key to fetch Ethereum transaction history');
+        } else if (selectedChain.id === 137) {
+          setError('Please set Polygonscan API key to fetch Polygon transaction history');
+        } else {
+          setError(`Transaction history not yet supported for ${selectedChain.name}`);
+        }
         return;
       }
       
@@ -224,12 +232,12 @@ export const useTransactionHistory = () => {
     }
   }, [account, apiKeys, toast]);
 
-  // Auto-fetch when address or API keys change
+  // Auto-fetch when address, API keys, or selected chain changes
   useEffect(() => {
     if (account && (apiKeys.etherscan || apiKeys.polygonscan)) {
       fetchTransactions();
     }
-  }, [account, apiKeys.etherscan, apiKeys.polygonscan, fetchTransactions]);
+  }, [account, apiKeys.etherscan, apiKeys.polygonscan, selectedChain.id, fetchTransactions]);
 
   return {
     transactions,

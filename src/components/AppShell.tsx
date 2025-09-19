@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Wallet } from "lucide-react";
 import WalletButton from "@/components/WalletButton";
+import { ChainSelector } from "@/components/ChainSelector";
 import { ReactNode } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -45,6 +46,7 @@ export default function AppShell({ children }: AppShellProps) {
             </div>
             
             <div className="flex items-center space-x-4">
+              <ChainSelector />
               <WalletButton />
             </div>
           </header>

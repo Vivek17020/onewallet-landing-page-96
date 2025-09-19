@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useChainStore } from '@/stores/chainStore';
 
 interface TokenPrice {
   token_id: string;
@@ -26,6 +27,7 @@ export const useTokenPrices = ({ tokens, enabled = true }: UseTokenPricesProps) 
   const [prices, setPrices] = useState<TokenPrice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { selectedChain } = useChainStore();
 
   useEffect(() => {
     if (!enabled || !tokens || tokens.length === 0) {
@@ -70,7 +72,7 @@ export const useTokenPrices = ({ tokens, enabled = true }: UseTokenPricesProps) 
     const interval = setInterval(fetchPrices, 30000);
 
     return () => clearInterval(interval);
-  }, [tokens, enabled]);
+  }, [tokens, enabled, selectedChain.id]);
 
   const getPriceForToken = (symbol: string) => {
     return prices.find(price => price.symbol.toLowerCase() === symbol.toLowerCase());
