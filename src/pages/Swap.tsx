@@ -8,6 +8,8 @@ import { ArrowUpDown, RefreshCw, Info, AlertTriangle, Settings } from "lucide-re
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { use1inchApi } from "@/hooks/use1inchApi";
+import { ApiKeyInput } from "@/components/ApiKeyInput";
 
 const tokens = [
   { 
@@ -15,35 +17,36 @@ const tokens = [
     name: "Ethereum", 
     icon: "https://cryptologos.cc/logos/ethereum-eth-logo.png", 
     balance: "2.4567",
-    price: 2678.34
-  },
-  { 
-    symbol: "BTC", 
-    name: "Bitcoin", 
-    icon: "https://cryptologos.cc/logos/bitcoin-btc-logo.png", 
-    balance: "0.1234",
-    price: 44123.67
+    price: 2678.34,
+    address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH native token
+    decimals: 18
   },
   { 
     symbol: "USDC", 
     name: "USD Coin", 
     icon: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png", 
     balance: "1,250.00",
-    price: 1.00
+    price: 1.00,
+    address: "0xA0b86a33E6441E71de9E6A8669B3aBbEe9B4A6a5",
+    decimals: 6
   },
   { 
     symbol: "MATIC", 
     name: "Polygon", 
     icon: "https://cryptologos.cc/logos/polygon-matic-logo.png", 
     balance: "456.789",
-    price: 0.87
+    price: 0.87,
+    address: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+    decimals: 18
   },
   { 
     symbol: "LINK", 
     name: "Chainlink", 
     icon: "https://cryptologos.cc/logos/chainlink-link-logo.png", 
     balance: "89.123",
-    price: 13.45
+    price: 13.45,
+    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    decimals: 18
   },
 ];
 
@@ -59,6 +62,13 @@ export default function Swap() {
   const [isSwapping, setIsSwapping] = useState(false);
   const [slippage, setSlippage] = useState(0.5);
   const [showSettings, setShowSettings] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [quoteData, setQuoteData] = useState<any>(null);
+  const [protocols, setProtocols] = useState<string[]>([]);
+  const [gasEstimate, setGasEstimate] = useState<number>(0);
+  const [priceImpact, setPriceImpact] = useState<number>(0);
+
+  const { apiKey, saveApiKey, getQuote, getProtocolSummary, calculatePriceImpact, isLoading: isLoadingQuote } = use1inchApi();
 
   const getExchangeRate = () => {
     const fromTokenData = tokens.find(t => t.symbol === fromToken);
@@ -67,22 +77,66 @@ export default function Swap() {
     return fromTokenData.price / toTokenData.price;
   };
 
-  const calculateToAmount = (amount: string) => {
+  const calculateToAmount = async (amount: string) => {
     if (!amount || isNaN(Number(amount))) return "";
+    
+    if (!apiKey) {
+      // Fallback to mock calculation
+      const rate = getExchangeRate();
+      return (Number(amount) * rate).toFixed(6);
+    }
+
+    const fromTokenData = tokens.find(t => t.symbol === fromToken);
+    const toTokenData = tokens.find(t => t.symbol === toToken);
+    
+    if (!fromTokenData || !toTokenData) return "";
+
+    // Convert amount to wei/smallest unit
+    const amountInWei = (Number(amount) * Math.pow(10, fromTokenData.decimals)).toString();
+
+    const quote = await getQuote({
+      fromTokenAddress: fromTokenData.address,
+      toTokenAddress: toTokenData.address,
+      amount: amountInWei,
+      slippage
+    });
+
+    if (quote) {
+      setQuoteData(quote);
+      setProtocols(getProtocolSummary(quote.protocols));
+      setGasEstimate(quote.estimatedGas);
+      
+      const outputAmount = Number(quote.toTokenAmount) / Math.pow(10, toTokenData.decimals);
+      const impact = calculatePriceImpact(amount, outputAmount.toString(), fromTokenData.price, toTokenData.price);
+      setPriceImpact(impact);
+      
+      return outputAmount.toFixed(6);
+    }
+
+    // Fallback to mock calculation
     const rate = getExchangeRate();
     return (Number(amount) * rate).toFixed(6);
   };
 
-  const handleFromAmountChange = (value: string) => {
+  const handleFromAmountChange = async (value: string) => {
     setFromAmount(value);
     if (value) {
       setIsCalculating(true);
-      setTimeout(() => {
-        setToAmount(calculateToAmount(value));
+      try {
+        const result = await calculateToAmount(value);
+        setToAmount(result);
+      } catch (error) {
+        console.error('Error calculating amount:', error);
+        setToAmount("");
+      } finally {
         setIsCalculating(false);
-      }, 300);
+      }
     } else {
       setToAmount("");
+      setQuoteData(null);
+      setProtocols([]);
+      setGasEstimate(0);
+      setPriceImpact(0);
     }
   };
 
@@ -112,14 +166,21 @@ export default function Swap() {
     }
   };
 
-  const handleSwapTokens = () => {
+  const handleSwapTokens = async () => {
     const temp = fromToken;
     setFromToken(toToken);
     setToToken(temp);
     if (fromAmount) {
-      const newToAmount = calculateToAmount(fromAmount);
-      setToAmount(fromAmount);
-      setFromAmount(newToAmount);
+      setIsCalculating(true);
+      try {
+        const newToAmount = await calculateToAmount(fromAmount);
+        setToAmount(fromAmount);
+        setFromAmount(newToAmount);
+      } catch (error) {
+        console.error('Error swapping tokens:', error);
+      } finally {
+        setIsCalculating(false);
+      }
     }
   };
 
@@ -153,7 +214,22 @@ export default function Swap() {
       <div className="max-w-md mx-auto">
         <Card className="bg-gradient-secondary border-primary/20">
           <CardHeader>
-            <CardTitle className="text-center">Token Swap</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-center flex-1">Token Swap</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowApiKeyModal(true)}
+                className="ml-2"
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+            </div>
+            {!apiKey && (
+              <div className="text-xs text-amber-600 dark:text-amber-400 text-center">
+                Set API key for real-time quotes
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             {/* From Token */}
@@ -306,8 +382,27 @@ export default function Swap() {
                   
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Price Impact</span>
-                    <span className="text-green-500">{'<'} 0.1%</span>
+                    <span className={priceImpact > 3 ? "text-red-500" : priceImpact > 1 ? "text-amber-500" : "text-green-500"}>
+                      {priceImpact > 0 ? `${priceImpact.toFixed(2)}%` : '< 0.1%'}
+                    </span>
                   </div>
+                  
+                  {gasEstimate > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Gas Estimate</span>
+                      <span>{gasEstimate.toLocaleString()} gas</span>
+                    </div>
+                  )}
+                  
+                  {protocols.length > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Route</span>
+                      <span className="text-right max-w-32 truncate" title={protocols.join(', ')}>
+                        {protocols.slice(0, 2).join(', ')}
+                        {protocols.length > 2 && ` +${protocols.length - 2}`}
+                      </span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between font-semibold pt-2 border-t">
                     <span>Slippage Tolerance</span>
@@ -384,18 +479,18 @@ export default function Swap() {
               className="w-full" 
               size="lg"
               variant="connect"
-              disabled={!fromAmount || !toAmount || isCalculating}
+              disabled={!fromAmount || !toAmount || isCalculating || isLoadingQuote}
               onClick={() => setShowConfirmModal(true)}
             >
-              {isCalculating ? (
+              {isCalculating || isLoadingQuote ? (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Calculating...
+                  {isLoadingQuote ? 'Getting quote...' : 'Calculating...'}
                 </>
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Swap {fromAmount ? `${fromAmount} ${fromToken}` : 'Tokens'}
+                  {apiKey ? 'Review Swap' : `Swap ${fromAmount ? `${fromAmount} ${fromToken}` : 'Tokens'}`}
                 </>
               )}
             </Button>
@@ -510,6 +605,14 @@ export default function Swap() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* API Key Modal */}
+      <ApiKeyInput
+        apiKey={apiKey}
+        onSaveApiKey={saveApiKey}
+        isOpen={showApiKeyModal}
+        onOpenChange={setShowApiKeyModal}
+      />
     </div>
   );
 }
