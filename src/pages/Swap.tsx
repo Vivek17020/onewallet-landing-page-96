@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowUpDown, RefreshCw, Info, AlertTriangle } from "lucide-react";
+import { ArrowUpDown, RefreshCw, Info, AlertTriangle, Settings } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +57,8 @@ export default function Swap() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
+  const [slippage, setSlippage] = useState(0.5);
+  const [showSettings, setShowSettings] = useState(false);
 
   const getExchangeRate = () => {
     const fromTokenData = tokens.find(t => t.symbol === fromToken);
@@ -307,13 +309,75 @@ export default function Swap() {
                     <span className="text-green-500">{'<'} 0.1%</span>
                   </div>
                   
+                  <div className="flex justify-between font-semibold pt-2 border-t">
+                    <span>Slippage Tolerance</span>
+                    <span>{slippage}%</span>
+                  </div>
+                  
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Minimum Received</span>
-                    <span>{(Number(toAmount) * 0.995).toFixed(6)} {toToken}</span>
+                    <span>{(Number(toAmount) * (1 - slippage / 100)).toFixed(6)} {toToken}</span>
                   </div>
                 </CardContent>
               </Card>
             )}
+
+            {/* Slippage Settings */}
+            <Card className="bg-muted/30 border border-border/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    <span className="font-medium text-sm">Slippage Tolerance</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="h-auto p-1"
+                  >
+                    <Info className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                <div className="flex gap-2">
+                  {[0.1, 0.5, 1.0].map((preset) => (
+                    <Button
+                      key={preset}
+                      variant={slippage === preset ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSlippage(preset)}
+                      className="flex-1 text-xs"
+                    >
+                      {preset}%
+                    </Button>
+                  ))}
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Custom"
+                      value={slippage !== 0.1 && slippage !== 0.5 && slippage !== 1.0 ? slippage : ""}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value) && value >= 0 && value <= 50) {
+                          setSlippage(value);
+                        }
+                      }}
+                      className="text-center text-xs h-8"
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="50"
+                    />
+                  </div>
+                </div>
+                
+                {showSettings && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Higher slippage increases chance of success but may result in worse prices
+                  </p>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Swap Button */}
             <Button 
@@ -410,7 +474,7 @@ export default function Swap() {
               
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Minimum Received</span>
-                <span>{(Number(toAmount) * 0.995).toFixed(6)} {toToken}</span>
+                <span>{(Number(toAmount) * (1 - slippage / 100)).toFixed(6)} {toToken}</span>
               </div>
               
               <div className="flex justify-between font-semibold pt-2 border-t">
