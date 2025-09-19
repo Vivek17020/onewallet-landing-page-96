@@ -2,16 +2,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowUpRight, ArrowDownLeft, ExternalLink, Clock, RefreshCw, Filter, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, ExternalLink, Clock, RefreshCw, Filter, TrendingUp, TrendingDown, Settings, Key } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 import { useSwapStore } from "@/stores/swapStore";
+import { useTransactionHistory } from "@/hooks/useTransactionHistory";
+import { ApiKeysModal } from "@/components/ApiKeysModal";
 
 export default function History() {
   const { isConnected } = useWallet();
-  const { transactions } = useSwapStore();
+  const { transactions: simulatedTransactions } = useSwapStore();
+  const { 
+    transactions: realTransactions, 
+    isLoading, 
+    error, 
+    apiKeys, 
+    saveApiKey, 
+    fetchTransactions,
+    hasApiKeys 
+  } = useTransactionHistory();
+  
   const [filter, setFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showApiModal, setShowApiModal] = useState(false);
+  const [dataSource, setDataSource] = useState<'all' | 'real' | 'simulated'>('all');
+
+  // Combine real and simulated transactions
+  const allTransactions = [...realTransactions, ...simulatedTransactions].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+
+  // Filter transactions based on data source
+  const sourceFilteredTransactions = allTransactions.filter(tx => {
+    if (dataSource === 'real') return !tx.tags?.includes('SIMULATED');
+    if (dataSource === 'simulated') return tx.tags?.includes('SIMULATED');
+    return true; // 'all'
+  });
+
+  const handleSaveApiKeys = (etherscan: string, polygonscan: string) => {
+    saveApiKey('etherscan', etherscan);
+    saveApiKey('polygonscan', polygonscan);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -54,7 +85,7 @@ export default function History() {
     }
   };
 
-  const filteredTransactions = transactions.filter(tx => {
+  const filteredTransactions = sourceFilteredTransactions.filter(tx => {
     const typeMatch = filter === "all" || tx.type === filter;
     const statusMatch = statusFilter === "all" || tx.status === statusFilter;
     return typeMatch && statusMatch;
@@ -85,8 +116,47 @@ export default function History() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Transaction History</h1>
-          <p className="text-muted-foreground">Track all your transactions across multiple chains</p>
+          <p className="text-muted-foreground">
+            Track transactions across multiple chains • {filteredTransactions.length} transactions
+            {!hasApiKeys && " • Add API keys to see real blockchain data"}
+          </p>
         </div>
+        
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setShowApiModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Key className="w-4 h-4" />
+            {hasApiKeys ? 'Update' : 'Add'} API Keys
+          </Button>
+          
+          {hasApiKeys && (
+            <Button
+              variant="outline"
+              onClick={fetchTransactions}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Select value={dataSource} onValueChange={(value: any) => setDataSource(value)}>
+          <SelectTrigger className="w-full sm:w-40">
+            <SelectValue placeholder="Data Source" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Transactions</SelectItem>
+            <SelectItem value="real">Real Only</SelectItem>
+            <SelectItem value="simulated">Simulated Only</SelectItem>
+          </SelectContent>
+        </Select>
         
         <div className="flex gap-3">
           <Select value={filter} onValueChange={setFilter}>
@@ -116,6 +186,29 @@ export default function History() {
           </Select>
         </div>
       </div>
+
+      {error && (
+        <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <ExternalLink className="w-4 h-4" />
+              <span className="font-medium">API Error</span>
+            </div>
+            <p className="text-sm mt-1 text-red-600 dark:text-red-400">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading && (
+        <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span>Fetching transaction history from blockchain explorers...</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-3">
         {filteredTransactions.map((tx) => (
@@ -194,7 +287,7 @@ export default function History() {
         ))}
       </div>
 
-      {filteredTransactions.length === 0 && transactions.length > 0 && (
+      {filteredTransactions.length === 0 && allTransactions.length > 0 && (
         <Card className="p-8 text-center">
           <CardContent>
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -208,7 +301,7 @@ export default function History() {
         </Card>
       )}
 
-      {transactions.length === 0 && (
+      {allTransactions.length === 0 && !isLoading && (
         <Card className="p-8 text-center">
           <CardContent>
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -216,11 +309,33 @@ export default function History() {
             </div>
             <h3 className="text-xl font-semibold mb-2">No Transactions Yet</h3>
             <p className="text-muted-foreground">
-              Your transaction history will appear here once you start using OneWallet
+              {hasApiKeys 
+                ? "No transaction history found for this address"
+                : "Your transaction history will appear here. Add API keys to fetch real blockchain data."
+              }
             </p>
+            {!hasApiKeys && (
+              <Button 
+                onClick={() => setShowApiModal(true)}
+                className="mt-4"
+                variant="outline"
+              >
+                <Key className="w-4 h-4 mr-2" />
+                Add API Keys
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
+
+      {/* API Keys Modal */}
+      <ApiKeysModal
+        open={showApiModal}
+        onOpenChange={setShowApiModal}
+        etherscanKey={apiKeys.etherscan}
+        polygonscanKey={apiKeys.polygonscan}
+        onSaveKeys={handleSaveApiKeys}
+      />
     </div>
   );
 }
