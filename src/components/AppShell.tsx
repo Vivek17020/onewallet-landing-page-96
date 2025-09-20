@@ -54,7 +54,7 @@ export default function AppShell({ children }: AppShellProps) {
           {/* Navigation Tabs */}
           <div className="border-b border-border bg-card/30 px-4 lg:px-6">
             <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex bg-muted/50">
+              <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex bg-muted/50">
                 <TabsTrigger 
                   value="assets" 
                   className="data-[state=active]:bg-background data-[state=active]:text-foreground text-xs sm:text-sm"
@@ -66,6 +66,12 @@ export default function AppShell({ children }: AppShellProps) {
                   className="data-[state=active]:bg-background data-[state=active]:text-foreground text-xs sm:text-sm"
                 >
                   Swap
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="bridge" 
+                  className="data-[state=active]:bg-background data-[state=active]:text-foreground text-xs sm:text-sm"
+                >
+                  Bridge
                 </TabsTrigger>
                 <TabsTrigger 
                   value="history" 
