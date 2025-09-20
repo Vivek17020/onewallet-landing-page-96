@@ -14,22 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      transaction_notifications: {
+        Row: {
+          id: string
+          notification_type: string
+          sent_at: string
+          transaction_hash: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type: string
+          sent_at?: string
+          transaction_hash: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          transaction_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          default_currency: string
+          email_notifications: boolean
+          id: string
+          notifications_enabled: boolean
+          price_alerts: boolean
+          theme: string
+          transaction_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
+          id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
+          id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_token_prices: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          current_price: number
-          price_change_24h: number
-          price_change_percentage_24h: number
-          symbol: string
-          token_id: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
