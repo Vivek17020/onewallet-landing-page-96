@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +9,8 @@ import { ArrowRightLeft, Loader2, ExternalLink, Clock, DollarSign, Zap } from "l
 import { useWallet } from "@/contexts/WalletContext";
 import { useSocketBridge } from "@/hooks/useSocketBridge";
 import { SUPPORTED_CHAINS } from "@/stores/chainStore";
+import { ValidatedInput, ValidationRules } from "@/components/ValidatedInput";
+import { RetryableApiCall } from "@/components/RetryableApiCall";
 
 interface BridgeQuote {
   routeId: string;
@@ -47,11 +48,12 @@ export default function Bridge() {
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
   const [quotes, setQuotes] = useState<BridgeQuote[]>([]);
+  const [isFormValid, setIsFormValid] = useState(false);
   
   const { fetchQuotes, isLoading, error } = useSocketBridge();
 
   const handleGetQuotes = async () => {
-    if (!fromChain || !toChain || !token || !amount) {
+    if (!fromChain || !toChain || !token || !amount || !isFormValid) {
       return;
     }
 
@@ -66,6 +68,10 @@ export default function Bridge() {
     if (quotesData) {
       setQuotes(quotesData);
     }
+  };
+
+  const handleRetryQuotes = () => {
+    handleGetQuotes();
   };
 
   const handleSwapChains = () => {
@@ -189,8 +195,8 @@ export default function Bridge() {
 
             {/* Amount */}
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount</Label>
-              <Input
+              <ValidatedInput
+                label="Amount"
                 id="amount"
                 type="number"
                 placeholder="0.0"
@@ -198,34 +204,40 @@ export default function Bridge() {
                 onChange={(e) => setAmount(e.target.value)}
                 step="0.000001"
                 min="0"
+                validationRules={[
+                  ValidationRules.required('Amount is required'),
+                  ValidationRules.positiveNumber('Amount must be greater than 0'),
+                  ValidationRules.range(0.000001, 1000000, 'Amount must be between 0.000001 and 1,000,000'),
+                ]}
+                onValidationChange={(isValid) => setIsFormValid(isValid)}
               />
             </div>
           </div>
 
-          <Button 
-            onClick={handleGetQuotes}
-            disabled={!fromChain || !toChain || !token || !amount || isLoading}
-            className="w-full"
-            size="lg"
+          <RetryableApiCall 
+            error={error} 
+            isLoading={isLoading}
+            onRetry={handleRetryQuotes}
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Getting Bridge Quotes...
-              </>
-            ) : (
-              <>
-                <ArrowRightLeft className="w-4 h-4 mr-2" />
-                Get Bridge Quotes
-              </>
-            )}
-          </Button>
-
-          {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-              <p className="text-destructive text-sm">{error}</p>
-            </div>
-          )}
+            <Button 
+              onClick={handleGetQuotes}
+              disabled={!fromChain || !toChain || !token || !amount || !isFormValid || isLoading}
+              className="w-full"
+              size="lg"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Getting Bridge Quotes...
+                </>
+              ) : (
+                <>
+                  <ArrowRightLeft className="w-4 h-4 mr-2" />
+                  Get Bridge Quotes
+                </>
+              )}
+            </Button>
+          </RetryableApiCall>
         </CardContent>
       </Card>
 

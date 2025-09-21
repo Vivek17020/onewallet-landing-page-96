@@ -93,19 +93,20 @@ export const useSocketBridge = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchQuotes = useCallback(async (request: BridgeQuoteRequest): Promise<BridgeQuote[] | null> => {
+  const fetchQuotes = useCallback(async (request: BridgeQuoteRequest, maxRetries = 3): Promise<BridgeQuote[] | null> => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      // Socket API endpoint for getting quotes
-      const API_KEY = localStorage.getItem('socket_api_key') || '';
-      
-      if (!API_KEY) {
-        // For demo purposes, return mock data when no API key is provided
+    const socketApiKey = localStorage.getItem('socket_api_key');
+
+    // If no API key, return mock data
+    if (!socketApiKey) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
+        
         const mockQuotes: BridgeQuote[] = [
           {
-            routeId: 'mock-1',
+            routeId: 'mock-route-1',
             fromChain: getChainName(parseInt(request.fromChainId)),
             toChain: getChainName(parseInt(request.toChainId)),
             fromToken: 'ETH',
@@ -127,7 +128,7 @@ export const useSocketBridge = () => {
             ],
           },
           {
-            routeId: 'mock-2',
+            routeId: 'mock-route-2',
             fromChain: getChainName(parseInt(request.fromChainId)),
             toChain: getChainName(parseInt(request.toChainId)),
             fromToken: 'ETH',
@@ -149,7 +150,7 @@ export const useSocketBridge = () => {
             ],
           },
           {
-            routeId: 'mock-3',
+            routeId: 'mock-route-3',
             fromChain: getChainName(parseInt(request.fromChainId)),
             toChain: getChainName(parseInt(request.toChainId)),
             fromToken: 'ETH',
@@ -181,77 +182,108 @@ export const useSocketBridge = () => {
         });
 
         return mockQuotes;
+      } catch (error) {
+        console.error('Mock quotes error:', error);
+        setError('Failed to generate mock bridge quotes');
+        return null;
+      } finally {
+        setIsLoading(false);
       }
+    }
 
-      // Real Socket API call
-      const params = new URLSearchParams({
-        fromChainId: request.fromChainId,
-        toChainId: request.toChainId,
-        fromTokenAddress: request.fromTokenAddress,
-        toTokenAddress: request.toTokenAddress,
-        fromAmount: request.fromAmount,
-        userAddress: '0x0000000000000000000000000000000000000000', // Placeholder
-        uniqueRoutesPerBridge: 'true',
-        sort: 'output',
-        singleTxOnly: 'true',
-      });
+    // Real API call with retry logic
+    const makeRequest = async (attempt = 0): Promise<BridgeQuote[]> => {
+      try {
+        const params = new URLSearchParams({
+          fromChainId: request.fromChainId,
+          toChainId: request.toChainId,
+          fromTokenAddress: request.fromTokenAddress,
+          toTokenAddress: request.toTokenAddress,
+          fromAmount: request.fromAmount,
+          userAddress: '0x0000000000000000000000000000000000000000', // Placeholder
+          uniqueRoutesPerBridge: 'true',
+          sort: 'output',
+          singleTxOnly: 'true',
+        });
 
-      const response = await fetch(
-        `https://api.socket.tech/v2/quote?${params}`,
-        {
-          headers: {
-            'API-KEY': API_KEY,
-            'Content-Type': 'application/json',
-          },
+        const response = await fetch(
+          `https://api.socket.tech/v2/quote?${params}`,
+          {
+            headers: {
+              'API-KEY': socketApiKey,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 429 && attempt < maxRetries) {
+            // Rate limit - wait and retry
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+            return makeRequest(attempt + 1);
+          }
+          throw new Error(`Socket API error: ${response.status} ${response.statusText}`);
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(`Socket API error: ${response.status} ${response.statusText}`);
+        const data: SocketApiResponse = await response.json();
+
+        if (!data.success || !data.result?.routes) {
+          throw new Error('No routes found');
+        }
+
+        // Transform Socket API response to our format
+        const quotes: BridgeQuote[] = data.result.routes.slice(0, 5).map((route) => ({
+          routeId: route.routeId,
+          fromChain: getChainName(route.fromChainId),
+          toChain: getChainName(route.toChainId),
+          fromToken: route.fromAsset.symbol,
+          toToken: route.toAsset.symbol,
+          fromAmount: (parseFloat(route.fromAmount) / Math.pow(10, route.fromAsset.decimals)).toFixed(6),
+          toAmount: (parseFloat(route.toAmount) / Math.pow(10, route.toAsset.decimals)).toFixed(6),
+          estimatedTime: formatTime(route.serviceTime),
+          gasFees: `$${route.totalGasFeesInUsd.toFixed(2)}`,
+          bridgeFee: route.integratorFee ? `$${(parseFloat(route.integratorFee.amount) / Math.pow(10, 6)).toFixed(2)}` : '$0.00',
+          totalFee: `$${(route.totalGasFeesInUsd + (route.integratorFee ? parseFloat(route.integratorFee.amount) / Math.pow(10, 6) : 0)).toFixed(2)}`,
+          protocol: route.steps[0]?.protocol?.displayName || 'Unknown',
+          steps: route.steps.map((step) => ({
+            protocol: step.protocol.displayName,
+            fromChain: getChainName(step.fromChainId),
+            toChain: getChainName(step.toChainId),
+            estimatedTime: formatTime(step.serviceTime),
+          })),
+        }));
+
+        return quotes;
+      } catch (error: any) {
+        if (attempt < maxRetries && (
+          error.name === 'TypeError' || // Network error
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('Network request failed')
+        )) {
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          return makeRequest(attempt + 1);
+        }
+        throw error;
       }
+    };
 
-      const data: SocketApiResponse = await response.json();
-
-      if (!data.success || !data.result?.routes) {
-        throw new Error('No routes found');
-      }
-
-      // Transform Socket API response to our format
-      const quotes: BridgeQuote[] = data.result.routes.slice(0, 5).map((route) => ({
-        routeId: route.routeId,
-        fromChain: getChainName(route.fromChainId),
-        toChain: getChainName(route.toChainId),
-        fromToken: route.fromAsset.symbol,
-        toToken: route.toAsset.symbol,
-        fromAmount: (parseFloat(route.fromAmount) / Math.pow(10, route.fromAsset.decimals)).toFixed(6),
-        toAmount: (parseFloat(route.toAmount) / Math.pow(10, route.toAsset.decimals)).toFixed(6),
-        estimatedTime: formatTime(route.serviceTime),
-        gasFees: `$${route.totalGasFeesInUsd.toFixed(2)}`,
-        bridgeFee: route.integratorFee ? `$${(parseFloat(route.integratorFee.amount) / Math.pow(10, 6)).toFixed(2)}` : '$0.00',
-        totalFee: `$${(route.totalGasFeesInUsd + (route.integratorFee ? parseFloat(route.integratorFee.amount) / Math.pow(10, 6) : 0)).toFixed(2)}`,
-        protocol: route.steps[0]?.protocol?.displayName || 'Unknown',
-        steps: route.steps.map((step) => ({
-          protocol: step.protocol.displayName,
-          fromChain: getChainName(step.fromChainId),
-          toChain: getChainName(step.toChainId),
-          estimatedTime: formatTime(step.serviceTime),
-        })),
-      }));
-
+    try {
+      const quotes = await makeRequest();
       toast({
         title: 'Bridge Quotes Retrieved',
         description: `Found ${quotes.length} bridge routes`,
       });
-
       return quotes;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch bridge quotes';
-      setError(errorMessage);
+    } catch (error: any) {
+      console.error('Socket API error:', error);
+      setError(error.message || 'Failed to fetch bridge quotes');
+      
       toast({
-        title: 'Failed to fetch bridge quotes',
-        description: errorMessage,
-        variant: 'destructive',
+        title: 'Failed to fetch quotes',
+        description: error.message || "Please check your API key and try again",
+        variant: "destructive",
       });
+      
       return null;
     } finally {
       setIsLoading(false);

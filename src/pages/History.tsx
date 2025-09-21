@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useSwapStore } from "@/stores/swapStore";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { ApiKeysModal } from "@/components/ApiKeysModal";
+import { RetryableApiCall } from "@/components/RetryableApiCall";
 
 export default function History() {
   const { isConnected } = useWallet();
@@ -135,7 +136,7 @@ export default function History() {
           {hasApiKeys && (
             <Button
               variant="outline"
-              onClick={fetchTransactions}
+              onClick={() => fetchTransactions()}
               disabled={isLoading}
               className="flex items-center gap-2"
             >
@@ -187,28 +188,13 @@ export default function History() {
         </div>
       </div>
 
-      {error && (
-        <Card className="bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <ExternalLink className="w-4 h-4" />
-              <span className="font-medium">API Error</span>
-            </div>
-            <p className="text-sm mt-1 text-red-600 dark:text-red-400">{error}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {isLoading && (
-        <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Fetching transaction history from blockchain explorers...</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <RetryableApiCall 
+        error={error} 
+        isLoading={isLoading}
+        onRetry={fetchTransactions}
+      >
+        <div />
+      </RetryableApiCall>
 
       <div className="border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useChainStore } from '@/stores/chainStore';
 
@@ -29,50 +29,39 @@ export const useTokenPrices = ({ tokens, enabled = true }: UseTokenPricesProps) 
   const [error, setError] = useState<string | null>(null);
   const { selectedChain } = useChainStore();
 
-  useEffect(() => {
-    if (!enabled || !tokens || tokens.length === 0) {
-      return;
-    }
-
-    const fetchPrices = async () => {
-      setIsLoading(true);
-      setError(null);
-
+  const fetchPrices = useCallback(async (maxRetries = 3) => {
+    if (!enabled || tokens.length === 0) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    const makeRequest = async (attempt = 0): Promise<void> => {
       try {
-        console.log('Fetching prices for tokens:', tokens);
-
-        const { data, error: functionError } = await supabase.functions.invoke('get-token-prices', {
-          body: { tokens }
+        const { data, error } = await supabase.functions.invoke('get-token-prices', {
+          body: { tokens: tokens.map(t => t.symbol) }
         });
-
-        if (functionError) {
-          console.error('Function error:', functionError);
-          throw new Error(functionError.message || 'Failed to fetch token prices');
+        
+        if (error) throw error;
+        
+        setPrices(data?.prices || []);
+      } catch (err: any) {
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          return makeRequest(attempt + 1);
         }
-
-        if (!data || !data.prices) {
-          throw new Error('Invalid response from price service');
-        }
-
-        console.log('Received prices:', data.prices);
-        setPrices(data.prices);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-        console.error('Error fetching token prices:', errorMessage);
-        setError(errorMessage);
-        setPrices([]);
-      } finally {
-        setIsLoading(false);
+        throw err;
       }
     };
-
-    fetchPrices();
-
-    // Refresh prices every 30 seconds
-    const interval = setInterval(fetchPrices, 30000);
-
-    return () => clearInterval(interval);
-  }, [tokens, enabled, selectedChain.id]);
+    
+    try {
+      await makeRequest();
+    } catch (err: any) {
+      console.error('Failed to fetch token prices:', err);
+      setError(err.message || 'Failed to fetch token prices');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [enabled]);
 
   const getPriceForToken = (symbol: string) => {
     return prices.find(price => price.symbol.toLowerCase() === symbol.toLowerCase());

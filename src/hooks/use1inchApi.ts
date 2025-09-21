@@ -48,7 +48,7 @@ export const use1inchApi = () => {
     localStorage.setItem('1inch_api_key', key);
   }, []);
 
-  const getQuote = useCallback(async (params: QuoteParams): Promise<QuoteResponse | null> => {
+  const getQuote = useCallback(async (params: QuoteParams, maxRetries = 3): Promise<QuoteResponse | null> => {
     if (!apiKey) {
       toast({
         title: "API Key Required",
@@ -59,35 +59,58 @@ export const use1inchApi = () => {
     }
 
     setIsLoading(true);
+    
+    const makeRequest = async (attempt = 0): Promise<QuoteResponse | null> => {
+      try {
+        const url = new URL(`${BASE_URL}/${CHAIN_ID}/quote`);
+        url.searchParams.append('src', params.fromTokenAddress);
+        url.searchParams.append('dst', params.toTokenAddress);
+        url.searchParams.append('amount', params.amount);
+        
+        if (params.slippage) {
+          url.searchParams.append('slippage', params.slippage.toString());
+        }
+
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'accept': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 429 && attempt < maxRetries) {
+            // Rate limit - wait and retry
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+            return makeRequest(attempt + 1);
+          }
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error: any) {
+        if (attempt < maxRetries && (
+          error.name === 'TypeError' || // Network error
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('Network request failed')
+        )) {
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          return makeRequest(attempt + 1);
+        }
+        throw error;
+      }
+    };
+
     try {
-      const url = new URL(`${BASE_URL}/${CHAIN_ID}/quote`);
-      url.searchParams.append('src', params.fromTokenAddress);
-      url.searchParams.append('dst', params.toTokenAddress);
-      url.searchParams.append('amount', params.amount);
-      
-      if (params.slippage) {
-        url.searchParams.append('slippage', params.slippage.toString());
-      }
-
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'accept': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      const result = await makeRequest();
+      return result;
     } catch (error: any) {
       console.error('1inch API error:', error);
       toast({
         title: "Quote Failed",
-        description: error.message || "Failed to fetch quote from 1inch",
+        description: error.message || "Failed to fetch quote from 1inch. Please try again.",
         variant: "destructive",
       });
       return null;

@@ -11,6 +11,8 @@ import { use1inchApi } from "@/hooks/use1inchApi";
 import { ApiKeyInput } from "@/components/ApiKeyInput";
 import { ReviewSwapModal } from "@/components/ReviewSwapModal";
 import { useSwapStore } from "@/stores/swapStore";
+import { ValidatedInput, ValidationRules } from "@/components/ValidatedInput";
+import { RetryableApiCall } from "@/components/RetryableApiCall";
 
 export default function Swap() {
   const { isConnected } = useWallet();
@@ -207,7 +209,7 @@ export default function Swap() {
               <Label htmlFor="from-amount">From</Label>
               <div className="flex space-x-2">
                 <div className="flex-1">
-                  <Input
+                  <ValidatedInput
                     id="from-amount"
                     placeholder="0.0"
                     value={fromAmount}
@@ -215,6 +217,11 @@ export default function Swap() {
                     className="text-right text-lg font-semibold"
                     type="number"
                     step="any"
+                    validationRules={[
+                      ValidationRules.positiveNumber('Amount must be greater than 0'),
+                      ValidationRules.range(0.000001, 1000000, 'Amount must be between 0.000001 and 1,000,000'),
+                    ]}
+                    showValidationIcon={false}
                   />
                 </div>
                 <Select value={fromToken} onValueChange={setFromToken}>

@@ -162,64 +162,78 @@ export const useTransactionHistory = () => {
     return data.result.map((tx: PolygonscanTransaction) => normalizeTransaction(tx, address, 'Polygon'));
   };
 
-  const fetchTransactions = useCallback(async () => {
+  const fetchTransactions = useCallback(async (maxRetries = 3) => {
     if (!account) return;
     
     setIsLoading(true);
     setError(null);
     
-    try {
-      const promises: Promise<Transaction[]>[] = [];
-      
-      // Fetch based on selected chain
-      if (selectedChain.id === 1 && apiKeys.etherscan) {
-        // Ethereum mainnet
-        promises.push(fetchEtherscanTransactions(account, apiKeys.etherscan));
-      } else if (selectedChain.id === 137 && apiKeys.polygonscan) {
-        // Polygon
-        promises.push(fetchPolygonscanTransactions(account, apiKeys.polygonscan));
-      }
-      // TODO: Add support for Arbitrum and Base APIs
-      
-      if (promises.length === 0) {
-        if (selectedChain.id === 1) {
-          setError('Please set Etherscan API key to fetch Ethereum transaction history');
-        } else if (selectedChain.id === 137) {
-          setError('Please set Polygonscan API key to fetch Polygon transaction history');
-        } else {
-          setError(`Transaction history not yet supported for ${selectedChain.name}`);
+    const makeRequest = async (attempt = 0): Promise<void> => {
+      try {
+        const promises: Promise<Transaction[]>[] = [];
+        
+        // Fetch based on selected chain
+        if (selectedChain.id === 1 && apiKeys.etherscan) {
+          // Ethereum mainnet
+          promises.push(fetchEtherscanTransactions(account, apiKeys.etherscan));
+        } else if (selectedChain.id === 137 && apiKeys.polygonscan) {
+          // Polygon
+          promises.push(fetchPolygonscanTransactions(account, apiKeys.polygonscan));
         }
-        return;
-      }
-      
-      const results = await Promise.allSettled(promises);
-      const allTransactions: Transaction[] = [];
-      
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-          allTransactions.push(...result.value);
-        } else {
-          console.error(`API ${index === 0 ? 'Etherscan' : 'Polygonscan'} error:`, result.reason);
+        // TODO: Add support for Arbitrum and Base APIs
+        
+        if (promises.length === 0) {
+          if (selectedChain.id === 1) {
+            throw new Error('Please set Etherscan API key to fetch Ethereum transaction history');
+          } else if (selectedChain.id === 137) {
+            throw new Error('Please set Polygonscan API key to fetch Polygon transaction history');
+          } else {
+            throw new Error(`Transaction history not yet supported for ${selectedChain.name}`);
+          }
+        }
+        
+        const results = await Promise.allSettled(promises);
+        const allTransactions: Transaction[] = [];
+        
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            allTransactions.push(...result.value);
+          } else {
+            console.error(`API ${index === 0 ? 'Etherscan' : 'Polygonscan'} error:`, result.reason);
+            toast({
+              title: `${index === 0 ? 'Etherscan' : 'Polygonscan'} API Error`,
+              description: result.reason.message,
+              variant: 'destructive'
+            });
+          }
+        });
+        
+        // Sort by timestamp (newest first)
+        allTransactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        
+        setTransactions(allTransactions);
+        
+        if (allTransactions.length > 0) {
           toast({
-            title: `${index === 0 ? 'Etherscan' : 'Polygonscan'} API Error`,
-            description: result.reason.message,
-            variant: 'destructive'
+            title: 'Transaction History Loaded',
+            description: `Found ${allTransactions.length} transactions`
           });
         }
-      });
-      
-      // Sort by timestamp (newest first)
-      allTransactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      
-      setTransactions(allTransactions);
-      
-      if (allTransactions.length > 0) {
-        toast({
-          title: 'Transaction History Loaded',
-          description: `Found ${allTransactions.length} transactions`
-        });
+      } catch (error: any) {
+        if (attempt < maxRetries && (
+          error.name === 'TypeError' || // Network error
+          error.message.includes('Failed to fetch') ||
+          error.message.includes('Network request failed')
+        )) {
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+          return makeRequest(attempt + 1);
+        }
+        throw error;
       }
-      
+    };
+    
+    try {
+      await makeRequest();
     } catch (error: any) {
       setError(error.message);
       toast({
@@ -230,7 +244,7 @@ export const useTransactionHistory = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [account, apiKeys, toast]);
+  }, [account, apiKeys, toast, selectedChain.id]);
 
   // Auto-fetch when address, API keys, or selected chain changes
   useEffect(() => {
