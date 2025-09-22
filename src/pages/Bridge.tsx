@@ -1,16 +1,20 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRightLeft, Loader2, ExternalLink, Clock, DollarSign, Zap } from "lucide-react";
+import { ArrowRightLeft, Loader2, ExternalLink, Clock, DollarSign, Zap, HelpCircle } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { useSocketBridge } from "@/hooks/useSocketBridge";
 import { SUPPORTED_CHAINS } from "@/stores/chainStore";
 import { ValidatedInput, ValidationRules } from "@/components/ValidatedInput";
 import { RetryableApiCall } from "@/components/RetryableApiCall";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BridgeQuote {
   routeId: string;
@@ -101,13 +105,14 @@ export default function Bridge() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Cross-Chain Bridge</h1>
-        <p className="text-muted-foreground">
-          Transfer tokens seamlessly across different blockchain networks
-        </p>
-      </div>
+    <TooltipProvider>
+      <div className="p-4 sm:p-6 space-y-6 max-w-4xl mx-auto">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">Cross-Chain Bridge</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Transfer tokens seamlessly across different blockchain networks
+          </p>
+        </div>
 
       <Card>
         <CardHeader>
@@ -193,10 +198,19 @@ export default function Bridge() {
               </Select>
             </div>
 
-            {/* Amount */}
             <div className="space-y-2">
+              <Label htmlFor="amount" className="flex items-center gap-2">
+                Amount
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the amount of tokens you want to bridge between chains</p>
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
               <ValidatedInput
-                label="Amount"
                 id="amount"
                 type="number"
                 placeholder="0.0"
@@ -210,6 +224,7 @@ export default function Bridge() {
                   ValidationRules.range(0.000001, 1000000, 'Amount must be between 0.000001 and 1,000,000'),
                 ]}
                 onValidationChange={(isValid) => setIsFormValid(isValid)}
+                aria-label={`Enter amount of tokens to bridge`}
               />
             </div>
           </div>
@@ -224,6 +239,7 @@ export default function Bridge() {
               disabled={!fromChain || !toChain || !token || !amount || !isFormValid || isLoading}
               className="w-full"
               size="lg"
+              aria-label="Get bridge quotes for token transfer"
             >
               {isLoading ? (
                 <>
@@ -241,16 +257,49 @@ export default function Bridge() {
         </CardContent>
       </Card>
 
-      {/* Bridge Quotes */}
-      {quotes.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Bridge Quotes ({quotes.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Bridge Quotes */}
+        {isLoading ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Getting Bridge Quotes...
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="border-border/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                        <Skeleton className="h-6 w-16 rounded-full" />
+                      </div>
+                      <div className="text-right space-y-1">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                  </CardContent>
+                </Card>
+              ))}
+            </CardContent>
+          </Card>
+        ) : quotes.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Bridge Quotes ({quotes.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
             {quotes.map((quote, index) => (
               <Card key={quote.routeId || index} className="border-border/50">
                 <CardContent className="p-4">
@@ -308,9 +357,9 @@ export default function Bridge() {
                 </CardContent>
               </Card>
             ))}
-          </CardContent>
-        </Card>
-      )}
+            </CardContent>
+          </Card>
+        ) : null}
 
       {quotes.length === 0 && !isLoading && fromChain && toChain && token && amount && (
         <Card>
@@ -325,6 +374,7 @@ export default function Bridge() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }

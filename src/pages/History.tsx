@@ -9,6 +9,7 @@ import { useSwapStore } from "@/stores/swapStore";
 import { useTransactionHistory } from "@/hooks/useTransactionHistory";
 import { ApiKeysModal } from "@/components/ApiKeysModal";
 import { RetryableApiCall } from "@/components/RetryableApiCall";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function History() {
   const { isConnected } = useWallet();
@@ -113,11 +114,11 @@ export default function History() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Transaction History</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Transaction History</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track transactions across multiple chains • {filteredTransactions.length} transactions
             {!hasApiKeys && " • Add API keys to see real blockchain data"}
           </p>
@@ -128,6 +129,7 @@ export default function History() {
             variant="outline"
             onClick={() => setShowApiModal(true)}
             className="flex items-center gap-2"
+            aria-label={hasApiKeys ? 'Update API keys for blockchain data' : 'Add API keys to fetch blockchain data'}
           >
             <Key className="w-4 h-4" />
             {hasApiKeys ? 'Update' : 'Add'} API Keys
@@ -139,6 +141,7 @@ export default function History() {
               onClick={() => fetchTransactions()}
               disabled={isLoading}
               className="flex items-center gap-2"
+              aria-label="Refresh transaction history"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -196,22 +199,43 @@ export default function History() {
         <div />
       </RetryableApiCall>
 
-      <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/50 border-b">
-              <tr>
-                <th className="text-left p-4 font-semibold text-sm">Type</th>
-                <th className="text-left p-4 font-semibold text-sm">Token</th>
-                <th className="text-right p-4 font-semibold text-sm">Amount</th>
-                <th className="text-left p-4 font-semibold text-sm">Chain</th>
-                <th className="text-left p-4 font-semibold text-sm">Timestamp</th>
-                <th className="text-center p-4 font-semibold text-sm">Status</th>
-                <th className="text-center p-4 font-semibold text-sm">Explorer</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((tx, index) => (
+      {isLoading && filteredTransactions.length === 0 ? (
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-8 w-20" />
+              </div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center space-x-4">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-32 ml-auto" />
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full" role="table" aria-label="Transaction history">
+              <thead className="bg-muted/50 border-b">
+                <tr>
+                  <th className="text-left p-4 font-semibold text-sm" scope="col">Type</th>
+                  <th className="text-left p-4 font-semibold text-sm" scope="col">Token</th>
+                  <th className="text-right p-4 font-semibold text-sm" scope="col">Amount</th>
+                  <th className="text-left p-4 font-semibold text-sm" scope="col">Chain</th>
+                  <th className="text-left p-4 font-semibold text-sm" scope="col">Timestamp</th>
+                  <th className="text-center p-4 font-semibold text-sm" scope="col">Status</th>
+                  <th className="text-center p-4 font-semibold text-sm" scope="col">Explorer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTransactions.map((tx, index) => (
                 <tr key={tx.id} className={`border-b hover:bg-muted/30 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/10'}`}>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -279,16 +303,18 @@ export default function History() {
                           : `https://etherscan.io/tx/${tx.hash}`;
                         window.open(explorerUrl, '_blank');
                       }}
+                      aria-label={`View transaction ${tx.hash} on blockchain explorer`}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {filteredTransactions.length === 0 && allTransactions.length > 0 && (
         <Card className="p-8 text-center">

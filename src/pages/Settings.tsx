@@ -11,6 +11,7 @@ import { useUserSettings } from "@/hooks/useUserSettings";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SettingsPage() {
   const { isConnected, account } = useWallet();
@@ -27,10 +28,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-4xl mx-auto">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Manage your wallet preferences and notification settings
         </p>
       </div>
@@ -103,12 +104,17 @@ export default function SettingsPage() {
                 Receive notifications for important events
               </p>
             </div>
-            <Switch
-              id="notifications-enabled"
-              checked={settings.notifications_enabled}
-              onCheckedChange={(checked) => handleSettingChange('notifications_enabled', checked)}
-              disabled={isLoading || isSaving}
-            />
+            {isLoading ? (
+              <Skeleton className="h-6 w-12 rounded-full" />
+            ) : (
+              <Switch
+                id="notifications-enabled"
+                checked={settings.notifications_enabled}
+                onCheckedChange={(checked) => handleSettingChange('notifications_enabled', checked)}
+                disabled={isSaving}
+                aria-label="Enable or disable notifications"
+              />
+            )}
           </div>
 
           <Separator />
@@ -126,12 +132,17 @@ export default function SettingsPage() {
                 <p className="text-xs text-amber-600">Sign in required for email notifications</p>
               )}
             </div>
-            <Switch
-              id="email-notifications"
-              checked={settings.email_notifications && isAuthenticated}
-              onCheckedChange={(checked) => handleSettingChange('email_notifications', checked)}
-              disabled={isLoading || isSaving || !isAuthenticated || !settings.notifications_enabled}
-            />
+            {isLoading ? (
+              <Skeleton className="h-6 w-12 rounded-full" />
+            ) : (
+              <Switch
+                id="email-notifications"
+                checked={settings.email_notifications && isAuthenticated}
+                onCheckedChange={(checked) => handleSettingChange('email_notifications', checked)}
+                disabled={isSaving || !isAuthenticated || !settings.notifications_enabled}
+                aria-label="Enable or disable email notifications"
+              />
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -141,12 +152,17 @@ export default function SettingsPage() {
                 Get notified when new transactions are detected
               </p>
             </div>
-            <Switch
-              id="transaction-alerts"
-              checked={settings.transaction_alerts}
-              onCheckedChange={(checked) => handleSettingChange('transaction_alerts', checked)}
-              disabled={isLoading || isSaving || !settings.notifications_enabled}
-            />
+            {isLoading ? (
+              <Skeleton className="h-6 w-12 rounded-full" />
+            ) : (
+              <Switch
+                id="transaction-alerts"
+                checked={settings.transaction_alerts}
+                onCheckedChange={(checked) => handleSettingChange('transaction_alerts', checked)}
+                disabled={isSaving || !settings.notifications_enabled}
+                aria-label="Enable or disable transaction alerts"
+              />
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -156,12 +172,17 @@ export default function SettingsPage() {
                 Notifications for significant price changes
               </p>
             </div>
-            <Switch
-              id="price-alerts"
-              checked={settings.price_alerts}
-              onCheckedChange={(checked) => handleSettingChange('price_alerts', checked)}
-              disabled={isLoading || isSaving || !settings.notifications_enabled}
-            />
+            {isLoading ? (
+              <Skeleton className="h-6 w-12 rounded-full" />
+            ) : (
+              <Switch
+                id="price-alerts"
+                checked={settings.price_alerts}
+                onCheckedChange={(checked) => handleSettingChange('price_alerts', checked)}
+                disabled={isSaving || !settings.notifications_enabled}
+                aria-label="Enable or disable price alerts"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -184,11 +205,14 @@ export default function SettingsPage() {
                 Choose your preferred color scheme
               </p>
             </div>
-            <Select 
-              value={settings.theme} 
-              onValueChange={(value) => handleSettingChange('theme', value)}
-              disabled={isLoading || isSaving}
-            >
+            {isLoading ? (
+              <Skeleton className="h-10 w-40" />
+            ) : (
+              <Select 
+                value={settings.theme} 
+                onValueChange={(value) => handleSettingChange('theme', value)}
+                disabled={isSaving}
+              >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
@@ -197,7 +221,8 @@ export default function SettingsPage() {
                 <SelectItem value="dark">Dark</SelectItem>
                 <SelectItem value="system">System</SelectItem>
               </SelectContent>
-            </Select>
+              </Select>
+            )}
           </div>
 
           <Separator />
@@ -212,11 +237,14 @@ export default function SettingsPage() {
                 Display prices in your preferred currency
               </p>
             </div>
-            <Select 
-              value={settings.default_currency} 
-              onValueChange={(value) => handleSettingChange('default_currency', value)}
-              disabled={isLoading || isSaving}
-            >
+            {isLoading ? (
+              <Skeleton className="h-10 w-24" />
+            ) : (
+              <Select 
+                value={settings.default_currency} 
+                onValueChange={(value) => handleSettingChange('default_currency', value)}
+                disabled={isSaving}
+              >
               <SelectTrigger className="w-24">
                 <SelectValue />
               </SelectTrigger>
@@ -228,7 +256,8 @@ export default function SettingsPage() {
                 <SelectItem value="CAD">CAD</SelectItem>
                 <SelectItem value="AUD">AUD</SelectItem>
               </SelectContent>
-            </Select>
+              </Select>
+            )}
           </div>
         </CardContent>
       </Card>

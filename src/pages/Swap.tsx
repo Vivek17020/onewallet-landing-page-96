@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowUpDown, RefreshCw, Info, AlertTriangle, Settings } from "lucide-react";
+import { ArrowUpDown, RefreshCw, Info, AlertTriangle, Settings, HelpCircle } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,8 @@ import { ReviewSwapModal } from "@/components/ReviewSwapModal";
 import { useSwapStore } from "@/stores/swapStore";
 import { ValidatedInput, ValidationRules } from "@/components/ValidatedInput";
 import { RetryableApiCall } from "@/components/RetryableApiCall";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Swap() {
   const { isConnected } = useWallet();
@@ -177,13 +179,14 @@ export default function Swap() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Swap</h1>
-        <p className="text-muted-foreground">Exchange tokens across multiple chains with best rates</p>
-      </div>
+    <TooltipProvider>
+      <div className="p-4 sm:p-6 space-y-6">
+        <div className="text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Swap</h1>
+          <p className="text-muted-foreground">Exchange tokens across multiple chains with best rates</p>
+        </div>
 
-      <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto">
         <Card className="bg-gradient-secondary border-primary/20">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -209,20 +212,22 @@ export default function Swap() {
               <Label htmlFor="from-amount">From</Label>
               <div className="flex space-x-2">
                 <div className="flex-1">
-                  <ValidatedInput
-                    id="from-amount"
-                    placeholder="0.0"
-                    value={fromAmount}
-                    onChange={(e) => handleFromAmountChange(e.target.value)}
-                    className="text-right text-lg font-semibold"
-                    type="number"
-                    step="any"
-                    validationRules={[
-                      ValidationRules.positiveNumber('Amount must be greater than 0'),
-                      ValidationRules.range(0.000001, 1000000, 'Amount must be between 0.000001 and 1,000,000'),
-                    ]}
-                    showValidationIcon={false}
-                  />
+                    <ValidatedInput
+                      id="from-amount"
+                      placeholder="0.0"
+                      value={fromAmount}
+                      onChange={(e) => handleFromAmountChange(e.target.value)}
+                      className="text-right text-lg font-semibold"
+                      type="number"
+                      step="any"
+                      validationRules={[
+                        ValidationRules.positiveNumber('Amount must be greater than 0'),
+                        ValidationRules.range(0.000001, 1000000, 'Amount must be between 0.000001 and 1,000,000'),
+                      ]}
+                      showValidationIcon={false}
+                      aria-label={`Enter amount of ${fromToken} to swap`}
+                      aria-describedby="from-balance"
+                    />
                 </div>
                 <Select value={fromToken} onValueChange={setFromToken}>
                   <SelectTrigger className="w-40 bg-card border-border">
@@ -257,7 +262,7 @@ export default function Swap() {
                 </Select>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground" id="from-balance">
                   Balance: {tokens.find(t => t.symbol === fromToken)?.balance} {fromToken}
                 </span>
                 <Button
@@ -297,6 +302,8 @@ export default function Swap() {
                     value={isCalculating ? "Calculating..." : toAmount}
                     readOnly
                     className="text-right text-lg font-semibold bg-muted/50"
+                    aria-label={`Amount of ${toToken} you will receive`}
+                    aria-describedby="to-balance"
                   />
                 </div>
                 <Select value={toToken} onValueChange={setToToken}>
@@ -331,13 +338,13 @@ export default function Swap() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="text-sm text-muted-foreground text-right">
+              <div className="text-sm text-muted-foreground text-right" id="to-balance">
                 Balance: {tokens.find(t => t.symbol === toToken)?.balance} {toToken}
               </div>
             </div>
 
             {/* Exchange Rate & Info */}
-            {fromAmount && toAmount && (
+            {fromAmount && toAmount && !isCalculating ? (
               <Card className="bg-muted/30 border border-border/50">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex justify-between items-center text-sm">
@@ -353,7 +360,17 @@ export default function Swap() {
                   </div>
                   
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Network Fee</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Network Fee</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-3 h-3 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Estimated gas fee for executing this transaction on the blockchain</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <span className="text-amber-500">~$12.45</span>
                   </div>
                   
@@ -392,7 +409,22 @@ export default function Swap() {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            ) : fromAmount && isCalculating ? (
+              <Card className="bg-muted/30 border border-border/50">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <Skeleton className="h-4 w-24" />
+                    <div className="text-right space-y-1">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </CardContent>
+              </Card>
+            ) : null}
 
             {/* Slippage Settings */}
             <Card className="bg-muted/30 border border-border/50">
@@ -402,14 +434,21 @@ export default function Swap() {
                     <Settings className="w-4 h-4" />
                     <span className="font-medium text-sm">Slippage Tolerance</span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="h-auto p-1"
-                  >
-                    <Info className="w-3 h-3" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-1"
+                        aria-label="Slippage tolerance information"
+                      >
+                        <HelpCircle className="w-3 h-3" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Maximum price movement tolerance. Higher slippage means more price flexibility but potentially worse rates.</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
                 
                 <div className="flex gap-2">
@@ -505,6 +544,7 @@ export default function Swap() {
         isOpen={showApiKeyModal}
         onOpenChange={setShowApiKeyModal}
       />
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }
