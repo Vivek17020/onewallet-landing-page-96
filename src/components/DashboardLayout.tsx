@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { DemoBanner } from "@/components/DemoBanner";
 import { Wallet } from "lucide-react";
 import WalletButton from "@/components/WalletButton";
 import { ReactNode } from "react";
@@ -15,6 +16,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
+          <DemoBanner />
           {/* Top Bar */}
           <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm flex items-center justify-between px-6">
             <div className="flex items-center space-x-4">

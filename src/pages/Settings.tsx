@@ -4,10 +4,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Mail, DollarSign, Palette, User, Wallet, Shield, LogOut } from "lucide-react";
+import { Bell, Mail, DollarSign, Palette, User, Wallet, Shield, LogOut, TestTube } from "lucide-react";
 import { useWallet } from "@/contexts/WalletContext";
 import { AuthModal } from "@/components/AuthModal";
 import { useUserSettings } from "@/hooks/useUserSettings";
+import { useDemoStore } from "@/stores/demoStore";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function SettingsPage() {
   const { isConnected, account } = useWallet();
   const { user, settings, isLoading, isSaving, updateSettings, signOut, isAuthenticated } = useUserSettings();
+  const { isDemoMode, toggleDemoMode } = useDemoStore();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { toast } = useToast();
 
@@ -184,6 +186,47 @@ export default function SettingsPage() {
               />
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Demo Mode Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="w-5 h-5" />
+            Demo Mode
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="demo-mode">Enable Demo Mode</Label>
+              <p className="text-sm text-muted-foreground">
+                Load curated mock wallet data for demonstration and judging purposes
+              </p>
+            </div>
+            <Switch
+              id="demo-mode"
+              checked={isDemoMode}
+              onCheckedChange={toggleDemoMode}
+              aria-label="Toggle demo mode"
+            />
+          </div>
+          
+          {isDemoMode && (
+            <div className="p-4 bg-muted/50 rounded-lg border border-amber-500/30">
+              <div className="flex items-center gap-2 mb-2 text-amber-600">
+                <TestTube className="w-4 h-4" />
+                <span className="font-medium text-sm">Demo Data Active</span>
+              </div>
+              <ul className="text-xs text-muted-foreground space-y-1">
+                <li>• Mock wallet: 0x742d...8910</li>
+                <li>• ETH Balance: 3.5 ETH</li>
+                <li>• Token Holdings: USDC, USDT, WBTC</li>
+                <li>• Total Portfolio: $21,500</li>
+              </ul>
+            </div>
+          )}
         </CardContent>
       </Card>
 

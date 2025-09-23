@@ -2,12 +2,14 @@ import { useEffect } from 'react';
 import { useBalance } from 'wagmi';
 import { useWalletStore } from '@/stores/walletStore';
 import { useChainStore } from '@/stores/chainStore';
+import { useDemoStore } from '@/stores/demoStore';
 import { formatEther } from 'viem';
 import { mainnet, sepolia, polygon, arbitrum, base } from 'wagmi/chains';
 
 export const useBalances = () => {
-  const { address, setNativeBalance, setTotalUsdValue } = useWalletStore();
+  const { address, setNativeBalance, setTotalUsdValue, setTokenBalances, setAddress } = useWalletStore();
   const { selectedChain } = useChainStore();
+  const { isDemoMode, demoData } = useDemoStore();
   
   // Map chain IDs to supported wagmi chains
   const getWagmiChain = (chainId: number) => {
@@ -34,7 +36,13 @@ export const useBalances = () => {
 
   // Update native balance in store when it changes
   useEffect(() => {
-    if (balance) {
+    if (isDemoMode) {
+      // Use demo data when demo mode is active
+      setAddress(demoData.address);
+      setNativeBalance(demoData.nativeBalance);
+      setTokenBalances(demoData.tokenBalances);
+      setTotalUsdValue(demoData.totalUsdValue);
+    } else if (balance) {
       const formattedBalance = formatEther(balance.value);
       setNativeBalance(formattedBalance);
       
@@ -45,7 +53,7 @@ export const useBalances = () => {
       setNativeBalance(null);
       setTotalUsdValue(0);
     }
-  }, [balance, setNativeBalance, setTotalUsdValue]);
+  }, [balance, isDemoMode, demoData, setNativeBalance, setTotalUsdValue, setTokenBalances, setAddress]);
   
   // Refetch when selected chain changes
   useEffect(() => {
@@ -57,8 +65,8 @@ export const useBalances = () => {
   }, [selectedChain.id, address, setNativeBalance, setTotalUsdValue]);
 
   return {
-    nativeBalance: balance ? formatEther(balance.value) : null,
-    isLoading,
-    symbol: balance?.symbol || 'ETH',
+    nativeBalance: isDemoMode ? demoData.nativeBalance : (balance ? formatEther(balance.value) : null),
+    isLoading: isDemoMode ? false : isLoading,
+    symbol: isDemoMode ? 'ETH' : (balance?.symbol || 'ETH'),
   };
 };
