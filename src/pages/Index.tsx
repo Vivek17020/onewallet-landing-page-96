@@ -1,123 +1,119 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Wallet, Shield, Zap, Globe } from "lucide-react";
-import { useWallet } from "@/contexts/WalletContext";
-import { useWalletStore } from "@/stores/walletStore";
-import WalletButton from "@/components/WalletButton";
-import heroImage from "@/assets/hero-bg.jpg";
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Calendar, Eye, ArrowRight, Shield } from 'lucide-react';
 
 const Index = () => {
-  const { isConnected, connectWallet } = useWallet();
-  const { address } = useWalletStore();
-  
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      {/* Navigation */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Wallet className="w-6 h-6 text-primary-foreground" />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <FileText className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                Article Hub
+              </h1>
+            </div>
+            <Button asChild variant="outline" className="border-primary/20 hover:bg-primary/10">
+              <Link to="/admin/login">
+                <Shield className="w-4 h-4 mr-2" />
+                Admin Login
+              </Link>
+            </Button>
           </div>
-          <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            OneWallet
-          </span>
         </div>
-        <WalletButton />
-      </nav>
+      </header>
 
       {/* Hero Section */}
-      <main className="relative">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 overflow-hidden">
-          <img 
-            src={heroImage} 
-            alt="Web3 blockchain network visualization" 
-            className="w-full h-full object-cover opacity-30"
-          />
-          <div className="absolute inset-0 bg-gradient-hero opacity-80"></div>
+      <section className="relative py-24 px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-gradient-hero opacity-10" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-6">
+            Professional Content Management
+          </h1>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            A powerful admin dashboard for creating, editing, and publishing articles with rich text editing and media management.
+          </p>
+          <Button asChild size="lg" className="bg-gradient-primary hover:bg-gradient-secondary transition-all duration-300 shadow-glow">
+            <Link to="/admin/login">
+              Get Started
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
+          </Button>
         </div>
+      </section>
 
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 lg:py-32">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl lg:text-7xl font-bold mb-8 leading-tight">
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
-                One Wallet.
-              </span>
-              <br />
-              <span className="text-foreground">Every Chain.</span>
-            </h1>
-            
-            <p className="text-xl lg:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Experience the future of DeFi with our unified wallet dashboard for multiple chains. 
-              Manage all your crypto assets seamlessly in one beautiful interface.
+      {/* Features */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-card/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Everything you need to manage content
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Built with modern technologies for a seamless experience
             </p>
+          </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
-              {isConnected ? (
-                <Link 
-                  to="/app/assets" 
-                  className="inline-flex items-center justify-center rounded-lg bg-gradient-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-glow-primary transition-all duration-300 hover:shadow-glow-secondary hover:scale-105"
-                >
-                  <Shield className="w-5 h-5 mr-2" />
-                  Open Dashboard
-                </Link>
-              ) : (
-                <Button 
-                  variant="connect" 
-                  size="lg"
-                  className="text-lg px-8 py-4 h-auto min-w-[200px]"
-                  onClick={() => connectWallet()}
-                >
-                  <Wallet className="w-5 h-5 mr-2" />
-                  Connect Wallet
-                </Button>
-              )}
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="text-lg px-8 py-4 h-auto border-primary/30 hover:border-primary"
-              >
-                Learn More
-              </Button>
-            </div>
-
-            {/* Feature Cards */}
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-              <Card className="p-6 bg-card/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 animate-float">
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <Shield className="w-6 h-6 text-primary-foreground" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-border/50 hover:shadow-accent transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-card-foreground">Secure & Safe</h3>
+                <CardTitle>Rich Text Editor</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
-                  Industry-leading security with multi-signature support and hardware wallet integration.
+                  Professional WYSIWYG editor with support for headings, formatting, links, images, and code blocks.
                 </p>
-              </Card>
+              </CardContent>
+            </Card>
 
-              <Card className="p-6 bg-card/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 animate-float" style={{ animationDelay: '1s' }}>
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <Zap className="w-6 h-6 text-primary-foreground" />
+            <Card className="border-border/50 hover:shadow-accent transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-secondary rounded-lg flex items-center justify-center mb-4">
+                  <Eye className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-card-foreground">Lightning Fast</h3>
+                <CardTitle>Live Publishing</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
-                  Execute transactions across multiple chains with optimized routing and minimal fees.
+                  Publish articles instantly without redeploy. Changes go live immediately with real-time updates.
                 </p>
-              </Card>
+              </CardContent>
+            </Card>
 
-              <Card className="p-6 bg-card/80 backdrop-blur-sm border-primary/20 hover:border-primary/40 transition-all duration-300 animate-float" style={{ animationDelay: '2s' }}>
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4 mx-auto">
-                  <Globe className="w-6 h-6 text-primary-foreground" />
+            <Card className="border-border/50 hover:shadow-accent transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-hero rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-card-foreground">Multi-Chain</h3>
+                <CardTitle>Admin Security</CardTitle>
+              </CardHeader>
+              <CardContent>
                 <p className="text-muted-foreground">
-                  Support for Ethereum, Polygon, BSC, Solana, and 20+ other major blockchain networks.
+                  Secure admin-only access with Supabase authentication and role-based permissions.
                 </p>
-              </Card>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <p className="text-muted-foreground">
+            Built with React, TypeScript, Tailwind CSS, and Supabase
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -1,1 +1,7 @@
-project_id = "lprwzdiczcoklwjjwhal"
+project_id = "tadcyglvsjycpgsjkywj"
+
+[functions.ai-proxy]
+verify_jwt = false
+
+[functions.audit-website]
+verify_jwt = false
