@@ -1,0 +1,97 @@
+{
+  "nav": {
+    "home": "होम",
+    "search": "खोजें",
+    "profile": "प्रोफाइल",
+    "settings": "सेटिंग्स",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "subscribe": "सब्सक्राइब करें"
+  },
+  "footer": {
+    "tagline": "आपकी विश्वसनीय खबरों का स्रोत, ब्रेकिंग न्यूज़, गहन विश्लेषण और महत्वपूर्ण घटनाओं की व्यापक कवरेज।",
+    "company": "कंपनी",
+    "aboutUs": "हमारे बारे में",
+    "contact": "संपर्क करें",
+    "editorialGuidelines": "संपादकीय दिशानिर्देश",
+    "rssFeed": "RSS फीड",
+    "legal": "कानूनी",
+    "privacyPolicy": "गोपनीयता नीति",
+    "termsOfService": "सेवा की शर्तें",
+    "cookiePolicy": "कुकी नीति",
+    "disclaimer": "अस्वीकरण",
+    "sections": "सेक्शन",
+    "politics": "राजनीति",
+    "technology": "तकनीक",
+    "business": "व्यापार",
+    "sports": "खेल",
+    "email": "contact@thebulletinbriefs.in",
+    "phone": "918390710252",
+    "location": "महाराष्ट्र, भारत",
+    "rights": "सर्वाधिकार सुरक्षित।"
+  },
+  "newsletter": {
+    "title": "न्यूज़लेटर की सदस्यता लें",
+    "description": "नवीनतम समाचार और अपडेट सीधे अपने इनबॉक्स में प्राप्त करें।",
+    "emailPlaceholder": "अपना ईमेल दर्ज करें",
+    "subscribe": "सब्सक्राइब करें",
+    "subscribing": "सब्सक्राइब हो रहा है...",
+    "success": "सफलतापूर्वक सब्सक्राइब हो गया!",
+    "error": "सब्सक्रिप्शन विफल। कृपया पुन: प्रयास करें।"
+  },
+  "categories": {
+    "all": "सभी",
+    "politics": "राजनीति",
+    "tech": "तकनीक",
+    "business": "व्यापार",
+    "sports": "खेल",
+    "entertainment": "मनोरंजन",
+    "science": "विज्ञान",
+    "health": "स्वास्थ्य",
+    "world": "विश्व"
+  },
+  "article": {
+    "readMore": "और पढ़ें",
+    "share": "शेयर करें",
+    "like": "पसंद करें",
+    "comment": "टिप्पणी करें",
+    "views": "बार देखा गया",
+    "publishedOn": "प्रकाशित",
+    "by": "द्वारा",
+    "relatedArticles": "संबंधित लेख",
+    "premium": "प्रीमियम"
+  },
+  "homepage": {
+    "featured": "फीचर्ड",
+    "justIn": "अभी-अभी",
+    "trending": "ट्रेंडिंग",
+    "latest": "ताज़ा खबरें"
+  },
+  "admin": {
+    "dashboard": "डैशबोर्ड",
+    "allArticles": "सभी लेख",
+    "newArticle": "नया लेख",
+    "engagement": "एंगेजमेंट",
+    "seoAudit": "SEO ऑडिट",
+    "settings": "सेटिंग्स",
+    "signOut": "साइन आउट",
+    "cmsAdmin": "CMS एडमिन",
+    "contentManagement": "कंटेंट मैनेजमेंट",
+    "navigation": "नेविगेशन",
+    "administrator": "व्यवस्थापक"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "retry": "पुन: प्रयास करें",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "close": "बंद करें",
+    "submit": "सबमिट करें",
+    "back": "वापस",
+    "next": "अगला",
+    "previous": "पिछला"
+  }
+}

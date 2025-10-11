@@ -3,8 +3,10 @@ import { ArticleCard } from './article-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function JustInSection() {
+  const { t } = useTranslation();
   const { data: latestData, isLoading } = useArticles(undefined, 1, 5);
 
   if (isLoading) {
@@ -13,7 +15,7 @@ export function JustInSection() {
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Clock className="h-5 w-5 text-primary" />
-            Just In
+            {t('homepage.justIn')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -34,7 +36,7 @@ export function JustInSection() {
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
           <Clock className="h-5 w-5 text-primary" />
-          Just In
+          {t('homepage.justIn')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">

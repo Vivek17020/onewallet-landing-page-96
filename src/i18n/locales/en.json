@@ -1,0 +1,97 @@
+{
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "profile": "Profile",
+    "settings": "Settings",
+    "login": "Login",
+    "logout": "Logout",
+    "subscribe": "Subscribe"
+  },
+  "footer": {
+    "tagline": "Your trusted source for breaking news, in-depth analysis, and comprehensive coverage of events that matter.",
+    "company": "Company",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "editorialGuidelines": "Editorial Guidelines",
+    "rssFeed": "RSS Feed",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy",
+    "disclaimer": "Disclaimer",
+    "sections": "Sections",
+    "politics": "Politics",
+    "technology": "Technology",
+    "business": "Business",
+    "sports": "Sports",
+    "email": "contact@thebulletinbriefs.in",
+    "phone": "918390710252",
+    "location": "Maharashtra, India",
+    "rights": "All rights reserved."
+  },
+  "newsletter": {
+    "title": "Subscribe to Newsletter",
+    "description": "Get the latest news and updates directly in your inbox.",
+    "emailPlaceholder": "Enter your email",
+    "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "success": "Successfully subscribed!",
+    "error": "Subscription failed. Please try again."
+  },
+  "categories": {
+    "all": "All",
+    "politics": "Politics",
+    "tech": "Technology",
+    "business": "Business",
+    "sports": "Sports",
+    "entertainment": "Entertainment",
+    "science": "Science",
+    "health": "Health",
+    "world": "World"
+  },
+  "article": {
+    "readMore": "Read More",
+    "share": "Share",
+    "like": "Like",
+    "comment": "Comment",
+    "views": "views",
+    "publishedOn": "Published on",
+    "by": "by",
+    "relatedArticles": "Related Articles",
+    "premium": "Premium"
+  },
+  "homepage": {
+    "featured": "Featured",
+    "justIn": "Just In",
+    "trending": "Trending",
+    "latest": "Latest News"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "allArticles": "All Articles",
+    "newArticle": "New Article",
+    "engagement": "Engagement",
+    "seoAudit": "SEO Audit",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "cmsAdmin": "CMS Admin",
+    "contentManagement": "Content Management",
+    "navigation": "Navigation",
+    "administrator": "Administrator"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  }
+}

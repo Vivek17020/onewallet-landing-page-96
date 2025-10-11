@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import { NewsletterSignup } from './newsletter-signup';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const socialLinks = [
   { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/profile.php?id=61580246143943' },
@@ -10,28 +11,30 @@ const socialLinks = [
   { name: 'YouTube', icon: Youtube, href: 'https://www.youtube.com/@thebulletinbriefs' },
 ];
 
-const footerLinks = {
+const footerLinksConfig = {
   company: [
-    { name: 'About Us', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'Editorial Guidelines', href: '/editorial-guidelines' },
-    { name: 'RSS Feed', href: '/rss' },
+    { key: 'aboutUs', href: '/about' },
+    { key: 'contact', href: '/contact' },
+    { key: 'editorialGuidelines', href: '/editorial-guidelines' },
+    { key: 'rssFeed', href: '/rss' },
   ],
   legal: [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Cookie Policy', href: '/cookies' },
-    { name: 'Disclaimer', href: '/disclaimer' },
+    { key: 'privacyPolicy', href: '/privacy' },
+    { key: 'termsOfService', href: '/terms' },
+    { key: 'cookiePolicy', href: '/cookies' },
+    { key: 'disclaimer', href: '/disclaimer' },
   ],
   sections: [
-    { name: 'Politics', href: '/category/politics' },
-    { name: 'Technology', href: '/category/tech' },
-    { name: 'Business', href: '/category/business' },
-    { name: 'Sports', href: '/category/sports' },
+    { key: 'politics', href: '/category/politics' },
+    { key: 'technology', href: '/category/tech' },
+    { key: 'business', href: '/category/business' },
+    { key: 'sports', href: '/category/sports' },
   ],
 };
 
 export function Footer() {
+  const { t } = useTranslation();
+  
   return (
     <footer className="bg-card border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,35 +60,35 @@ export function Footer() {
               <span className="font-bold text-xl">TheBulletinBriefs</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Your trusted source for breaking news, in-depth analysis, and comprehensive coverage of events that matter.
+              {t('footer.tagline')}
             </p>
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                <span>contact@thebulletinbriefs.in</span>
+                <span>{t('footer.email')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>918390710252</span>
+                <span>{t('footer.phone')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                <span>Maharashtra, India</span>
+                <span>{t('footer.location')}</span>
               </div>
             </div>
           </div>
 
           {/* Company Links */}
           <div>
-            <h3 className="font-semibold mb-4">Company</h3>
+            <h3 className="font-semibold mb-4">{t('footer.company')}</h3>
             <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
+              {footerLinksConfig.company.map((link) => (
+                <li key={link.key}>
                   <Link 
                     to={link.href} 
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.name}
+                    {t(`footer.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -94,15 +97,15 @@ export function Footer() {
 
           {/* Sections */}
           <div>
-            <h3 className="font-semibold mb-4">Sections</h3>
+            <h3 className="font-semibold mb-4">{t('footer.sections')}</h3>
             <ul className="space-y-3">
-              {footerLinks.sections.map((link) => (
-                <li key={link.name}>
+              {footerLinksConfig.sections.map((link) => (
+                <li key={link.key}>
                   <Link 
                     to={link.href} 
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.name}
+                    {t(`footer.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -111,15 +114,15 @@ export function Footer() {
 
           {/* Legal Links */}
           <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
+            <h3 className="font-semibold mb-4">{t('footer.legal')}</h3>
             <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
+              {footerLinksConfig.legal.map((link) => (
+                <li key={link.key}>
                   <Link 
                     to={link.href} 
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.name}
+                    {t(`footer.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -132,7 +135,7 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="py-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} TheBulletinBriefs. All rights reserved.
+            © {new Date().getFullYear()} TheBulletinBriefs. {t('footer.rights')}
           </p>
           
           {/* Social Links */}

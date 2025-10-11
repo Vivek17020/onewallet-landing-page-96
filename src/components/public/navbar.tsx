@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import { useCategories } from "@/hooks/use-articles";
 import { FileText, Menu, X, Search } from "lucide-react";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SearchDialog } from "@/components/public/search-dialog";
 import { UserMenu } from "@/components/public/user-menu";
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -32,7 +35,7 @@ export function Navbar() {
               to="/"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
             >
-              Home
+              {t('nav.home')}
             </Link>
             {categories?.map((category) => (
               <Link
@@ -79,8 +82,9 @@ export function Navbar() {
               className="h-9 w-9 p-0"
             >
               <Search className="h-4 w-4" />
-              <span className="sr-only">Search</span>
+              <span className="sr-only">{t('nav.search')}</span>
             </Button>
+            <LanguageToggle />
             <ThemeToggle />
             <UserMenu />
           </nav>
@@ -96,7 +100,7 @@ export function Navbar() {
               className="block px-3 py-2 text-base font-medium text-foreground/60 hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Home
+              {t('nav.home')}
             </Link>
             {categories?.map((category) => (
               <Link

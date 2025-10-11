@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/use-articles";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface CategoryFilterProps {
   activeCategory?: string;
@@ -8,6 +9,7 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFilterProps) {
+  const { t } = useTranslation();
   const { data: categories, isLoading } = useCategories();
 
   if (isLoading) {
@@ -30,7 +32,7 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
           !activeCategory && "bg-gradient-primary text-primary-foreground"
         )}
       >
-        All
+        {t('categories.all')}
       </Button>
       {categories?.map((category) => (
         <Button
