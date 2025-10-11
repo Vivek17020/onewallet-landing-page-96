@@ -172,24 +172,35 @@ FORMATTED SEO-OPTIMIZED CONTENT:`
 
       case 'humanize-content':
         try {
-          const humanizePrompt = `Rewrite the following article content to make it sound more natural, human, and engaging while preserving all information.
+          const humanizePrompt = `You are a professional human writer. Rewrite this article to be 99% human-written and pass Google's AI detection.
 
-RULES:
-1. Make it conversational and engaging while maintaining professionalism
-2. Vary sentence structure and length for natural flow
-3. Remove robotic or AI-like phrasing
-4. Add personality and human touch
-5. Keep all HTML tags and structure intact
-6. Preserve all factual information
-7. Return ONLY the HTML without code fences or explanations
+CRITICAL REQUIREMENTS:
+1. Write like a real journalist - use personal observations, varied vocabulary, unexpected transitions
+2. Mix short punchy sentences with longer flowing ones naturally
+3. Add subtle imperfections: contractions, occasional informal phrasing, rhetorical questions
+4. Use active voice predominantly, include occasional idioms or colloquialisms where appropriate
+5. Show personality - add subtle opinions, human perspectives, real-world examples
+6. Avoid AI patterns: no lists everywhere, no perfect symmetry, no repetitive structure
+7. Keep all HTML tags (<h2>, <h3>, <p>, <strong>, <a>, etc.) exactly as they are
+8. Preserve ALL factual information and data
+9. Return ONLY the HTML content without markdown code fences or explanations
+
+Write as if you're a real person sharing knowledge, not an AI generating content. Make it natural, engaging, and authentically human.
 
 Content to humanize:
 ${content}
 
-Humanized HTML:`
+Humanized HTML (no code fences):`
 
           const humanized = await callLovableAI(humanizePrompt)
-          result = { result: humanized.trim() }
+          
+          // Strip any code fences that might be present
+          let cleaned = humanized.trim()
+          cleaned = cleaned.replace(/^```html\n?/i, '')
+          cleaned = cleaned.replace(/^```\n?/i, '')
+          cleaned = cleaned.replace(/\n?```$/i, '')
+          
+          result = { result: cleaned }
         } catch (error) {
           console.error('Humanize content error:', error)
           throw new Error('Failed to humanize content')

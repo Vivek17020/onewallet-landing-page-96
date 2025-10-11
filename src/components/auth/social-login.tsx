@@ -13,7 +13,7 @@ interface SocialLoginProps {
 export function SocialLogin({ redirectTo = '/', mode = 'signin' }: SocialLoginProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
-  const handleSocialLogin = async (provider: 'google' | 'apple' | 'twitter') => {
+  const handleSocialLogin = async (provider: 'google' | 'twitter') => {
     setLoading(provider);
     
     try {
@@ -72,20 +72,6 @@ export function SocialLogin({ redirectTo = '/', mode = 'signin' }: SocialLoginPr
             <Icons.google className="mr-2 h-4 w-4" />
           )}
           Continue with Google
-        </Button>
-        
-        <Button
-          variant="outline"
-          onClick={() => handleSocialLogin('apple')}
-          disabled={loading !== null}
-          className="w-full"
-        >
-          {loading === 'apple' ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Icons.apple className="mr-2 h-4 w-4" />
-          )}
-          Continue with Apple
         </Button>
         
         <Button

@@ -13,7 +13,7 @@ import { AIAssistantPanel } from './ai-assistant-panel';
 import { ArticlePremiumControls } from './article-premium-controls';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Upload, Eye, Save, Send, X, Clock, CheckCircle, Youtube, Sparkles } from 'lucide-react';
+import { Upload, Eye, Save, Send, X, Clock, CheckCircle, Youtube, Sparkles, ClipboardCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import slugify from 'slugify';
 import { z } from 'zod';
@@ -78,6 +78,8 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
   const [isHumanizing, setIsHumanizing] = useState(false);
   const [isSeoOptimizing, setIsSeoOptimizing] = useState(false);
   const [isBoldingKeywords, setIsBoldingKeywords] = useState(false);
+  const [isCheckingReadiness, setIsCheckingReadiness] = useState(false);
+  const [readinessReport, setReadinessReport] = useState<any>(null);
   
   // Auto-save states
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -551,7 +553,11 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       if (error) throw error;
 
       if (data?.result) {
-        const cleaned = (data.result as string).trim();
+        const raw: string = data.result as string;
+        const cleaned = raw
+          .replace(/^```(?:html)?\n?/i, '')
+          .replace(/```$/i, '')
+          .trim();
         
         if (!cleaned) {
           toast({
@@ -602,7 +608,11 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       if (error) throw error;
 
       if (data?.result) {
-        const cleaned = (data.result as string).trim();
+        const raw: string = data.result as string;
+        const cleaned = raw
+          .replace(/^```(?:html)?\n?/i, '')
+          .replace(/```$/i, '')
+          .trim();
         
         if (!cleaned) {
           toast({
@@ -653,7 +663,11 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       if (error) throw error;
 
       if (data?.result) {
-        const cleaned = (data.result as string).trim();
+        const raw: string = data.result as string;
+        const cleaned = raw
+          .replace(/^```(?:html)?\n?/i, '')
+          .replace(/```$/i, '')
+          .trim();
         
         if (!cleaned) {
           toast({
@@ -678,6 +692,54 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       });
     } finally {
       setIsBoldingKeywords(false);
+    }
+  };
+
+  const handleCheckReadiness = async () => {
+    if (!formData.title?.trim() || !formData.content?.trim()) {
+      toast({
+        title: "Incomplete Article",
+        description: "Please add title and content before checking readiness.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCheckingReadiness(true);
+    setReadinessReport(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('check-article-readiness', {
+        body: {
+          title: formData.title,
+          content: formData.content,
+          excerpt: formData.excerpt,
+          meta_title: formData.meta_title,
+          meta_description: formData.meta_description,
+          tags: formData.tags,
+          category_id: formData.category_id,
+          image_url: formData.image_url,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setReadinessReport(data);
+        toast({
+          title: "Readiness Check Complete",
+          description: data.readinessMessage,
+        });
+      }
+    } catch (error: any) {
+      console.error('Readiness check error:', error);
+      toast({
+        title: "Check Failed",
+        description: error?.message || "Failed to check article readiness.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingReadiness(false);
     }
   };
 
@@ -821,8 +883,18 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
                     disabled={isBoldingKeywords || !formData.content?.trim()}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    {isBoldingKeywords ? 'Bolding...' : 'Bold Keywords'}
-                  </Button>
+                  {isBoldingKeywords ? 'Bolding...' : 'Bold Keywords'}
+                </Button>
+                
+                <Button
+                  onClick={handleCheckReadiness}
+                  disabled={isCheckingReadiness || !formData.title?.trim() || !formData.content?.trim()}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <ClipboardCheck className="mr-2 h-4 w-4" />
+                  {isCheckingReadiness ? 'Checking...' : 'Check Readiness'}
+                </Button>
                   
                   <Button
                     variant="outline"
@@ -848,6 +920,91 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
               />
             </CardContent>
           </Card>
+
+          {/* Article Readiness Report */}
+          {readinessReport && (
+            <Card className={`border-2 ${
+              readinessReport.readinessColor === 'green' ? 'border-green-500 bg-green-50 dark:bg-green-950' :
+              readinessReport.readinessColor === 'blue' ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' :
+              readinessReport.readinessColor === 'yellow' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950' :
+              'border-red-500 bg-red-50 dark:bg-red-950'
+            }`}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardCheck className="h-5 w-5" />
+                    Article Readiness Report
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setReadinessReport(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl font-bold">{readinessReport.overallScore}%</span>
+                    <Badge className={
+                      readinessReport.readinessColor === 'green' ? 'bg-green-500' :
+                      readinessReport.readinessColor === 'blue' ? 'bg-blue-500' :
+                      readinessReport.readinessColor === 'yellow' ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    }>
+                      {readinessReport.readinessLevel}
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div
+                      className={`h-2.5 rounded-full ${
+                        readinessReport.readinessColor === 'green' ? 'bg-green-500' :
+                        readinessReport.readinessColor === 'blue' ? 'bg-blue-500' :
+                        readinessReport.readinessColor === 'yellow' ? 'bg-yellow-500' :
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${readinessReport.overallScore}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm mt-2">{readinessReport.readinessMessage}</p>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {readinessReport.checks.map((check: any, index: number) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold">{check.category}</h4>
+                      <Badge variant="outline">
+                        {check.score}/{check.maxScore}
+                      </Badge>
+                    </div>
+                    
+                    {check.issues.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">Issues:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {check.issues.map((issue: string, i: number) => (
+                            <li key={i} className="text-sm text-muted-foreground">{issue}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {check.suggestions.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Suggestions:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {check.suggestions.map((suggestion: string, i: number) => (
+                            <li key={i} className="text-sm text-muted-foreground">{suggestion}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* E-E-A-T Guidelines */}
           <Card className="border-primary/20 bg-primary/5">

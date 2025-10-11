@@ -42,11 +42,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
     const current = theme === "system" ? resolvedTheme : theme;
-    if (current === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    
+    root.classList.remove("light", "dark");
+    root.classList.add(current);
+    
     localStorage.setItem("vite-ui-theme", theme);
   }, [theme, resolvedTheme]);
 

@@ -49,7 +49,7 @@ import {
   Subscript as SubscriptIcon,
   Superscript as SuperscriptIcon,
 } from 'lucide-react';
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -124,6 +124,14 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       },
     },
   });
+
+  // Sync external content updates (e.g., AI actions) into TipTap editor
+  useEffect(() => {
+    if (!editor) return;
+    if (content && content !== htmlContent) {
+      editor.commands.setContent(content, { emitUpdate: false });
+    }
+  }, [content, editor, htmlContent]);
 
   const uploadImage = useCallback(async (file: File) => {
     try {

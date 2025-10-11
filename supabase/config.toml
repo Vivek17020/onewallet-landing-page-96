@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.audit-website]
 verify_jwt = false
+
+[functions.check-article-readiness]
+verify_jwt = false

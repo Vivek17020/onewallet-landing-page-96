@@ -302,6 +302,10 @@ All colors MUST be HSL. Rich blues and purples with sophisticated gradients.
     display: list-item;
   }
 
+  .article-content li::marker {
+    color: hsl(var(--foreground));
+  }
+
   .article-content table {
     width: 100%;
     border-collapse: collapse;
