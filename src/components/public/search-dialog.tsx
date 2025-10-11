@@ -10,6 +10,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Search, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 interface SearchResult {
   id: string;
@@ -27,6 +28,7 @@ interface SearchDialogProps {
 }
 
 export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,14 +139,14 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] p-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle>Search Articles</DialogTitle>
+          <DialogTitle>{t('search.title')}</DialogTitle>
         </DialogHeader>
         
         <div className="p-6 pt-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search for articles..."
+              placeholder={t('search.placeholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -162,7 +164,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               </div>
             ) : query.trim() && results.length > 0 ? (
               <div className="space-y-4">
-                <h3 className="font-medium text-sm text-muted-foreground">Search Results</h3>
+                <h3 className="font-medium text-sm text-muted-foreground">{t('search.searchResults')}</h3>
                 {results.map((article) => (
                   <Link
                     key={article.id}
@@ -200,7 +202,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               </div>
             ) : query.trim() && !isLoading ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground">No articles found for "{query}"</p>
+                <p className="text-muted-foreground">{t('search.noResults')} "{query}"</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -209,7 +211,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                   <div>
                     <h3 className="font-medium text-sm text-muted-foreground mb-3 flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      Recent Searches
+                      {t('search.recentSearches')}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {recentSearches.map((search, index) => (
@@ -236,7 +238,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 <div>
                   <h3 className="font-medium text-sm text-muted-foreground mb-3 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Trending Now
+                    {t('search.trendingNow')}
                   </h3>
                   <div className="space-y-2">
                     {trendingArticles.map((article) => (
@@ -255,7 +257,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                               {article.categories.name}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              {article.views_count} views
+                              {article.views_count} {t('search.views')}
                             </span>
                           </div>
                         </div>

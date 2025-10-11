@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Calendar, Eye, ArrowRight, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Index = () => {
+  const { t } = useTranslation();
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -16,13 +19,13 @@ const Index = () => {
                 <FileText className="h-4 w-4 text-primary-foreground" />
               </div>
               <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Article Hub
+                {t('site.name')}
               </h1>
             </div>
             <Button asChild variant="outline" className="border-primary/20 hover:bg-primary/10">
               <Link to="/admin/login">
                 <Shield className="w-4 h-4 mr-2" />
-                Admin Login
+                {t('nav.adminLogin')}
               </Link>
             </Button>
           </div>
@@ -34,14 +37,14 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-hero opacity-10" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-6">
-            Professional Content Management
+            {t('hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A powerful admin dashboard for creating, editing, and publishing articles with rich text editing and media management.
+            {t('hero.subtitle')}
           </p>
           <Button asChild size="lg" className="bg-gradient-primary hover:bg-gradient-secondary transition-all duration-300 shadow-glow">
             <Link to="/admin/login">
-              Get Started
+              {t('hero.getStarted')}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </Button>
@@ -53,10 +56,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Everything you need to manage content
+              {t('hero.features')}
             </h2>
             <p className="text-lg text-muted-foreground">
-              Built with modern technologies for a seamless experience
+              {t('hero.featuresSubtitle')}
             </p>
           </div>
 
@@ -66,11 +69,11 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                   <FileText className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <CardTitle>Rich Text Editor</CardTitle>
+                <CardTitle>{t('features.richTextEditor')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Professional WYSIWYG editor with support for headings, formatting, links, images, and code blocks.
+                  {t('features.richTextEditorDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -80,11 +83,11 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-secondary rounded-lg flex items-center justify-center mb-4">
                   <Eye className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <CardTitle>Live Publishing</CardTitle>
+                <CardTitle>{t('features.livePublishing')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Publish articles instantly without redeploy. Changes go live immediately with real-time updates.
+                  {t('features.livePublishingDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -94,11 +97,11 @@ const Index = () => {
                 <div className="w-12 h-12 bg-gradient-hero rounded-lg flex items-center justify-center mb-4">
                   <Shield className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <CardTitle>Admin Security</CardTitle>
+                <CardTitle>{t('features.adminSecurity')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Secure admin-only access with Supabase authentication and role-based permissions.
+                  {t('features.adminSecurityDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -110,7 +113,7 @@ const Index = () => {
       <footer className="border-t border-border bg-card/50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-muted-foreground">
-            Built with React, TypeScript, Tailwind CSS, and Supabase
+            {t('common.builtWith')}
           </p>
         </div>
       </footer>

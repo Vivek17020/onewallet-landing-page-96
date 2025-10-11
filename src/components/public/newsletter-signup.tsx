@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function NewsletterSignup() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -24,8 +26,8 @@ export function NewsletterSignup() {
       if (error) {
         if (error.code === '23505') {
           toast({
-            title: "Already subscribed",
-            description: "This email is already subscribed to our newsletter.",
+            title: t('common.alreadySubscribed'),
+            description: t('common.alreadySubscribedDesc'),
             variant: "destructive",
           });
         } else {
@@ -33,15 +35,15 @@ export function NewsletterSignup() {
         }
       } else {
         toast({
-          title: "Successfully subscribed!",
-          description: "You'll receive our latest news and updates.",
+          title: t('newsletter.success'),
+          description: t('common.subscriptionSuccessDesc'),
         });
         setEmail('');
       }
     } catch (error: any) {
       toast({
-        title: "Subscription failed",
-        description: error.message || "Please try again later.",
+        title: t('common.subscriptionFailed'),
+        description: error.message || t('common.tryAgainLater'),
         variant: "destructive",
       });
     } finally {
@@ -55,16 +57,16 @@ export function NewsletterSignup() {
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
           <Mail className="h-6 w-6 text-primary" />
         </div>
-        <CardTitle className="text-xl">Stay Updated</CardTitle>
+        <CardTitle className="text-xl">{t('common.stayUpdated')}</CardTitle>
         <CardDescription>
-          Get the latest news delivered straight to your inbox
+          {t('common.getLatestNews')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder={t('newsletter.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -72,7 +74,7 @@ export function NewsletterSignup() {
           />
           <Button type="submit" disabled={isLoading || !email}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Subscribe
+            {isLoading ? t('newsletter.subscribing') : t('newsletter.subscribe')}
           </Button>
         </form>
       </CardContent>
