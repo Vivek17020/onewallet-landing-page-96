@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App.tsx';
 import './index.css';
+
+// Import i18n config after React is fully loaded
 import './i18n/config';
 
 const rootElement = document.getElementById("root");
