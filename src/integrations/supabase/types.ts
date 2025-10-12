@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -57,7 +57,15 @@ export type Database = {
           price?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       article_likes: {
         Row: {
@@ -81,7 +89,15 @@ export type Database = {
           ip_address?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "article_likes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       article_shares: {
         Row: {
@@ -108,204 +124,107 @@ export type Database = {
           platform?: string
           user_id?: string | null
         }
-        Relationships: []
-      }
-      article_translations: {
-        Row: {
-          ai_summary: string | null
-          article_id: string
-          content: string
-          created_at: string
-          excerpt: string | null
-          id: string
-          language_code: string
-          meta_description: string | null
-          meta_title: string | null
-          seo_keywords: string[] | null
-          slug: string
-          summary: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          ai_summary?: string | null
-          article_id: string
-          content: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          language_code: string
-          meta_description?: string | null
-          meta_title?: string | null
-          seo_keywords?: string[] | null
-          slug: string
-          summary?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          ai_summary?: string | null
-          article_id?: string
-          content?: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          language_code?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          seo_keywords?: string[] | null
-          slug?: string
-          summary?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "article_shares_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       articles: {
         Row: {
           ads_enabled: boolean | null
           affiliate_products_enabled: boolean | null
-          ai_keywords: string[] | null
-          ai_summary: string | null
-          author: string
           author_id: string | null
-          canonical_url: string | null
-          category_id: string
+          breaking_news: boolean | null
+          category_id: string | null
           comments_count: number | null
           content: string
           created_at: string
           excerpt: string | null
           featured: boolean | null
-          has_translations: boolean | null
           id: string
           image_url: string | null
           is_premium: boolean | null
-          language: string | null
-          language_code: string | null
           likes_count: number | null
           meta_description: string | null
           meta_title: string | null
-          original_article_id: string | null
           premium_preview_length: number | null
-          published: boolean | null
+          published: boolean
           published_at: string | null
-          reading_time: number | null
-          seo_keywords: string[] | null
-          seo_score: number | null
           shares_count: number | null
           slug: string
           summary: string | null
           tags: string[] | null
           title: string
-          translations_available: boolean | null
           updated_at: string
           views_count: number | null
         }
         Insert: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
-          ai_keywords?: string[] | null
-          ai_summary?: string | null
-          author?: string
           author_id?: string | null
-          canonical_url?: string | null
-          category_id: string
+          breaking_news?: boolean | null
+          category_id?: string | null
           comments_count?: number | null
           content: string
           created_at?: string
           excerpt?: string | null
           featured?: boolean | null
-          has_translations?: boolean | null
           id?: string
           image_url?: string | null
           is_premium?: boolean | null
-          language?: string | null
-          language_code?: string | null
           likes_count?: number | null
           meta_description?: string | null
           meta_title?: string | null
-          original_article_id?: string | null
           premium_preview_length?: number | null
-          published?: boolean | null
+          published?: boolean
           published_at?: string | null
-          reading_time?: number | null
-          seo_keywords?: string[] | null
-          seo_score?: number | null
           shares_count?: number | null
           slug: string
           summary?: string | null
           tags?: string[] | null
           title: string
-          translations_available?: boolean | null
           updated_at?: string
           views_count?: number | null
         }
         Update: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
-          ai_keywords?: string[] | null
-          ai_summary?: string | null
-          author?: string
           author_id?: string | null
-          canonical_url?: string | null
-          category_id?: string
+          breaking_news?: boolean | null
+          category_id?: string | null
           comments_count?: number | null
           content?: string
           created_at?: string
           excerpt?: string | null
           featured?: boolean | null
-          has_translations?: boolean | null
           id?: string
           image_url?: string | null
           is_premium?: boolean | null
-          language?: string | null
-          language_code?: string | null
           likes_count?: number | null
           meta_description?: string | null
           meta_title?: string | null
-          original_article_id?: string | null
           premium_preview_length?: number | null
-          published?: boolean | null
+          published?: boolean
           published_at?: string | null
-          reading_time?: number | null
-          seo_keywords?: string[] | null
-          seo_score?: number | null
           shares_count?: number | null
           slug?: string
           summary?: string | null
           tags?: string[] | null
           title?: string
-          translations_available?: boolean | null
           updated_at?: string
           views_count?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "articles_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "articles_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_original_article_id_fkey"
-            columns: ["original_article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
             referencedColumns: ["id"]
           },
         ]
@@ -387,27 +306,33 @@ export type Database = {
       daily_trending_scores: {
         Row: {
           article_id: string
-          engagement_score: number
-          freshness_score: number
+          comments_24h: number | null
+          date: string
           id: string
-          score_date: string
-          trending_score: number
+          likes_24h: number | null
+          score: number
+          shares_24h: number | null
+          views_24h: number | null
         }
         Insert: {
           article_id: string
-          engagement_score?: number
-          freshness_score?: number
+          comments_24h?: number | null
+          date?: string
           id?: string
-          score_date?: string
-          trending_score?: number
+          likes_24h?: number | null
+          score?: number
+          shares_24h?: number | null
+          views_24h?: number | null
         }
         Update: {
           article_id?: string
-          engagement_score?: number
-          freshness_score?: number
+          comments_24h?: number | null
+          date?: string
           id?: string
-          score_date?: string
-          trending_score?: number
+          likes_24h?: number | null
+          score?: number
+          shares_24h?: number | null
+          views_24h?: number | null
         }
         Relationships: [
           {
@@ -418,96 +343,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      exam_papers: {
-        Row: {
-          created_at: string
-          download_count: number | null
-          exam_name: string
-          file_size: number | null
-          file_url: string
-          id: string
-          subject: string | null
-          title: string
-          updated_at: string
-          uploaded_by: string | null
-          year: number
-        }
-        Insert: {
-          created_at?: string
-          download_count?: number | null
-          exam_name: string
-          file_size?: number | null
-          file_url: string
-          id?: string
-          subject?: string | null
-          title: string
-          updated_at?: string
-          uploaded_by?: string | null
-          year: number
-        }
-        Update: {
-          created_at?: string
-          download_count?: number | null
-          exam_name?: string
-          file_size?: number | null
-          file_url?: string
-          id?: string
-          subject?: string | null
-          title?: string
-          updated_at?: string
-          uploaded_by?: string | null
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "exam_papers_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "exam_papers_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      languages: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          is_active: boolean
-          is_default: boolean
-          name: string
-          native_name: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name: string
-          native_name: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name?: string
-          native_name?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       monetization_analytics: {
         Row: {
@@ -546,7 +381,15 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "monetization_analytics_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_preferences: {
         Row: {
@@ -604,46 +447,31 @@ export type Database = {
       }
       profiles: {
         Row: {
-          author_bio: string | null
-          author_image_url: string | null
-          avatar_url: string | null
-          bio: string | null
           created_at: string
+          display_name: string | null
           email: string | null
-          full_name: string | null
           id: string
-          job_title: string | null
-          role: string | null
           updated_at: string
-          username: string
+          user_id: string
+          wallet_address: string
         }
         Insert: {
-          author_bio?: string | null
-          author_image_url?: string | null
-          avatar_url?: string | null
-          bio?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
-          full_name?: string | null
-          id: string
-          job_title?: string | null
-          role?: string | null
+          id?: string
           updated_at?: string
-          username: string
+          user_id: string
+          wallet_address: string
         }
         Update: {
-          author_bio?: string | null
-          author_image_url?: string | null
-          avatar_url?: string | null
-          bio?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
-          full_name?: string | null
           id?: string
-          job_title?: string | null
-          role?: string | null
           updated_at?: string
-          username?: string
+          user_id?: string
+          wallet_address?: string
         }
         Relationships: []
       }
@@ -677,30 +505,102 @@ export type Database = {
       security_audit_log: {
         Row: {
           action: string
-          created_at: string | null
+          created_at: string
+          event_type: string
           id: string
-          ip_address: unknown | null
-          resource: string | null
+          ip_address: string | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string | null
+          status: string
           user_agent: string | null
           user_id: string | null
         }
         Insert: {
           action: string
-          created_at?: string | null
+          created_at?: string
+          event_type: string
           id?: string
-          ip_address?: unknown | null
-          resource?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          status: string
           user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           action?: string
-          created_at?: string | null
+          created_at?: string
+          event_type?: string
           id?: string
-          ip_address?: unknown | null
-          resource?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          status?: string
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      transaction_notifications: {
+        Row: {
+          id: string
+          notification_type: string
+          sent_at: string
+          transaction_hash: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type: string
+          sent_at?: string
+          transaction_hash: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          transaction_hash?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -765,30 +665,33 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          created_at: string
           id: string
           ip_address: string | null
-          last_updated: string
           preferred_categories: string[] | null
           preferred_tags: string[] | null
-          reading_frequency: Json | null
+          reading_frequency: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
+          created_at?: string
           id?: string
           ip_address?: string | null
-          last_updated?: string
           preferred_categories?: string[] | null
           preferred_tags?: string[] | null
-          reading_frequency?: Json | null
+          reading_frequency?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
+          created_at?: string
           id?: string
           ip_address?: string | null
-          last_updated?: string
           preferred_categories?: string[] | null
           preferred_tags?: string[] | null
-          reading_frequency?: Json | null
+          reading_frequency?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -831,6 +734,45 @@ export type Database = {
           },
         ]
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          default_currency: string
+          email_notifications: boolean
+          id: string
+          notifications_enabled: boolean
+          price_alerts: boolean
+          theme: string
+          transaction_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
+          id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
+          id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vapid_config: {
         Row: {
           created_at: string
@@ -854,148 +796,10 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          author_bio: string | null
-          author_image_url: string | null
-          avatar_url: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          job_title: string | null
-          updated_at: string | null
-          username: string | null
-        }
-        Insert: {
-          author_bio?: string | null
-          author_image_url?: string | null
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          job_title?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Update: {
-          author_bio?: string | null
-          author_image_url?: string | null
-          avatar_url?: string | null
-          created_at?: string | null
-          full_name?: string | null
-          id?: string | null
-          job_title?: string | null
-          updated_at?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      calculate_seo_score: {
-        Args: {
-          article_content: string
-          article_keywords: string[]
-          article_meta_description: string
-          article_meta_title: string
-          article_title: string
-        }
-        Returns: number
-      }
-      can_manage_push_notifications: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      generate_unique_username: {
-        Args: { user_full_name: string; user_id: string }
-        Returns: string
-      }
-      get_article_engagement: {
-        Args: { article_uuid: string }
-        Returns: {
-          comments_count: number
-          likes_count: number
-          shares_count: number
-        }[]
-      }
-      get_author_profile: {
-        Args: { author_uuid: string }
-        Returns: {
-          author_bio: string
-          author_image_url: string
-          avatar_url: string
-          full_name: string
-          id: string
-          job_title: string
-          username: string
-        }[]
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_public_comments: {
-        Args: { article_uuid: string }
-        Returns: {
-          article_id: string
-          author_name: string
-          content: string
-          created_at: string
-          id: string
-          updated_at: string
-          user_id: string
-        }[]
-      }
-      get_safe_author_profile: {
-        Args: { author_uuid: string }
-        Returns: {
-          author_bio: string
-          author_image_url: string
-          avatar_url: string
-          full_name: string
-          id: string
-          job_title: string
-          username: string
-        }[]
-      }
-      get_safe_comments: {
-        Args: { article_uuid: string }
-        Returns: {
-          article_id: string
-          author_name: string
-          content: string
-          created_at: string
-          id: string
-          updated_at: string
-          user_id: string
-        }[]
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      log_security_event: {
-        Args: { action_type: string; resource_name?: string }
-        Returns: undefined
-      }
-      security_check_status: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          description: string
-          issue: string
-          requires_manual_action: boolean
-          status: string
-        }[]
-      }
-      validate_security_policies: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          has_rls: boolean
-          policy_count: number
-          public_access: boolean
-          table_name: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
