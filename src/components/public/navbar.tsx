@@ -27,7 +27,7 @@ export function Navbar() {
               className="w-8 h-8 rounded-full object-cover"
             />
             <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
-              TheBulletinBriefs
+              {t('site.name')}
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -61,7 +61,7 @@ export function Navbar() {
             className="w-8 h-8 rounded-full object-cover mr-2"
           />
           <span className="font-bold text-xl bg-gradient-primary bg-clip-text text-transparent">
-            TheBulletinBriefs
+            {t('site.name')}
           </span>
           {mobileMenuOpen ? (
             <X className="ml-2 h-4 w-4" />

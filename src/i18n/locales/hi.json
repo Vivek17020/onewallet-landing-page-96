@@ -72,7 +72,20 @@
     "featured": "फीचर्ड",
     "justIn": "अभी-अभी",
     "trending": "ट्रेंडिंग",
-    "latest": "ताज़ा खबरें"
+    "latest": "ताज़ा खबरें",
+    "forYou": "आपके लिए",
+    "browseAll": "सभी देखें",
+    "trendingNow": "अभी ट्रेंडिंग",
+    "pushNotifications": "पुश नोटिफिकेशन",
+    "pushNotificationsDesc": "अपने डिवाइस पर तुरंत समाचार अपडेट प्राप्त करें",
+    "latestUpdates": "नवीनतम अपडेट",
+    "latestUpdatesDesc": "हमारे नवीनतम ब्रेकिंग न्यूज़ और विश्लेषण से जुड़े रहें",
+    "premiumContent": "प्रीमियम कंटेंट",
+    "premiumContentDesc": "विशेष लेख और विज्ञापन-मुक्त पढ़ने की सुविधा प्राप्त करें",
+    "upgradeNow": "अभी अपग्रेड करें",
+    "newVersionAvailable": "नया संस्करण उपलब्ध है!",
+    "updateNow": "अभी अपडेट करें",
+    "youreOffline": "आप ऑफ़लाइन हैं। कुछ सुविधाएं काम नहीं कर सकती हैं।"
   },
   "admin": {
     "dashboard": "डैशबोर्ड",

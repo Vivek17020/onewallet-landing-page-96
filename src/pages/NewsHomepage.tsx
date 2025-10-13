@@ -25,8 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useArticles, useCategories } from '@/hooks/use-articles';
 import { useAuth } from '@/hooks/use-auth';
 import { Search, TrendingUp, Clock, Play, User, Home, Crown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function NewsHomepage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -82,7 +84,7 @@ export default function NewsHomepage() {
                     className="gap-2"
                   >
                     <Search className="h-4 w-4" />
-                    Search
+                    {t('nav.search')}
                   </Button>
                   <PushNotificationButton />
                   <Button
@@ -116,15 +118,15 @@ export default function NewsHomepage() {
               <TabsList className="grid w-full grid-cols-3 mb-8 max-w-md mx-auto">
                 <TabsTrigger value="for-you" className="gap-2">
                   {user ? <User className="h-4 w-4" /> : <TrendingUp className="h-4 w-4" />}
-                  {user ? "For You" : "Trending"}
+                  {user ? t('homepage.forYou') : t('homepage.trending')}
                 </TabsTrigger>
                 <TabsTrigger value="browse" className="gap-2">
                   <Home className="h-4 w-4" />
-                  Browse All
+                  {t('homepage.browseAll')}
                 </TabsTrigger>
                 <TabsTrigger value="premium" className="gap-2">
                   <Crown className="h-4 w-4" />
-                  Premium
+                  {t('article.premium')}
                 </TabsTrigger>
               </TabsList>
 
@@ -159,7 +161,7 @@ export default function NewsHomepage() {
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                           <TrendingUp className="h-5 w-5 text-primary" />
-                          Trending Now
+                          {t('homepage.trendingNow')}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -184,12 +186,12 @@ export default function NewsHomepage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  📱 Push Notifications
+                  📱 {t('homepage.pushNotifications')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Get instant news updates delivered to your device
+                  {t('homepage.pushNotificationsDesc')}
                 </p>
                 <PushNotificationButton />
               </CardContent>
@@ -200,12 +202,12 @@ export default function NewsHomepage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Clock className="h-5 w-5 text-primary" />
-                  Latest Updates
+                  {t('homepage.latestUpdates')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Stay informed with our latest breaking news and analysis
+                  {t('homepage.latestUpdatesDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -214,12 +216,12 @@ export default function NewsHomepage() {
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Crown className="h-5 w-5 text-primary" />
-                  Premium Content
+                  {t('homepage.premiumContent')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Access exclusive articles and ad-free reading
+                  {t('homepage.premiumContentDesc')}
                 </p>
                 <Button 
                   variant="outline" 
@@ -227,7 +229,7 @@ export default function NewsHomepage() {
                   onClick={() => navigate('/subscription')}
                   className="w-full"
                 >
-                  Upgrade Now
+                  {t('homepage.upgradeNow')}
                 </Button>
               </CardContent>
             </Card>
@@ -245,9 +247,9 @@ export default function NewsHomepage() {
         {/* Update Available Banner */}
         {updateAvailable && (
           <div className="fixed top-0 left-0 right-0 bg-primary text-primary-foreground p-3 text-center z-50">
-            <span className="mr-4">New version available!</span>
+            <span className="mr-4">{t('homepage.newVersionAvailable')}</span>
             <Button variant="secondary" size="sm" onClick={updateApp}>
-              Update Now
+              {t('homepage.updateNow')}
             </Button>
           </div>
         )}
@@ -255,7 +257,7 @@ export default function NewsHomepage() {
         {/* Offline Banner */}
         {!isOnline && (
           <div className="fixed bottom-0 left-0 right-0 bg-destructive text-destructive-foreground p-3 text-center z-50">
-            📵 You're offline. Some features may not work.
+            📵 {t('homepage.youreOffline')}
           </div>
         )}
 
