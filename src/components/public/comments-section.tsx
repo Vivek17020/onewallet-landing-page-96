@@ -44,10 +44,10 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
     try {
       // Use security definer function to fetch approved comments safely
       const { data, error } = await supabase
-        .rpc('get_public_comments', { article_uuid: articleId });
+        .rpc('get_public_comments', { article_uuid: articleId }) as any;
       
       if (error) throw error;
-      setComments(data || []);
+      setComments((data as any) || []);
     } catch (error: any) {
       console.error('Error fetching comments:', error);
     } finally {

@@ -18,10 +18,10 @@ export function AuthorBio({ authorId, authorName, authorUsername }: AuthorBioPro
       if (!authorId) return null;
       
       const { data, error } = await supabase
-        .rpc('get_safe_author_profile', { author_uuid: authorId });
+        .rpc('get_safe_author_profile', { author_uuid: authorId }) as any;
 
       if (error) throw error;
-      return data?.[0] || null;
+      return data as any;
     },
     enabled: !!authorId,
   });

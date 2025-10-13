@@ -138,6 +138,7 @@ export type Database = {
         Row: {
           ads_enabled: boolean | null
           affiliate_products_enabled: boolean | null
+          author: string | null
           author_id: string | null
           breaking_news: boolean | null
           category_id: string | null
@@ -155,6 +156,8 @@ export type Database = {
           premium_preview_length: number | null
           published: boolean
           published_at: string | null
+          reading_time: number | null
+          seo_keywords: string[] | null
           shares_count: number | null
           slug: string
           summary: string | null
@@ -166,6 +169,7 @@ export type Database = {
         Insert: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
+          author?: string | null
           author_id?: string | null
           breaking_news?: boolean | null
           category_id?: string | null
@@ -183,6 +187,8 @@ export type Database = {
           premium_preview_length?: number | null
           published?: boolean
           published_at?: string | null
+          reading_time?: number | null
+          seo_keywords?: string[] | null
           shares_count?: number | null
           slug: string
           summary?: string | null
@@ -194,6 +200,7 @@ export type Database = {
         Update: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
+          author?: string | null
           author_id?: string | null
           breaking_news?: boolean | null
           category_id?: string | null
@@ -211,6 +218,8 @@ export type Database = {
           premium_preview_length?: number | null
           published?: boolean
           published_at?: string | null
+          reading_time?: number | null
+          seo_keywords?: string[] | null
           shares_count?: number | null
           slug?: string
           summary?: string | null
@@ -447,44 +456,62 @@ export type Database = {
       }
       profiles: {
         Row: {
+          author_bio: string | null
+          author_image_url: string | null
+          avatar_url: string | null
           bio: string | null
           created_at: string
           display_name: string | null
           email: string | null
+          full_name: string | null
           id: string
+          job_title: string | null
           linkedin_url: string | null
           role: string
           twitter_url: string | null
           updated_at: string
           user_id: string
+          username: string | null
           wallet_address: string
           website_url: string | null
         }
         Insert: {
+          author_bio?: string | null
+          author_image_url?: string | null
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
+          job_title?: string | null
           linkedin_url?: string | null
           role?: string
           twitter_url?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
           wallet_address: string
           website_url?: string | null
         }
         Update: {
+          author_bio?: string | null
+          author_image_url?: string | null
+          avatar_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
+          full_name?: string | null
           id?: string
+          job_title?: string | null
           linkedin_url?: string | null
           role?: string
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
           wallet_address?: string
           website_url?: string | null
         }
@@ -811,7 +838,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          author_bio: string | null
+          author_image_url: string | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          job_title: string | null
+          linkedin_url: string | null
+          role: string | null
+          twitter_url: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+          website_url: string | null
+        }
+        Insert: {
+          author_bio?: string | null
+          author_image_url?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          linkedin_url?: string | null
+          role?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          author_bio?: string | null
+          author_image_url?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          job_title?: string | null
+          linkedin_url?: string | null
+          role?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_article_engagement: {
@@ -825,6 +911,32 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_public_comments: {
+        Args: { article_uuid: string }
+        Returns: {
+          article_id: string
+          author_email: string
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_safe_author_profile: {
+        Args: { author_uuid: string }
+        Returns: {
+          author_bio: string
+          author_image_url: string
+          avatar_url: string
+          full_name: string
+          id: string
+          job_title: string
+          username: string
+        }[]
       }
     }
     Enums: {

@@ -15,6 +15,9 @@ export const usePersonalizedFeed = (limit = 12) => {
         .from("articles")
         .select(`
           *,
+          author,
+          reading_time,
+          seo_keywords,
           categories:category_id (
             id,
             name,
@@ -40,6 +43,9 @@ export const usePersonalizedFeed = (limit = 12) => {
           .from("articles")
           .select(`
             *,
+            author,
+            reading_time,
+            seo_keywords,
             categories:category_id (
               id,
               name,
@@ -61,8 +67,8 @@ export const usePersonalizedFeed = (limit = 12) => {
         
         return combinedArticles
           .sort((a, b) => {
-            const aScore = calculatePersonalizedScore(a, preferences);
-            const bScore = calculatePersonalizedScore(b, preferences);
+            const aScore = calculatePersonalizedScore(a as Article, preferences);
+            const bScore = calculatePersonalizedScore(b as Article, preferences);
             return bScore - aScore;
           })
           .slice(0, limit);
@@ -77,8 +83,8 @@ export const usePersonalizedFeed = (limit = 12) => {
 
       return articles
         .sort((a, b) => {
-          const aScore = calculateEngagementScore(a);
-          const bScore = calculateEngagementScore(b);
+          const aScore = calculateEngagementScore(a as Article);
+          const bScore = calculateEngagementScore(b as Article);
           return bScore - aScore;
         })
         .slice(0, limit);

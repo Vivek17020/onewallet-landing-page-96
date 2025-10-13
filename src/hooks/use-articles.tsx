@@ -51,6 +51,9 @@ export const useArticles = (categorySlug?: string, page = 1, limit = 12) => {
         .from("articles")
         .select(`
           *,
+          author,
+          reading_time,
+          seo_keywords,
           categories:category_id (
             id,
             name,
@@ -73,16 +76,16 @@ export const useArticles = (categorySlug?: string, page = 1, limit = 12) => {
 
       if (error) throw error;
       
-      // Enrich with public author profiles without touching restricted profiles table
+      // Enrich with author profiles
       const authorIds = Array.from(new Set((data || []).map((a: any) => a.author_id).filter(Boolean)));
       let authorsMap = new Map<string, { username: string; full_name: string | null }>();
       if (authorIds.length > 0) {
         const { data: authors } = await supabase
-          .from("public_profiles")
-          .select("id, username, full_name")
-          .in("id", authorIds as string[]);
+          .from("profiles")
+          .select("user_id, username, full_name")
+          .in("user_id", authorIds as string[]);
         (authors || []).forEach((p: any) => {
-          authorsMap.set(p.id, { username: p.username, full_name: p.full_name });
+          authorsMap.set(p.user_id, { username: p.username, full_name: p.full_name });
         });
       }
 
@@ -113,6 +116,9 @@ export const useArticle = (slug: string) => {
         .from("articles")
         .select(`
           *,
+          author,
+          reading_time,
+          seo_keywords,
           categories:category_id (
             id,
             name,
@@ -127,13 +133,13 @@ export const useArticle = (slug: string) => {
 
       if (error) throw error;
 
-      // Fetch author public profile
+      // Fetch author profile
       let authorProfile: { username: string; full_name: string | null } | undefined = undefined;
       if (data.author_id) {
         const { data: author } = await supabase
-          .from("public_profiles")
-          .select("id, username, full_name")
-          .eq("id", data.author_id)
+          .from("profiles")
+          .select("user_id, username, full_name")
+          .eq("user_id", data.author_id)
           .maybeSingle();
         if (author) {
           authorProfile = { username: author.username, full_name: author.full_name };
@@ -191,11 +197,11 @@ export const useRelatedArticles = (articleId: string, categoryId: string, tags: 
       let authorsMap = new Map<string, { username: string; full_name: string | null }>();
       if (authorIds.length > 0) {
         const { data: authors } = await supabase
-          .from("public_profiles")
-          .select("id, username, full_name")
-          .in("id", authorIds as string[]);
+          .from("profiles")
+          .select("user_id, username, full_name")
+          .in("user_id", authorIds as string[]);
         (authors || []).forEach((p: any) => {
-          authorsMap.set(p.id, { username: p.username, full_name: p.full_name });
+          authorsMap.set(p.user_id, { username: p.username, full_name: p.full_name });
         });
       }
 
@@ -234,6 +240,9 @@ export const useInfiniteArticles = (categorySlug?: string) => {
         .from("articles")
         .select(`
           *,
+          author,
+          reading_time,
+          seo_keywords,
           categories:category_id (
             id,
             name,
@@ -266,11 +275,11 @@ export const useInfiniteArticles = (categorySlug?: string) => {
       let authorsMap = new Map<string, { username: string; full_name: string | null }>();
       if (authorIds.length > 0) {
         const { data: authors } = await supabase
-          .from("public_profiles")
-          .select("id, username, full_name")
-          .in("id", authorIds as string[]);
+          .from("profiles")
+          .select("user_id, username, full_name")
+          .in("user_id", authorIds as string[]);
         (authors || []).forEach((p: any) => {
-          authorsMap.set(p.id, { username: p.username, full_name: p.full_name });
+          authorsMap.set(p.user_id, { username: p.username, full_name: p.full_name });
         });
       }
 

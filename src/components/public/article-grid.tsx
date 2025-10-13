@@ -24,6 +24,9 @@ export function ArticleGrid({ categorySlug }: ArticleGridProps) {
         .from("articles")
         .select(`
           *,
+          author,
+          reading_time,
+          seo_keywords,
           categories:category_id (
             id,
             name,
@@ -31,7 +34,7 @@ export function ArticleGrid({ categorySlug }: ArticleGridProps) {
             color,
             description
           )
-        `)
+        `, { count: 'exact' })
         .eq("published", true)
         .order("published_at", { ascending: false });
 

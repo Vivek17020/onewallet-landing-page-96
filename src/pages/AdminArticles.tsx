@@ -60,14 +60,14 @@ export default function AdminArticles() {
         .from('articles')
         .select(`
           id, title, slug, published, created_at, updated_at, 
-          published_at, views_count, author, category_id,
+          published_at, views_count, author, reading_time, seo_keywords, category_id,
           categories (name, color)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setArticles(data || []);
+      setArticles(data as any[] || []);
     } catch (error) {
       console.error('Error fetching articles:', error);
       toast({
