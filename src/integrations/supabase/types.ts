@@ -447,31 +447,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          linkedin_url: string | null
+          role: string
+          twitter_url: string | null
           updated_at: string
           user_id: string
           wallet_address: string
+          website_url: string | null
         }
         Insert: {
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          linkedin_url?: string | null
+          role?: string
+          twitter_url?: string | null
           updated_at?: string
           user_id: string
           wallet_address: string
+          website_url?: string | null
         }
         Update: {
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          linkedin_url?: string | null
+          role?: string
+          twitter_url?: string | null
           updated_at?: string
           user_id?: string
           wallet_address?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -799,7 +814,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_article_engagement: {
+        Args: { article_uuid: string }
+        Returns: {
+          comments_count: number
+          likes_count: number
+          shares_count: number
+        }[]
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
