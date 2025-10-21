@@ -53,23 +53,33 @@ export function GoogleTranslate() {
       autoSwitchLanguage();
     }
 
-    // Add styles to hide Google Translate branding and reduce layout shift
+    // Add styles for Google Translate widget
     const style = document.createElement('style');
     style.innerHTML = `
-      #google_translate_element {
-        display: none;
-      }
       .goog-te-banner-frame {
-        display: none !important;
-      }
-      .goog-te-balloon-frame {
         display: none !important;
       }
       body {
         top: 0 !important;
       }
-      .skiptranslate {
-        display: none !important;
+      #google_translate_element {
+        display: inline-block;
+      }
+      #google_translate_element .skiptranslate {
+        display: inline-block !important;
+      }
+      .goog-te-gadget {
+        font-family: inherit !important;
+        font-size: 14px !important;
+        color: inherit !important;
+      }
+      .goog-te-gadget .goog-te-combo {
+        margin: 0 !important;
+        padding: 4px 8px !important;
+        border-radius: 6px !important;
+        border: 1px solid hsl(var(--border)) !important;
+        background: hsl(var(--background)) !important;
+        color: hsl(var(--foreground)) !important;
       }
     `;
     document.head.appendChild(style);
@@ -79,7 +89,7 @@ export function GoogleTranslate() {
     };
   }, []);
 
-  return <div id="google_translate_element" className="hidden" />;
+  return <div id="google_translate_element" />;
 }
 
 export function switchLanguage(lang: 'en' | 'hi') {
