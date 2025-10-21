@@ -138,7 +138,22 @@ export function Navbar() {
               <span className="sr-only">Search</span>
             </Button>
             
-            <div id="google_translate_element" className="flex items-center" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-9 px-3">
+                  <Languages className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Language</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem onClick={() => switchLanguage('en')}>
+                  🇬🇧 English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => switchLanguage('hi')}>
+                  🇮🇳 हिंदी
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <ThemeToggle />
             <UserMenu />
