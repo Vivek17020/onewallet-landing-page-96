@@ -9,34 +9,34 @@ declare global {
 
 export function GoogleTranslate() {
   useEffect(() => {
-    // Initialize Google Translate
+    // Set up initialization function before script loads
     window.googleTranslateElementInit = function() {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: 'en',
-          includedLanguages: 'en,hi',
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false,
-        },
-        'google_translate_element'
-      );
-    };
-
-    // Auto-detect and switch language
-    const autoSwitchLanguage = () => {
-      const savedLang = localStorage.getItem('preferredLanguage');
-      const userLang = navigator.language || (navigator as any).userLanguage;
-      
-      const targetLang = savedLang || (userLang.startsWith('hi') ? 'hi' : 'en');
-      
-      if (targetLang === 'hi') {
+      const element = document.getElementById('google_translate_element');
+      if (element && window.google && window.google.translate) {
+        new window.google.translate.TranslateElement(
+          {
+            pageLanguage: 'en',
+            includedLanguages: 'en,hi',
+            layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+          },
+          'google_translate_element'
+        );
+        
+        // Auto-detect and switch language after initialization
         setTimeout(() => {
-          const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-          if (select && select.value !== 'hi') {
-            select.value = 'hi';
-            select.dispatchEvent(new Event('change'));
+          const savedLang = localStorage.getItem('preferredLanguage');
+          const userLang = navigator.language || (navigator as any).userLanguage;
+          const targetLang = savedLang || (userLang.startsWith('hi') ? 'hi' : 'en');
+          
+          if (targetLang === 'hi') {
+            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+            if (select && select.value !== 'hi') {
+              select.value = 'hi';
+              select.dispatchEvent(new Event('change'));
+            }
           }
-        }, 1500);
+        }, 1000);
       }
     };
 
@@ -46,11 +46,10 @@ export function GoogleTranslate() {
       script.id = 'google-translate-script';
       script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
       script.async = true;
-      document.head.appendChild(script);
-      
-      script.onload = autoSwitchLanguage;
-    } else {
-      autoSwitchLanguage();
+      document.body.appendChild(script);
+    } else if (window.google && window.google.translate) {
+      // If script already loaded, reinitialize
+      window.googleTranslateElementInit();
     }
 
     // Add styles for Google Translate widget
