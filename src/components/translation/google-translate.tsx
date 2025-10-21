@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Languages } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -16,27 +17,12 @@ export function GoogleTranslate() {
         new window.google.translate.TranslateElement(
           {
             pageLanguage: 'en',
-            includedLanguages: 'en,hi',
+            includedLanguages: 'en,hi,ta,te,ml,mr,bn,gu,pa,ur',
             layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false,
           },
           'google_translate_element'
         );
-        
-        // Auto-detect and switch language after initialization
-        setTimeout(() => {
-          const savedLang = localStorage.getItem('preferredLanguage');
-          const userLang = navigator.language || (navigator as any).userLanguage;
-          const targetLang = savedLang || (userLang.startsWith('hi') ? 'hi' : 'en');
-          
-          if (targetLang === 'hi') {
-            const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-            if (select && select.value !== 'hi') {
-              select.value = 'hi';
-              select.dispatchEvent(new Event('change'));
-            }
-          }
-        }, 1000);
       }
     };
 
@@ -52,7 +38,7 @@ export function GoogleTranslate() {
       window.googleTranslateElementInit();
     }
 
-    // Add styles for Google Translate widget
+    // Add styles for floating widget
     const style = document.createElement('style');
     style.innerHTML = `
       .goog-te-banner-frame {
@@ -60,6 +46,27 @@ export function GoogleTranslate() {
       }
       body {
         top: 0 !important;
+      }
+      #google-translate-widget {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+      }
+      #google-translate-widget:hover {
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+      }
+      .dark #google-translate-widget {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
       }
       #google_translate_element {
         display: inline-block;
@@ -71,14 +78,32 @@ export function GoogleTranslate() {
         font-family: inherit !important;
         font-size: 14px !important;
         color: inherit !important;
+        line-height: 1 !important;
       }
       .goog-te-gadget .goog-te-combo {
         margin: 0 !important;
-        padding: 4px 8px !important;
-        border-radius: 6px !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
         border: 1px solid hsl(var(--border)) !important;
         background: hsl(var(--background)) !important;
         color: hsl(var(--foreground)) !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+      }
+      .goog-te-gadget .goog-te-combo:hover {
+        border-color: hsl(var(--primary)) !important;
+      }
+      .goog-te-gadget .goog-te-combo:focus {
+        outline: 2px solid hsl(var(--ring)) !important;
+        outline-offset: 2px !important;
+      }
+      @media (max-width: 640px) {
+        #google-translate-widget {
+          bottom: 16px;
+          right: 16px;
+          padding: 12px;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -88,18 +113,10 @@ export function GoogleTranslate() {
     };
   }, []);
 
-  return <div id="google_translate_element" />;
-}
-
-export function switchLanguage(lang: 'en' | 'hi') {
-  localStorage.setItem('preferredLanguage', lang);
-  
-  const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-  if (select) {
-    select.value = lang;
-    select.dispatchEvent(new Event('change'));
-  } else {
-    // If translator not ready, reload with preference
-    window.location.reload();
-  }
+  return (
+    <div id="google-translate-widget">
+      <Languages className="h-5 w-5 text-primary" />
+      <div id="google_translate_element" />
+    </div>
+  );
 }

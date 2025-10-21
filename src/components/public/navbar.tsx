@@ -2,18 +2,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useCategories } from "@/hooks/use-articles";
-import { FileText, Menu, X, Search, Languages } from "lucide-react";
+import { FileText, Menu, X, Search } from "lucide-react";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SearchDialog } from "@/components/public/search-dialog";
 import { UserMenu } from "@/components/public/user-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { switchLanguage } from "@/components/translation/google-translate";
 
 export function Navbar() {
   const { data: categories } = useCategories();
@@ -137,23 +130,6 @@ export function Navbar() {
               <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
             </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-9 px-3">
-                  <Languages className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">Language</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem onClick={() => switchLanguage('en')}>
-                  🇬🇧 English
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => switchLanguage('hi')}>
-                  🇮🇳 हिंदी
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             
             <ThemeToggle />
             <UserMenu />
