@@ -85,6 +85,11 @@ export function AdvancedSEOHead({
       <meta name="twitter:image" content={image} />
       <meta name="twitter:site" content="@thebulletinbriefs" />
       
+      {/* Hreflang for multilingual support */}
+      <link rel="alternate" hrefLang="en" href={normalizedCanonical} />
+      <link rel="alternate" hrefLang="hi" href={normalizedCanonical} />
+      <link rel="alternate" hrefLang="x-default" href={normalizedCanonical} />
+      
       {/* Additional SEO Tags */}
       <meta name="author" content={author || "TheBulletinBriefs"} />
       <meta name="publisher" content="TheBulletinBriefs" />

@@ -10,6 +10,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { CSPHeaders } from "@/components/security/csp-headers";
 import { ErrorBoundary } from "@/components/error/error-boundary";
 import { OptimizedCoreWebVitals } from "@/components/performance/optimized-core-web-vitals";
+import { GoogleTranslate } from "@/components/translation/google-translate";
 
 // Lazy load all pages for better performance
 const NewsHomepage = lazy(() => import("./pages/NewsHomepage"));
@@ -62,6 +63,7 @@ const App = () => {
               <ErrorBoundary>
                 <CSPHeaders />
                 <OptimizedCoreWebVitals />
+                <GoogleTranslate />
                 <Toaster />
                 <Sonner />
                 <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>}>
