@@ -1,1 +1,4 @@
 project_id = "tadcyglvsjycpgsjkywj"
+
+[functions.ai-translate-page]
+verify_jwt = false

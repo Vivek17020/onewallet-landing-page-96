@@ -11,6 +11,7 @@ import { CSPHeaders } from "@/components/security/csp-headers";
 import { ErrorBoundary } from "@/components/error/error-boundary";
 import { OptimizedCoreWebVitals } from "@/components/performance/optimized-core-web-vitals";
 import GoogleTranslateWidget from "@/components/public/google-translate-widget";
+import AITranslateWidget from "@/components/public/ai-translate-widget";
 
 // Lazy load all pages for better performance
 const NewsHomepage = lazy(() => import("./pages/NewsHomepage"));
@@ -119,6 +120,7 @@ const App = () => {
                   </Routes>
                 </Suspense>
                 <GoogleTranslateWidget />
+                <AITranslateWidget />
               </ErrorBoundary>
             </BrowserRouter>
           </TooltipProvider>
