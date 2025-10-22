@@ -65,6 +65,12 @@ export default function GoogleTranslateWidget() {
     window.googleTranslateElementInit = () => {
       if (initializedRef.current) return;
       
+      const container = document.getElementById('google_translate_element');
+      if (!container) {
+        console.error('Google Translate container not found');
+        return;
+      }
+      
       try {
         new window.google.translate.TranslateElement(
           {
@@ -72,6 +78,7 @@ export default function GoogleTranslateWidget() {
             includedLanguages: 'en,hi,ta,te,ml,mr,bn,gu,pa,ur',
             layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false,
+            multilanguagePage: true,
           },
           'google_translate_element'
         );
@@ -85,32 +92,47 @@ export default function GoogleTranslateWidget() {
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
       script.async = true;
       script.onerror = () => console.error('Failed to load Google Translate script');
       document.body.appendChild(script);
     } else if (window.google?.translate) {
       window.googleTranslateElementInit();
     }
+
+    return () => {
+      initializedRef.current = false;
+    };
   }, []);
 
   const changeLanguage = (langCode: string) => {
     setCurrentLang(langCode);
     
-    if (langCode === 'en') {
+    const waitForSelect = (attempts = 0) => {
       const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+      
       if (select) {
-        select.value = '';
-        select.dispatchEvent(new Event('change'));
+        if (langCode === 'en') {
+          select.value = '';
+        } else {
+          select.value = langCode;
+        }
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        setTimeout(() => {
+          if (select.value !== langCode && langCode !== 'en') {
+            select.value = langCode;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }, 100);
+      } else if (attempts < 10) {
+        setTimeout(() => waitForSelect(attempts + 1), 500);
+      } else {
+        console.error('Google Translate select element not found after multiple attempts');
       }
-      return;
-    }
-
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-    if (select) {
-      select.value = langCode;
-      select.dispatchEvent(new Event('change'));
-    }
+    };
+    
+    waitForSelect();
   };
 
   return (
