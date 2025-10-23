@@ -14,12 +14,6 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const jobsLinks = [
-    { label: "Admit Cards", href: "/category/jobs-admit-cards" },
-    { label: "Results", href: "/category/jobs-results" },
-    { label: "Syllabus", href: "/category/jobs-syllabus" },
-    { label: "Previous Year Papers", href: "/category/jobs-previous-year-papers" },
-  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -42,7 +36,7 @@ export function Navbar() {
             >
               Home
             </Link>
-            {categories?.filter(category => !category.name.startsWith('Jobs/')).map((category) => {
+            {categories?.map((category) => {
               const hasSubcategories = category.subcategories && category.subcategories.length > 0;
               
               if (hasSubcategories) {
@@ -79,26 +73,6 @@ export function Navbar() {
                 </Link>
               );
             })}
-            <div className="relative group">
-              <span className="transition-all duration-200 hover:text-foreground hover:scale-105 text-foreground/60 cursor-pointer relative inline-block">
-                Jobs
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
-              </span>
-              <div className="absolute top-full left-0 mt-2 w-56 bg-background border border-border shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[100] pointer-events-none group-hover:pointer-events-auto animate-fade-in">
-                <Link to="/category/jobs" className="block px-4 py-2 text-sm hover:bg-accent cursor-pointer">
-                  All Jobs
-                </Link>
-                {jobsLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className="block px-4 py-2 text-sm hover:bg-accent cursor-pointer"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
           </nav>
         </div>
         
@@ -155,7 +129,7 @@ export function Navbar() {
             >
               Home
             </Link>
-            {categories?.filter(category => !category.name.startsWith('Jobs/')).map((category) => (
+            {categories?.map((category) => (
               <div key={category.id}>
                 <Link
                   to={`/category/${category.slug}`}
@@ -180,19 +154,6 @@ export function Navbar() {
                 )}
               </div>
             ))}
-            <div className="border-t border-border mt-2 pt-2">
-              <p className="px-3 py-2 text-sm font-semibold text-foreground">Jobs</p>
-              {jobsLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="block px-3 py-2 text-base font-medium text-foreground/60 hover:text-foreground pl-6"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       )}
