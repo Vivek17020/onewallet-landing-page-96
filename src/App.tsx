@@ -10,8 +10,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { CSPHeaders } from "@/components/security/csp-headers";
 import { ErrorBoundary } from "@/components/error/error-boundary";
 import { OptimizedCoreWebVitals } from "@/components/performance/optimized-core-web-vitals";
-import { TranslationProvider } from "@/contexts/TranslationContext";
-import { useAutoTranslate } from "@/hooks/use-auto-translate";
 
 // Lazy load all pages for better performance
 const NewsHomepage = lazy(() => import("./pages/NewsHomepage"));
@@ -54,25 +52,18 @@ const AdmitCards = lazy(() => import("@/pages/AdmitCards"));
 const AdminAdmitCards = lazy(() => import("@/pages/AdminAdmitCards"));
 const AdminNewAdmitCard = lazy(() => import("@/pages/AdminNewAdmitCard"));
 
-const GlobalTranslator: React.FC = () => {
-  useAutoTranslate();
-  return null;
-};
-
 const App = () => {
   return (
     <HelmetProvider>
       <ThemeProvider>
         <AuthProvider>
-          <TranslationProvider>
-            <TooltipProvider>
+          <TooltipProvider>
               <BrowserRouter>
                 <ErrorBoundary>
                   <CSPHeaders />
                   <OptimizedCoreWebVitals />
                   <Toaster />
                   <Sonner />
-                  <GlobalTranslator />
                   <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>}>
                   <Routes>
                     {/* Public Routes */}
@@ -129,7 +120,6 @@ const App = () => {
               </ErrorBoundary>
             </BrowserRouter>
           </TooltipProvider>
-          </TranslationProvider>
         </AuthProvider>
       </ThemeProvider>
     </HelmetProvider>
