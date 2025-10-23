@@ -7,7 +7,6 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SearchDialog } from "@/components/public/search-dialog";
 import { UserMenu } from "@/components/public/user-menu";
-import { TranslationButton } from "./translation-button";
 
 export function Navbar() {
   const { data: categories } = useCategories();
@@ -137,7 +136,6 @@ export function Navbar() {
               <Search className="h-4 w-4" />
               <span className="sr-only">Search</span>
             </Button>
-            <TranslationButton />
             <ThemeToggle />
             <UserMenu />
           </nav>

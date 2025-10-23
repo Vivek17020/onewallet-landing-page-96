@@ -13,8 +13,6 @@ import { sanitizeHtml } from "@/lib/sanitize";
 import { ArrowLeft, FileText, Calendar, Clock, Eye, User, ChevronRight } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAutoTranslate } from "@/hooks/use-auto-translate";
-import { useTranslation } from "@/contexts/TranslationContext";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,9 +31,6 @@ export default function CategoryPage() {
   const { data: categories } = useCategories();
   const { data: articlesData, isLoading: articlesLoading } = useArticles(categorySlug, 1, 1);
   const contentRef = useRef<HTMLElement>(null);
-  const { currentLanguage } = useTranslation();
-  
-  useAutoTranslate(contentRef);
   
   // Find the category (could be parent or child)
   let category: Category | undefined = categories?.find(cat => cat.slug === categorySlug);
@@ -108,13 +103,6 @@ export default function CategoryPage() {
         <Navbar />
         
         <main className="container mx-auto px-4 py-8" ref={contentRef}>
-          {currentLanguage !== 'en' && (
-            <div className="mb-4">
-              <p className="text-xs text-muted-foreground text-center">
-                🤖 Translated via AI
-              </p>
-            </div>
-          )}
           {/* Breadcrumbs */}
           <Breadcrumb className="mb-6">
             <BreadcrumbList>

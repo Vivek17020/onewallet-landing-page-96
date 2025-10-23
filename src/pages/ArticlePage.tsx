@@ -18,8 +18,6 @@ import { Calendar, Clock, Eye, User } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFirstName } from "@/lib/utils";
-import { useAutoTranslate } from "@/hooks/use-auto-translate";
-import { useTranslation } from "@/contexts/TranslationContext";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,9 +32,6 @@ export default function ArticlePage() {
   const { data: article, isLoading, error } = useArticle(slug!);
   const trackReading = useTrackReading();
   const contentRef = useRef<HTMLDivElement>(null);
-  const { currentLanguage } = useTranslation();
-  
-  useAutoTranslate(contentRef);
 
   // Track reading when article loads
   useEffect(() => {

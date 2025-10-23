@@ -26,8 +26,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useArticles, useCategories } from '@/hooks/use-articles';
 import { useAuth } from '@/hooks/use-auth';
 import { Search, TrendingUp, Clock, Play, User, Home, Crown } from 'lucide-react';
-import { useAutoTranslate } from '@/hooks/use-auto-translate';
-import { useTranslation } from '@/contexts/TranslationContext';
 
 export default function NewsHomepage() {
   const navigate = useNavigate();
@@ -40,8 +38,6 @@ export default function NewsHomepage() {
   const { isOnline, updateAvailable, updateApp } = usePWA();
   const { data: categories } = useCategories();
   const { data: latestArticles } = useArticles(undefined, 1, 6);
-  const { currentLanguage } = useTranslation();
-  useAutoTranslate(mainRef);
 
   return (
     <>
@@ -108,12 +104,6 @@ export default function NewsHomepage() {
             </div>
           </div>
         </div>
-        
-        {currentLanguage !== 'en' && (
-          <div className="bg-primary/10 text-primary text-center py-1 text-sm" data-no-translate>
-            Translated via AI
-          </div>
-        )}
         
         <main ref={mainRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 critical-above-fold">
           {/* Hero Section - Featured Articles */}

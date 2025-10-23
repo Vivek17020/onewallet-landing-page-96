@@ -17,16 +17,14 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        react: path.resolve(__dirname, "node_modules/react/index.js"),
-        "react/jsx-runtime": path.resolve(__dirname, "node_modules/react/jsx-runtime.js"),
-        "react-dom": path.resolve(__dirname, "node_modules/react-dom/index.js"),
-        "react-dom/client": path.resolve(__dirname, "node_modules/react-dom/client.js"),
       },
       dedupe: ["react", "react-dom"],
     },
     optimizeDeps: {
-      force: true, // Force re-optimization
       include: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
         "@radix-ui/react-dropdown-menu",
         "@radix-ui/react-slot",
         "@radix-ui/react-separator",
@@ -44,7 +42,6 @@ export default defineConfig(({ mode }) => {
         "@radix-ui/react-toast",
         "@radix-ui/react-tooltip",
       ],
-      exclude: ["react", "react-dom", "react/jsx-runtime"],
       esbuildOptions: {
         target: "es2020",
       },
