@@ -181,6 +181,27 @@ All colors MUST be HSL. Rich blues and purples with sophisticated gradients.
   }
 }
 
+@layer components {
+  /* Navbar dropdown enhancement - ensures instant visibility */
+  .navbar-dropdown {
+    pointer-events: none;
+    transform: translateY(-5px);
+    transition: opacity 0.1s ease, transform 0.1s ease, visibility 0.1s;
+  }
+  
+  .group:hover .navbar-dropdown {
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  
+  /* Ensure dropdowns stay open when hovering dropdown itself */
+  .navbar-dropdown:hover {
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

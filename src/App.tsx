@@ -73,7 +73,7 @@ const App = () => {
                     <Route path="/" element={<NewsHomepage />} />
                     <Route path="/article/:slug" element={<ArticlePage />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
-                    <Route path="/:parentSlug/:childSlug" element={<CategoryPage />} />
+                    <Route path="/category/:parentSlug/:childSlug" element={<CategoryPage />} />
                     <Route path="/rss" element={<RSSFeed />} />
                     <Route path="/sitemap.xml" element={<SitemapXML />} />
                     <Route path="/news-sitemap.xml" element={<NewsSitemapXML />} />

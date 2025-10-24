@@ -29,11 +29,16 @@ export default function CategoryPage() {
   const { slug, parentSlug, childSlug } = useParams<{ slug?: string; parentSlug?: string; childSlug?: string }>();
   
   // Determine the actual category slug to use
-  const categorySlug = childSlug || slug;
+  // If we have childSlug, it means we're on /category/parent/child route
+  // If we have parentSlug without childSlug, it means we're on /parent/child route (legacy)
+  // Otherwise, we're on /category/slug route
+  const categorySlug = childSlug || (parentSlug && !slug ? slug : undefined) || slug;
+  const actualParentSlug = childSlug ? parentSlug : (parentSlug ? slug : undefined);
+  
   const { data: categories } = useCategories();
   
   // For Jobs subcategories, fetch the oldest article (first posted)
-  const isJobsSubcategory = parentSlug === 'jobs';
+  const isJobsSubcategory = actualParentSlug === 'jobs' || parentSlug === 'jobs';
   const { data: articlesData, isLoading: articlesLoading } = useArticles(
     categorySlug, 
     1, 
@@ -61,15 +66,26 @@ export default function CategoryPage() {
     }
   }
   
+  // If we have actualParentSlug but no parentCategory yet, find it
+  if (actualParentSlug && !parentCategory && categories) {
+    parentCategory = categories.find(cat => cat.slug === actualParentSlug) || null;
+  }
+  
   // Check if this is a Jobs subcategory
-  const isJobsSubcategoryView = parentCategory?.slug === 'jobs' || (categorySlug && categories?.some(c => c.slug === 'jobs' && c.subcategories?.some(s => s.slug === categorySlug)));
+  const isJobsSubcategoryView = parentCategory?.slug === 'jobs' || actualParentSlug === 'jobs';
   const article = articlesData?.articles?.[0];
   
   // Generate breadcrumb data
   const breadcrumbItems = [
     { name: "Home", url: window.location.origin },
-    ...(parentCategory ? [{ name: parentCategory.name, url: `${window.location.origin}/category/${parentCategory.slug}` }] : []),
-    { name: category?.name || "", url: window.location.href }
+    ...(parentCategory ? [{ 
+      name: parentCategory.name, 
+      url: `${window.location.origin}/category/${parentCategory.slug}` 
+    }] : []),
+    { 
+      name: category?.name || "", 
+      url: window.location.href 
+    }
   ];
 
   if (!category) {
