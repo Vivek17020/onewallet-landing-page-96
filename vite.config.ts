@@ -24,15 +24,15 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        "react": path.resolve(__dirname, "./node_modules/react"),
-        "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
       },
       dedupe: ["react", "react-dom", "react/jsx-runtime"],
     },
     optimizeDeps: {
       force: true,
-      exclude: ["react", "react-dom"],
       include: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
         "@radix-ui/react-dropdown-menu",
         "@radix-ui/react-slot",
         "@radix-ui/react-separator",
