@@ -1,18 +1,52 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Upload, Download, X, ArrowLeft, FileText } from "lucide-react";
+import { Upload, Download, X, ArrowLeft, FileText, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/public/navbar";
 import { Footer } from "@/components/public/footer";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
+
+const faqs = [
+  {
+    question: "Can I convert multiple images at once?",
+    answer: "Yes! Upload multiple JPG files and they'll all be combined into a single PDF document. You can also reorder them before conversion.",
+  },
+  {
+    question: "Is image quality preserved?",
+    answer: "Absolutely. We maintain the original image quality during conversion. Your images are embedded in the PDF without compression or quality loss.",
+  },
+  {
+    question: "Does this tool work on mobile?",
+    answer: "Yes, our JPG to PDF converter is fully responsive and works perfectly on smartphones, tablets, and desktop devices.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((faq) => ({
+    "@type": "Question",
+    name: faq.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.answer,
+    },
+  })),
+};
 
 export default function JpgToPdf() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isConverting, setIsConverting] = useState(false);
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
+  const [margin, setMargin] = useState("10");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const handleFileSelect = useCallback((files: FileList | null) => {
     if (!files) return;
@@ -45,13 +79,42 @@ export default function JpgToPdf() {
     handleFileSelect(e.dataTransfer.files);
   }, [handleFileSelect]);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleFileDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
   }, []);
 
   const removeFile = useCallback((index: number) => {
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleDragStart = useCallback((index: number) => {
+    setDraggedIndex(index);
+  }, []);
+
+  const handleReorderDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const newFiles = [...selectedFiles];
+    const newPreviews = [...previews];
+    
+    const draggedFile = newFiles[draggedIndex];
+    const draggedPreview = newPreviews[draggedIndex];
+    
+    newFiles.splice(draggedIndex, 1);
+    newPreviews.splice(draggedIndex, 1);
+    
+    newFiles.splice(index, 0, draggedFile);
+    newPreviews.splice(index, 0, draggedPreview);
+    
+    setSelectedFiles(newFiles);
+    setPreviews(newPreviews);
+    setDraggedIndex(index);
+  }, [draggedIndex, selectedFiles, previews]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedIndex(null);
   }, []);
 
   const convertToPdf = useCallback(async () => {
@@ -63,8 +126,13 @@ export default function JpgToPdf() {
     setIsConverting(true);
 
     try {
-      const pdf = new jsPDF();
+      const pdf = new jsPDF({
+        orientation: orientation,
+        unit: "mm",
+      });
+      
       let isFirstPage = true;
+      const marginSize = parseInt(margin);
 
       for (let i = 0; i < previews.length; i++) {
         const imgData = previews[i];
@@ -77,22 +145,25 @@ export default function JpgToPdf() {
           img.src = imgData;
         });
 
-        // Calculate dimensions to fit the page
+        // Calculate dimensions with margins
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
+        const availableWidth = pdfWidth - (marginSize * 2);
+        const availableHeight = pdfHeight - (marginSize * 2);
+        
         const imgWidth = img.width;
         const imgHeight = img.height;
         
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
         const width = imgWidth * ratio;
         const height = imgHeight * ratio;
         
-        // Center the image
+        // Center the image with margins
         const x = (pdfWidth - width) / 2;
         const y = (pdfHeight - height) / 2;
 
         if (!isFirstPage) {
-          pdf.addPage();
+          pdf.addPage(undefined, orientation);
         }
         
         pdf.addImage(imgData, 'JPEG', x, y, width, height);
@@ -113,7 +184,7 @@ export default function JpgToPdf() {
     } finally {
       setIsConverting(false);
     }
-  }, [selectedFiles, previews]);
+  }, [selectedFiles, previews, orientation, margin]);
 
   const clearAll = useCallback(() => {
     setSelectedFiles([]);
@@ -123,22 +194,24 @@ export default function JpgToPdf() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Free JPG to PDF Converter Online – Fast & Secure | TheBulletinBriefs</title>
+        <title>JPG to PDF – Free Online Image to PDF Converter | TheBulletinBriefs</title>
         <meta
           name="description"
-          content="Convert JPG, PNG, and other images to PDF instantly. Free online JPG to PDF converter with no file size limits. Fast, secure, and works in your browser."
+          content="Convert JPG images into PDFs instantly. Fast, secure, and free. Upload multiple images, reorder them, and convert to PDF with custom orientation and margins."
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://thebulletinbriefs.in/tools/jpg-to-pdf/" />
         
-        <meta property="og:title" content="Free JPG to PDF Converter Online – Fast & Secure" />
-        <meta property="og:description" content="Convert JPG, PNG, and other images to PDF instantly. Free, fast, and secure." />
+        <meta property="og:title" content="JPG to PDF – Free Online Image to PDF Converter | TheBulletinBriefs" />
+        <meta property="og:description" content="Convert JPG images into PDFs instantly. Fast, secure, and free." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://thebulletinbriefs.in/tools/jpg-to-pdf/" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free JPG to PDF Converter Online" />
-        <meta name="twitter:description" content="Convert JPG, PNG, and other images to PDF instantly. Free, fast, and secure." />
+        <meta name="twitter:title" content="JPG to PDF – Free Online Image to PDF Converter" />
+        <meta name="twitter:description" content="Convert JPG images into PDFs instantly. Fast, secure, and free." />
+        
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <Navbar />
@@ -159,11 +232,10 @@ export default function JpgToPdf() {
               <FileText className="w-8 h-8" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              JPG to PDF Converter
+              Free JPG to PDF Converter
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Convert your JPG, PNG, and other images to PDF format instantly. Free, fast, 
-              and secure – all processing happens in your browser.
+              Convert your JPG images to PDF format with one click — free and privacy-safe.
             </p>
           </div>
 
@@ -179,7 +251,7 @@ export default function JpgToPdf() {
               {/* Drop Zone */}
               <div
                 onDrop={handleDrop}
-                onDragOver={handleDragOver}
+                onDragOver={handleFileDragOver}
                 className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary transition-colors cursor-pointer"
                 onClick={() => document.getElementById('file-input')?.click()}
               >
@@ -200,7 +272,7 @@ export default function JpgToPdf() {
                 />
               </div>
 
-              {/* Preview Grid */}
+              {/* Preview Grid with Drag-and-Drop */}
               {previews.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -214,7 +286,17 @@ export default function JpgToPdf() {
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {previews.map((preview, index) => (
-                      <div key={index} className="relative group">
+                      <div
+                        key={index}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={(e) => handleReorderDragOver(e, index)}
+                        onDragEnd={handleDragEnd}
+                        className="relative group cursor-move"
+                      >
+                        <div className="absolute top-2 left-2 z-10 opacity-50 group-hover:opacity-100 transition-opacity">
+                          <GripVertical className="h-5 w-5 text-foreground" />
+                        </div>
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
@@ -231,8 +313,50 @@ export default function JpgToPdf() {
                         <p className="text-xs text-muted-foreground mt-1 truncate">
                           {selectedFiles[index].name}
                         </p>
+                        <p className="text-xs text-muted-foreground">
+                          Page {index + 1}
+                        </p>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* PDF Options */}
+              {selectedFiles.length > 0 && (
+                <div className="space-y-4 border-t border-border pt-4">
+                  <h3 className="font-semibold">PDF Options</h3>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Page Orientation</Label>
+                      <RadioGroup value={orientation} onValueChange={(value: "portrait" | "landscape") => setOrientation(value)}>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="portrait" id="portrait" />
+                          <Label htmlFor="portrait" className="cursor-pointer">Portrait</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="landscape" id="landscape" />
+                          <Label htmlFor="landscape" className="cursor-pointer">Landscape</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="margin">Page Margin (mm)</Label>
+                      <Select value={margin} onValueChange={setMargin}>
+                        <SelectTrigger id="margin">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">No Margin</SelectItem>
+                          <SelectItem value="5">Small (5mm)</SelectItem>
+                          <SelectItem value="10">Medium (10mm)</SelectItem>
+                          <SelectItem value="15">Large (15mm)</SelectItem>
+                          <SelectItem value="20">Extra Large (20mm)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               )}
@@ -336,33 +460,12 @@ export default function JpgToPdf() {
           <section>
             <h2 className="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
             <div className="space-y-6">
-              <div className="border-b border-border pb-6">
-                <h3 className="text-xl font-semibold mb-2">Is this JPG to PDF converter really free?</h3>
-                <p className="text-muted-foreground">
-                  Yes, completely free with no limitations on file size or number of conversions.
-                </p>
-              </div>
-              
-              <div className="border-b border-border pb-6">
-                <h3 className="text-xl font-semibold mb-2">Are my files safe?</h3>
-                <p className="text-muted-foreground">
-                  Absolutely. All processing happens directly in your browser. Your files are never uploaded to any server.
-                </p>
-              </div>
-              
-              <div className="border-b border-border pb-6">
-                <h3 className="text-xl font-semibold mb-2">What image formats are supported?</h3>
-                <p className="text-muted-foreground">
-                  We support all common image formats including JPG, JPEG, PNG, GIF, BMP, and WebP.
-                </p>
-              </div>
-              
-              <div className="border-b border-border pb-6 last:border-0">
-                <h3 className="text-xl font-semibold mb-2">Can I convert multiple images at once?</h3>
-                <p className="text-muted-foreground">
-                  Yes! Upload multiple images and they'll all be combined into a single PDF file.
-                </p>
-              </div>
+              {faqs.map((faq, index) => (
+                <div key={index} className="border-b border-border pb-6 last:border-0">
+                  <h3 className="text-xl font-semibold mb-2">{faq.question}</h3>
+                  <p className="text-muted-foreground">{faq.answer}</p>
+                </div>
+              ))}
             </div>
           </section>
         </div>
