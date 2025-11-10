@@ -73,6 +73,7 @@ const PdfToWord = lazy(() => import("@/pages/tools/PdfToWord"));
 const WordToPdf = lazy(() => import("@/pages/tools/WordToPdf"));
 const ExcelToPdf = lazy(() => import("@/pages/tools/ExcelToPdf"));
 const PdfToPpt = lazy(() => import("@/pages/tools/PdfToPpt"));
+const RotatePdf = lazy(() => import("@/pages/tools/RotatePdf"));
 const PptToPdf = lazy(() => import("@/pages/tools/PptToPdf"));
 const PdfToJpg = lazy(() => import("@/pages/tools/PdfToJpg"));
 const PdfToExcel = lazy(() => import("@/pages/tools/PdfToExcel"));
@@ -130,6 +131,7 @@ const App = () => {
             <Route path="/tools/pdf-to-jpg" element={<PdfToJpg />} />
             <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
             <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
+            <Route path="/tools/rotate-pdf" element={<RotatePdf />} />
             <Route path="/tools/protect-pdf" element={<ProtectPdf />} />
             <Route path="/tools/add-watermark" element={<WatermarkPdf />} />
           <Route path="/government-exams" element={<GovernmentExams />} />

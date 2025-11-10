@@ -128,6 +128,13 @@ const tools: Tool[] = [
     icon: <FileText className="w-8 h-8" />,
     link: "/tools/pdf-to-ppt",
   },
+  {
+    id: "rotate-pdf",
+    name: "Rotate PDF",
+    description: "Rotate PDF pages by 90°, 180°, or 270° instantly.",
+    icon: <FileText className="w-8 h-8" />,
+    link: "/tools/rotate-pdf",
+  },
 ];
 
 const faqs = [
