@@ -1,7 +1,7 @@
 const BASE_URL = 'https://www.thebulletinbriefs.in';
 
 export default async function handler(req, res) {
-  const currentDate = new Date().toISOString().split('T')[0];
+  const currentDate = new Date().toISOString();
   
   // Define all tool routes with their priorities
   const toolRoutes = [

@@ -134,25 +134,22 @@ const App = () => {
           <Route path="/tools/youtube-shorts-downloader" element={<YoutubeShortsDownloader />} />
           <Route path="/tools/merge-pdf" element={<MergePdf />} />
           <Route path="/tools/split-pdf" element={<SplitPdf />} />
-            <Route path="/tools/compress-pdf" element={<CompressPdf />} />
-            <Route path="/tools/pdf-to-word" element={<PdfToWord />} />
-            <Route path="/tools/word-to-pdf" element={<WordToPdf />} />
-            <Route path="/tools/excel-to-pdf" element={<ExcelToPdf />} />
-            <Route path="/tools/image-tools" element={<ImageTools />} />
-            <Route path="/tools/jpg-to-png" element={<JpgToPng />} />
-            <Route path="/tools/png-to-jpg" element={<PngToJpg />} />
-            <Route path="/tools/image-compressor" element={<ImageCompressor />} />
-            <Route path="/tools/image-resizer" element={<ImageResizer />} />
-            <Route path="/tools/image-cropper" element={<ImageCropper />} />
-            <Route path="/tools/convert-to-webp" element={<ConvertToWebp />} />
-            <Route path="/tools/video-tools" element={<VideoTools />} />
-            <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
-            <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
-            <Route path="/tools/ppt-to-pdf" element={<PptToPdf />} />
-            <Route path="/tools/pdf-to-jpg" element={<PdfToJpg />} />
-            <Route path="/tools/instagram-video-downloader" element={<InstagramVideoDownloader />} />
-            <Route path="/tools/pdf-tools" element={<PdfTools />} />
-            <Route path="/tools-audit-report" element={<ToolsAuditReport />} />
+          <Route path="/tools/compress-pdf" element={<CompressPdf />} />
+          <Route path="/tools/pdf-to-word" element={<PdfToWord />} />
+          <Route path="/tools/word-to-pdf" element={<WordToPdf />} />
+          <Route path="/tools/excel-to-pdf" element={<ExcelToPdf />} />
+          <Route path="/tools/jpg-to-png" element={<JpgToPng />} />
+          <Route path="/tools/png-to-jpg" element={<PngToJpg />} />
+          <Route path="/tools/image-compressor" element={<ImageCompressor />} />
+          <Route path="/tools/image-resizer" element={<ImageResizer />} />
+          <Route path="/tools/image-cropper" element={<ImageCropper />} />
+          <Route path="/tools/convert-to-webp" element={<ConvertToWebp />} />
+          <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
+          <Route path="/tools/pdf-to-ppt" element={<PdfToPpt />} />
+          <Route path="/tools/ppt-to-pdf" element={<PptToPdf />} />
+          <Route path="/tools/pdf-to-jpg" element={<PdfToJpg />} />
+          <Route path="/tools/instagram-video-downloader" element={<InstagramVideoDownloader />} />
+          <Route path="/tools-audit-report" element={<ToolsAuditReport />} />
           <Route path="/government-exams" element={<GovernmentExams />} />
           <Route path="/government-exams/:slug" element={<GovernmentExamPapers />} />
           <Route path="/jobs/previous-year-papers" element={<PreviousYearPapers />} />
