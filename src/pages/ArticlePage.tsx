@@ -354,19 +354,7 @@ export default function ArticlePage() {
             )}
 
             {/* Article Content */}
-            <article className="prose prose-lg max-w-none dark:prose-invert mb-12 article-content 
-              prose-p:my-6 prose-p:leading-relaxed 
-              prose-h2:mt-10 prose-h2:mb-6 
-              prose-h3:mt-8 prose-h3:mb-4 
-              prose-ul:my-6 prose-ul:space-y-2
-              prose-ol:my-6 prose-ol:space-y-2
-              prose-li:my-2 prose-li:leading-relaxed
-              prose-img:rounded-xl prose-img:my-8 
-              prose-figure:my-10 
-              prose-figcaption:text-center prose-figcaption:text-sm prose-figcaption:text-muted-foreground prose-figcaption:mt-3 prose-figcaption:italic
-              prose-blockquote:my-8 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-6 prose-blockquote:italic
-              prose-strong:text-foreground prose-strong:font-semibold
-              prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
+            <article className="prose prose-lg max-w-none dark:prose-invert mb-12 article-content prose-img:rounded-xl prose-img:my-6 prose-p:my-4 prose-p:leading-relaxed prose-figure:my-8 prose-figcaption:text-center prose-figcaption:text-sm prose-figcaption:text-muted-foreground prose-figcaption:mt-2 prose-figcaption:italic prose-h2:mt-8 prose-h2:mb-4 prose-h3:mt-6 prose-h3:mb-3 prose-ul:my-6 prose-ol:my-6 prose-li:my-2">
               {displayContent ? (
                 <div dangerouslySetInnerHTML={{ __html: displayContent }} />
               ) : (
