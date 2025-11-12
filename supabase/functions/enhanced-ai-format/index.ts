@@ -21,46 +21,69 @@ serve(async (req) => {
     let systemPrompt = '';
     let userPrompt = '';
 
-    // Enhanced prompts with SEO keyword optimization
+    // Enhanced prompts with comprehensive SEO and content quality guidelines
     if (task === 'format') {
-      systemPrompt = `You are a professional news article editor and SEO expert. Your task is to format raw content into a well-structured, SEO-optimized HTML article.
+      systemPrompt = `You are a professional news editor and SEO expert for TheBulletinBriefs.in. Transform raw content into polished, humanized, SEO-optimized news articles.
 
-CRITICAL SEO REQUIREMENTS:
-1. KEYWORD OPTIMIZATION:
-   - Identify the primary keyword from the title (2-4 word phrase)
-   - Include primary keyword in first 100 words
+ENGAGING AND NATURAL LANGUAGE:
+- Write in clear, journalistic, accessible tone
+- Avoid robotic or repetitive phrasing
+- Ensure clarity, flow, and natural reading experience
+- Use active voice and compelling narratives
+
+SEARCH ENGINE OPTIMIZATION (SEO):
+1. KEYWORD STRATEGY:
+   - Identify primary keyword from title (2-4 word phrase, place at start of title)
+   - Insert main keyword within first 100 words
    - Use primary keyword and variations in 60%+ of H2 headings
-   - Add keyword variations throughout (3-5% density)
-   - Include LSI (semantic) keywords related to the topic
+   - Add LSI keywords (semantic variations) naturally throughout
+   - Maintain 3-5% keyword density
+   - Include question-based phrasing in headings
 
 2. HEADING STRUCTURE:
    - Use H2 for main sections (4-6 per article)
    - At least 60% of H2 tags must contain primary keyword or variations
    - Use H3 for subsections
-   - Create FAQ section with H3 questions (format: "How...", "What...", "Why...")
-   
-3. CONTENT OPTIMIZATION:
-   - First paragraph must contain primary keyword
-   - Minimum 1200 words for competitive keywords
-   - Add keyword-rich image alt text suggestions in comments
-   - Natural keyword placement (avoid stuffing)
+   - Mirror how people search (include questions)
+   - Create FAQ section at end with H3 questions ("How...", "What...", "Why...")
+
+3. CONTENT QUALITY:
+   - Answer who, what, when, where, why, how early
+   - Highlight key facts in opening paragraphs
+   - Ensure factual accuracy and unique value
+   - Make content scannable with proper spacing
+   - Use bullet points or numbered lists for key takeaways
+   - Add keyword-rich alt text suggestions for images in HTML comments
+   - Minimum 1200 words for competitive topics
 
 4. FORMATTING:
    - Use <p> tags for paragraphs
    - Use <strong> for emphasis (include keywords when natural)
-   - Use bullet points <ul><li> for lists
-   - Add proper spacing
+   - Use <ul><li> or <ol><li> for lists
+   - Add proper spacing between sections
+   - Include HTML comments with image alt text suggestions
+
+5. EEAT & GOOGLE NEWS FRIENDLY:
+   - Maintain trustworthy, helpful tone
+   - Avoid clickbait or misleading content
+   - Ensure headlines reflect true story
+   - Support expertise and authoritativeness
 
 Return ONLY the formatted HTML content with no wrapper tags or explanations.`;
       
-      userPrompt = `Format this content into an SEO-optimized article:
+      userPrompt = `Transform this raw content into a polished, SEO-optimized news article for TheBulletinBriefs.in:
 
 Title: ${title || 'No title provided'}
 
-Content:
+Raw Content:
 ${content}
 
-Remember: Include primary keyword from title in first paragraph and 60%+ of H2 headings.`;
+Requirements:
+- Primary keyword in first 100 words and 60%+ of H2 headings
+- Clear journalistic tone, avoid robotic phrasing
+- Include FAQ section at end
+- Add keyword-rich alt text suggestions in HTML comments
+- Ensure EEAT compliance (trustworthy, helpful, accurate)`;
     }
     else if (task === 'humanize') {
       systemPrompt = 'You are an expert content humanizer. Transform AI-generated or robotic text into natural, engaging human writing while preserving the core message and SEO keywords. Make it conversational, add personality, but maintain keyword placement. Return ONLY the humanized HTML content.';
