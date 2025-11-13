@@ -973,29 +973,35 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
         // Remove code fences if present
         cleaned = cleaned.replace(/^```(?:html)?\n?/i, '').replace(/```$/i, '');
         
-        // Extract meta information if provided as comments
-        const metaTitleMatch = cleaned.match(/<!--\s*META_TITLE:\s*(.+?)\s*-->/i);
-        const metaDescMatch = cleaned.match(/<!--\s*META_DESCRIPTION:\s*(.+?)\s*-->/i);
-        
-        // Remove meta comments from content
-        cleaned = cleaned.replace(/<!--\s*META_TITLE:[\s\S]*?-->/gi, '');
-        cleaned = cleaned.replace(/<!--\s*META_DESCRIPTION:[\s\S]*?-->/gi, '');
-        cleaned = cleaned.trim();
-        
         const updates: any = { content: cleaned };
         
-        // Auto-fill meta information if extracted
-        if (metaTitleMatch?.[1]) {
-          updates.meta_title = metaTitleMatch[1].trim();
+        // Auto-fill title and generate slug
+        if (data.title) {
+          updates.title = data.title;
+          updates.slug = slugify(data.title, { 
+            lower: true, 
+            strict: true,
+            remove: /[*+~.()'"!:@]/g 
+          });
         }
-        if (metaDescMatch?.[1]) {
-          updates.meta_description = metaDescMatch[1].trim();
+        
+        // Auto-fill excerpt
+        if (data.excerpt) {
+          updates.excerpt = data.excerpt;
+        }
+        
+        // Auto-fill meta information
+        if (data.meta_title) {
+          updates.meta_title = data.meta_title;
+        }
+        if (data.meta_description) {
+          updates.meta_description = data.meta_description;
         }
         
         updateFormData(updates);
         toast({
           title: "📰 News Article Formatted",
-          description: "Content formatted into professional journalistic style (NDTV/Times of India).",
+          description: "Title, excerpt, meta tags, and content auto-filled successfully!",
         });
       }
     } catch (error: any) {

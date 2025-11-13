@@ -304,47 +304,45 @@ OPTIMIZED HTML (with meta comments and schema):`
         try {
           const newsPrompt = `You are a senior news editor formatting content into a professional journalistic article following NDTV / Times of India / The Hitavada standards.
 
-STRUCTURE REQUIREMENTS:
+RETURN A VALID JSON OBJECT with these exact keys (no markdown, no code fences):
 
-1. **Headline (H1)** — Short, impactful, under 60 characters
-   - Use active voice, present tense where appropriate
-   - Include key facts or numbers if impactful
-   - Make it click-worthy but factual
+{
+  "title": "Short, impactful news headline (5-12 words, under 60 characters)",
+  "excerpt": "Concise summary capturing the main story (120-160 characters)",
+  "meta_title": "SEO-optimized title (max 60 characters)",
+  "meta_description": "Factual summary for search engines (max 160 characters)",
+  "content": "Full HTML article content (see structure below)"
+}
 
-2. **Subheadline (H2)** — Quick summary in one line
-   - Expand on headline with key context
+ARTICLE STRUCTURE (for the "content" field):
+
+1. **Subheadline (H2)** — Quick summary expanding on the title
    - Who, what, when in concise form
 
-3. **Intro Paragraph** — Lead paragraph answering 5 W's
+2. **Intro Paragraph** — Lead paragraph answering 5 W's
    - Who, What, When, Where, Why
    - Most important information first (inverted pyramid)
    - 2-3 sentences maximum
 
-4. **Body Paragraphs** — 2-4 short paragraphs
+3. **Body Paragraphs** — 2-4 short paragraphs
    - Each paragraph: 2-3 lines only
    - One idea per paragraph
    - Use active voice throughout
    - Include facts, data, context
    - Chronological or importance-based order
 
-5. **Quote Section (if applicable)**
+4. **Quote Section (if applicable)**
    - Add relevant quote from authority, official, or data source
    - Format: <blockquote>"Quote text here" - Source Name, Title</blockquote>
 
-6. **Related Section**
+5. **Related Section**
    - Add "Also Read:" or "Related Stories:" heading
    - Suggest 2-3 related topics as placeholder links
    - Format: <strong>Also Read:</strong> <a href="[link-placeholder]">Related Story Title</a>
 
-7. **Conclusion** — Wrap-up or next steps
+6. **Conclusion** — Wrap-up or next steps
    - 1-2 lines
    - Future implications or ongoing developments
-   - Call to action or context for readers
-
-META INFORMATION:
-- Generate meta title (under 60 chars) - news headline optimized
-- Generate meta description (under 160 chars) - factual summary
-- Add as HTML comments: <!-- META_TITLE: ... --> and <!-- META_DESCRIPTION: ... -->
 
 IMAGE OPTIMIZATION:
 - For any image references, add: <!-- image: news_topic --> <!-- alt: "Descriptive news image alt text" -->
@@ -357,26 +355,29 @@ TONE & STYLE:
 - Crisp, professional language
 - Present tense for recent events, past tense for completed actions
 
-OUTPUT FORMAT:
-- Return ONLY the HTML article
-- Include meta tags as HTML comments at top
-- No code fences, no markdown, no explanations
-- Proper HTML structure with semantic tags
-
 CONTENT TO FORMAT:
 ${content}
 
-FORMATTED NEWS ARTICLE:`
+JSON OUTPUT (no code fences):`
 
           const formatted = await callLovableAI(newsPrompt)
           
           // Clean any code fences
           let cleaned = formatted.trim()
-          cleaned = cleaned.replace(/^```html\n?/i, '')
+          cleaned = cleaned.replace(/^```json\n?/i, '')
           cleaned = cleaned.replace(/^```\n?/i, '')
           cleaned = cleaned.replace(/\n?```$/i, '')
           
-          result = { result: cleaned }
+          // Parse the JSON response
+          const parsed = JSON.parse(cleaned)
+          
+          result = { 
+            title: parsed.title || '',
+            excerpt: parsed.excerpt || '',
+            meta_title: parsed.meta_title || parsed.title || '',
+            meta_description: parsed.meta_description || parsed.excerpt || '',
+            result: parsed.content || ''
+          }
         } catch (error) {
           console.error('Format as news error:', error)
           throw new Error('Failed to format content as news')
