@@ -965,29 +965,13 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
         }
       });
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw error;
-      }
-
-      console.log('Received data from edge function:', {
-        hasResult: !!data?.result,
-        resultLength: data?.result?.length || 0,
-        hasTitle: !!data?.title,
-        hasExcerpt: !!data?.excerpt
-      });
+      if (error) throw error;
 
       if (data?.result) {
         let cleaned = data.result.trim();
         
         // Remove code fences if present
-        cleaned = cleaned.replace(/^```(?:html)?\n?/i, '').replace(/```$/i, '').trim();
-        
-        console.log('Cleaned content length:', cleaned.length);
-        
-        if (cleaned.length < 50) {
-          throw new Error('Formatted content is too short or empty');
-        }
+        cleaned = cleaned.replace(/^```(?:html)?\n?/i, '').replace(/```$/i, '');
         
         const updates: any = { content: cleaned };
         
@@ -1017,10 +1001,8 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
         updateFormData(updates);
         toast({
           title: "📰 News Article Formatted",
-          description: `Title, excerpt, meta tags, and content (${cleaned.length} chars) auto-filled successfully!`,
+          description: "Title, excerpt, meta tags, and content auto-filled successfully!",
         });
-      } else {
-        throw new Error('No formatted content received from AI');
       }
     } catch (error: any) {
       console.error('Format as news error:', error);

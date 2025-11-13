@@ -304,15 +304,14 @@ OPTIMIZED HTML (with meta comments and schema):`
         try {
           const newsPrompt = `You are a senior news editor formatting content into a professional journalistic article following NDTV / Times of India / The Hitavada standards.
 
-CRITICAL: You must return a VALID JSON object. Escape all special characters properly (quotes, newlines, etc.).
+RETURN A VALID JSON OBJECT with these exact keys (no markdown, no code fences):
 
-Return this exact structure:
 {
   "title": "Short, impactful news headline (5-12 words, under 60 characters)",
   "excerpt": "Concise summary capturing the main story (120-160 characters)",
   "meta_title": "SEO-optimized title (max 60 characters)",
   "meta_description": "Factual summary for search engines (max 160 characters)",
-  "content": "Full HTML article content - ALL content must be included, properly escaped for JSON"
+  "content": "Full HTML article content (see structure below)"
 }
 
 ARTICLE STRUCTURE (for the "content" field):
@@ -356,55 +355,32 @@ TONE & STYLE:
 - Crisp, professional language
 - Present tense for recent events, past tense for completed actions
 
-IMPORTANT: Include ALL content from the source, don't truncate or summarize unless explicitly needed.
-
 CONTENT TO FORMAT:
-${content.slice(0, 8000)}
+${content}
 
-Return ONLY the JSON object, no markdown, no code fences, no explanations:`
+JSON OUTPUT (no code fences):`
 
           const formatted = await callLovableAI(newsPrompt)
-          console.log('Raw AI response length:', formatted.length)
           
-          // Clean any code fences and extra whitespace
+          // Clean any code fences
           let cleaned = formatted.trim()
           cleaned = cleaned.replace(/^```json\n?/i, '')
           cleaned = cleaned.replace(/^```\n?/i, '')
           cleaned = cleaned.replace(/\n?```$/i, '')
-          cleaned = cleaned.trim()
           
-          console.log('Cleaned response length:', cleaned.length)
-          console.log('First 200 chars:', cleaned.substring(0, 200))
-          
-          // Try to parse the JSON response
-          let parsed
-          try {
-            parsed = JSON.parse(cleaned)
-          } catch (parseError) {
-            console.error('JSON parse error:', parseError)
-            console.error('Cleaned text that failed to parse:', cleaned.substring(0, 500))
-            throw new Error('AI returned invalid JSON. Please try again.')
-          }
-          
-          // Validate that content exists and is not empty
-          if (!parsed.content || parsed.content.trim().length < 50) {
-            console.error('Content too short or missing:', parsed.content?.length || 0)
-            throw new Error('Formatted content is missing or too short')
-          }
-          
-          console.log('Parsed content length:', parsed.content.length)
+          // Parse the JSON response
+          const parsed = JSON.parse(cleaned)
           
           result = { 
             title: parsed.title || '',
             excerpt: parsed.excerpt || '',
             meta_title: parsed.meta_title || parsed.title || '',
             meta_description: parsed.meta_description || parsed.excerpt || '',
-            result: parsed.content
+            result: parsed.content || ''
           }
         } catch (error) {
           console.error('Format as news error:', error)
-          const errorMsg = error instanceof Error ? error.message : 'Failed to format content as news'
-          throw new Error(errorMsg)
+          throw new Error('Failed to format content as news')
         }
         break
 
