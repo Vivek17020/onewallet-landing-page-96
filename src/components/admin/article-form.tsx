@@ -85,6 +85,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
   const [isFormattingCricket, setIsFormattingCricket] = useState(false);
   const [isFormattingNews, setIsFormattingNews] = useState(false);
   const [isFormattingScheme, setIsFormattingScheme] = useState(false);
+  const [isFormattingSports, setIsFormattingSports] = useState(false);
   
   // Auto-save states
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -1093,6 +1094,82 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
     }
   };
 
+  const handleFormatSports = async () => {
+    if (!formData.content?.trim()) {
+      toast({
+        title: "No Content",
+        description: "Please add some content first to format as sports article.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFormattingSports(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-proxy', {
+        body: {
+          task: 'format-as-sports',
+          content: formData.content,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.result) {
+        let cleaned = data.result.trim();
+        
+        // Remove code fences if present
+        cleaned = cleaned.replace(/^```(?:html)?\n?/i, '').replace(/```$/i, '');
+        
+        const updates: any = { content: cleaned };
+        
+        // Auto-fill title and generate slug
+        if (data.title) {
+          updates.title = data.title;
+          updates.slug = slugify(data.title, { 
+            lower: true, 
+            strict: true,
+            remove: /[*+~.()'"!:@]/g 
+          });
+        }
+        
+        // Auto-fill excerpt
+        if (data.excerpt) {
+          updates.excerpt = data.excerpt;
+        }
+        
+        // Auto-fill meta information
+        if (data.meta_title) {
+          updates.meta_title = data.meta_title;
+        }
+        if (data.meta_description) {
+          updates.meta_description = data.meta_description;
+        }
+        
+        // Auto-fill tags
+        if (data.tags && Array.isArray(data.tags)) {
+          updates.tags = data.tags;
+        }
+        
+        updateFormData(updates);
+        toast({
+          title: "⚽ Sports Article Formatted",
+          description: "Title, excerpt, tags, meta fields, and content auto-filled successfully!",
+        });
+      }
+    } catch (error: any) {
+      console.error('Format as sports error:', error);
+      toast({
+        title: "Formatting Failed",
+        description: error?.message || "Failed to format as sports article.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFormattingSports(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -1298,6 +1375,17 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   {isFormattingScheme ? 'Formatting...' : '🏛️ Format as Scheme'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFormatSports}
+                  disabled={isFormattingSports || !formData.content?.trim()}
+                  className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {isFormattingSports ? 'Formatting...' : '⚽ Format as Sports'}
                 </Button>
               </div>
                 
