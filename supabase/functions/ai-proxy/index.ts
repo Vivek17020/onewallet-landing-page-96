@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 interface AIRequest {
-  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news'
+  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news' | 'format-as-scheme'
   content: string
   title?: string
   targetLanguage?: string
@@ -381,6 +381,137 @@ JSON OUTPUT (no code fences):`
         } catch (error) {
           console.error('Format as news error:', error)
           throw new Error('Failed to format content as news')
+        }
+        break
+
+      case 'format-as-scheme':
+        try {
+          const schemePrompt = `You are an expert Government Scheme article formatter. Rewrite and format the given content in a clean, SEO-optimized, government-style structure similar to MyGov, PIB, and Sarkari Yojana portals.
+
+RETURN A VALID JSON OBJECT with these exact keys (no markdown, no code fences):
+
+{
+  "title": "Scheme Name + Latest Update (under 60 characters)",
+  "excerpt": "Short summary in 25-30 words",
+  "meta_title": "SEO title under 60 characters",
+  "meta_description": "SEO description 130-155 characters",
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8"],
+  "content": "Full HTML article content following government scheme structure"
+}
+
+ARTICLE STRUCTURE (for the "content" field):
+
+Follow this exact structure using clean HTML:
+
+<h1>Title of the Scheme + Latest Update</h1>
+<p>2–3 line introduction explaining the scheme.</p>
+
+<h2>Table of Contents</h2>
+
+<h2>What is the Scheme?</h2>
+<p>Explain what the scheme is.</p>
+
+<h2>Objectives</h2>
+<ul>
+<li>Objective point 1</li>
+<li>Objective point 2</li>
+<li>Objective point 3</li>
+<li>Objective point 4 (if applicable)</li>
+<li>Objective point 5 (if applicable)</li>
+</ul>
+
+<h2>Benefits</h2>
+<ul>
+<li>Benefit point 1</li>
+<li>Benefit point 2</li>
+<li>Benefit point 3</li>
+<li>Benefit point 4 (if applicable)</li>
+<li>Benefit point 5 (if applicable)</li>
+<li>Benefit point 6 (if applicable)</li>
+</ul>
+
+<h2>Eligibility Criteria</h2>
+<ul>
+<li>Eligibility point 1</li>
+<li>Eligibility point 2</li>
+<li>Eligibility point 3</li>
+<li>Eligibility point 4 (if applicable)</li>
+<li>Eligibility point 5 (if applicable)</li>
+<li>Eligibility point 6 (if applicable)</li>
+</ul>
+
+<h2>Required Documents</h2>
+<ul>
+<li>Document 1</li>
+<li>Document 2</li>
+<li>Document 3</li>
+<li>Document 4 (if applicable)</li>
+<li>Document 5 (if applicable)</li>
+<li>Document 6 (if applicable)</li>
+</ul>
+
+<h2>How to Apply</h2>
+<ol>
+<li>Step 1</li>
+<li>Step 2</li>
+<li>Step 3</li>
+<li>Step 4 (if applicable)</li>
+<li>Step 5 (if applicable)</li>
+</ol>
+
+<h2>Important Dates</h2>
+<ul>
+<li>Start date (if available)</li>
+<li>Last date (if available)</li>
+<li>Other important dates</li>
+</ul>
+
+<h2>Latest Updates</h2>
+<p>Write latest update lines (2-3 sentences).</p>
+
+<h2>Official Website</h2>
+<p>Domain name only (no links).</p>
+
+<h2>Conclusion</h2>
+<p>Summarize benefits and importance (2-3 sentences).</p>
+
+CRITICAL RULES:
+• No fake data - only use information from the provided content
+• No broken sentences or jumbled text
+• No CSS or inline styles
+• Use clean HTML only (<h1>, <h2>, <p>, <ul>, <ol>, <li>)
+• Ensure sentences do NOT jumble after publishing
+• Maintain clarity, readability, and government tone
+• Use formal, official language
+• Keep sentences complete and grammatically correct
+
+CONTENT TO FORMAT:
+${content}
+
+JSON OUTPUT (no code fences):`
+
+          const formatted = await callLovableAI(schemePrompt)
+          
+          // Clean any code fences
+          let cleaned = formatted.trim()
+          cleaned = cleaned.replace(/^```json\n?/i, '')
+          cleaned = cleaned.replace(/^```\n?/i, '')
+          cleaned = cleaned.replace(/\n?```$/i, '')
+          
+          // Parse the JSON response
+          const parsed = JSON.parse(cleaned)
+          
+          result = { 
+            title: parsed.title || '',
+            excerpt: parsed.excerpt || '',
+            meta_title: parsed.meta_title || parsed.title || '',
+            meta_description: parsed.meta_description || parsed.excerpt || '',
+            tags: parsed.tags || [],
+            result: parsed.content || ''
+          }
+        } catch (error) {
+          console.error('Format as scheme error:', error)
+          throw new Error('Failed to format content as government scheme')
         }
         break
 
