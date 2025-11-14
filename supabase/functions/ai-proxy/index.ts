@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 interface AIRequest {
-  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news' | 'format-as-scheme'
+  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news' | 'format-as-scheme' | 'format-as-sports'
   content: string
   title?: string
   targetLanguage?: string
@@ -512,6 +512,105 @@ JSON OUTPUT (no code fences):`
         } catch (error) {
           console.error('Format as scheme error:', error)
           throw new Error('Failed to format content as government scheme')
+        }
+        break
+
+      case 'format-as-sports':
+        try {
+          const sportsPrompt = `You are a professional sports journalist. Format the article into an SEO-rich, clean, and energetic sports news style like ESPNcricinfo, TOI Sports, or Cricbuzz.
+
+RETURN A VALID JSON OBJECT with these exact keys (no markdown, no code fences):
+
+{
+  "title": "Punchy sports headline (under 60 characters)",
+  "excerpt": "Strong summary in 25-30 words",
+  "meta_title": "SEO title under 60 characters",
+  "meta_description": "SEO description 130-155 characters",
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8"],
+  "content": "Full HTML article content following sports news structure"
+}
+
+ARTICLE STRUCTURE (for the "content" field):
+
+Follow this exact structure using clean HTML:
+
+<h1>Punchy Sports Headline</h1>
+<h2>Short Subheadline (1–2 line summary)</h2>
+<p>Strong introduction covering score/event/highlight (2-3 sentences).</p>
+
+<h2>Match Highlights</h2>
+<ul>
+<li>Top moment 1</li>
+<li>Top moment 2</li>
+<li>Top moment 3</li>
+<li>Turning point 1</li>
+<li>Turning point 2</li>
+</ul>
+
+<h2>Key Player Performances</h2>
+<p>Analysis of important players and their contributions (2-3 paragraphs).</p>
+
+<h2>Team Summary</h2>
+<p>Summary for Team A performance.</p>
+<p>Summary for Team B performance.</p>
+
+<h2>Stats & Records</h2>
+<ul>
+<li>Milestone 1</li>
+<li>Milestone 2</li>
+<li>Record 1</li>
+<li>Record 2</li>
+</ul>
+
+<h2>Reactions</h2>
+<p>Coach/player comments (generic quotes allowed if no actual quotes available).</p>
+
+<h2>Upcoming Fixtures</h2>
+<ul>
+<li>Next match detail 1</li>
+<li>Next match detail 2</li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>Short wrap-up line (1-2 sentences).</p>
+
+CRITICAL RULES:
+• HTML must be clean and safe for WordPress/Editor
+• No broken paragraphs or sentences
+• Keep the tone dynamic and journalistic
+• No external links
+• Use energetic, exciting language
+• No CSS or inline styles
+• Maintain proper HTML structure
+• Ensure sentences are complete and don't jumble after publishing
+
+CONTENT TO FORMAT:
+${content}
+
+JSON OUTPUT (no code fences):`
+
+          const formatted = await callLovableAI(sportsPrompt)
+          
+          // Clean any code fences
+          let cleaned = formatted.trim()
+          cleaned = cleaned.replace(/^```json\n?/i, '')
+          cleaned = cleaned.replace(/^```\n?/i, '')
+          cleaned = cleaned.replace(/\n?```$/i, '')
+          
+          // Parse the JSON response
+          const parsed = JSON.parse(cleaned)
+          
+          result = { 
+            title: parsed.title || '',
+            excerpt: parsed.excerpt || '',
+            meta_title: parsed.meta_title || parsed.title || '',
+            meta_description: parsed.meta_description || parsed.excerpt || '',
+            tags: parsed.tags || [],
+            result: parsed.content || ''
+          }
+        } catch (error) {
+          console.error('Format as sports error:', error)
+          throw new Error('Failed to format content as sports article')
         }
         break
 
