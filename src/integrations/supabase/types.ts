@@ -586,6 +586,152 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_audit_reports: {
+        Row: {
+          ai_detection_accuracy: number | null
+          audit_completed_at: string
+          auto_fix_success_rate: number | null
+          auto_fixed_count: number
+          created_at: string
+          critical_issues: number
+          id: string
+          info_issues: number
+          reindex_success_rate: number | null
+          report_data: Json | null
+          total_articles_scanned: number
+          total_issues_found: number
+          warning_issues: number
+        }
+        Insert: {
+          ai_detection_accuracy?: number | null
+          audit_completed_at?: string
+          auto_fix_success_rate?: number | null
+          auto_fixed_count?: number
+          created_at?: string
+          critical_issues?: number
+          id?: string
+          info_issues?: number
+          reindex_success_rate?: number | null
+          report_data?: Json | null
+          total_articles_scanned?: number
+          total_issues_found?: number
+          warning_issues?: number
+        }
+        Update: {
+          ai_detection_accuracy?: number | null
+          audit_completed_at?: string
+          auto_fix_success_rate?: number | null
+          auto_fixed_count?: number
+          created_at?: string
+          critical_issues?: number
+          id?: string
+          info_issues?: number
+          reindex_success_rate?: number | null
+          report_data?: Json | null
+          total_articles_scanned?: number
+          total_issues_found?: number
+          warning_issues?: number
+        }
+        Relationships: []
+      }
+      seo_autofix_verification: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          fix_attempted_at: string
+          gsc_status: string | null
+          id: string
+          issue_id: string | null
+          issue_type: string
+          verification_notes: string | null
+          verification_status: string
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          fix_attempted_at?: string
+          gsc_status?: string | null
+          id?: string
+          issue_id?: string | null
+          issue_type: string
+          verification_notes?: string | null
+          verification_status: string
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          fix_attempted_at?: string
+          gsc_status?: string | null
+          id?: string
+          issue_id?: string | null
+          issue_type?: string
+          verification_notes?: string | null
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_autofix_verification_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_autofix_verification_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "seo_health_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_health_log: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          detected_at: string
+          id: string
+          issue_type: string
+          notes: string | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          url: string
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          detected_at?: string
+          id?: string
+          issue_type: string
+          notes?: string | null
+          resolved_at?: string | null
+          severity: string
+          status?: string
+          url: string
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          detected_at?: string
+          id?: string
+          issue_type?: string
+          notes?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_health_log_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           created_at: string
