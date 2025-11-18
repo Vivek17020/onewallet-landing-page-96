@@ -10,9 +10,9 @@ export function CategorySections() {
   const { data: categories, isLoading } = useCategories();
   const navigate = useNavigate();
 
-  // Filter main categories (no parent) and exclude Jobs subcategories
+  // Filter main categories and exclude Jobs subcategories
   const mainCategories = categories?.filter(
-    cat => !cat.parent_id && !cat.name.startsWith('Jobs/')
+    cat => !cat.name.startsWith('Jobs/')
   ) || [];
 
   // Custom order: Business, Defence, then others, then World, Jobs at the end
@@ -69,11 +69,6 @@ interface CategorySectionProps {
 function CategorySection({ category, allCategories }: CategorySectionProps) {
   const navigate = useNavigate();
   
-  // Get subcategories for this category
-  const subcategories = allCategories.filter(
-    cat => cat.parent_id === category.id
-  );
-
   // Fetch articles for main category only
   const { data: articlesData, isLoading } = useArticles(category.slug, 1, 8);
   const articles = articlesData?.articles || [];
