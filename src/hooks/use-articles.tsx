@@ -251,7 +251,8 @@ export interface Category {
   slug: string;
   description: string | null;
   color: string | null;
-  parent_id: string | null;
+  created_at: string;
+  updated_at: string;
   subcategories?: Category[];
 }
 
@@ -266,18 +267,8 @@ export const useCategories = () => {
 
       if (error) throw error;
       
-      // Organize into parent/child structure
-      const categories = data as Category[];
-      const parentCategories = categories.filter(cat => !cat.parent_id);
-      const childCategories = categories.filter(cat => cat.parent_id);
-      
-      // Attach subcategories to parents
-      const organized = parentCategories.map(parent => ({
-        ...parent,
-        subcategories: childCategories.filter(child => child.parent_id === parent.id)
-      }));
-      
-      return organized;
+      // Return categories directly without organizing
+      return data as Category[];
     },
     staleTime: Infinity, // Categories rarely change - cache indefinitely
     gcTime: 1000 * 60 * 60, // Keep in cache for 1 hour
