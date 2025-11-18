@@ -19,8 +19,6 @@ import { AdvancedAnalytics } from '@/components/analytics/advanced-analytics';
 import { VAPIDGenerator } from '@/components/pwa/vapid-generator';
 import { AnalyticsExportFixed as AnalyticsExport } from '@/components/analytics/analytics-export-fixed';
 import { EnhancedPushNotification } from '@/components/pwa/enhanced-push-notification';
-import { SeoHealthDashboard } from '@/components/admin/seo-health-dashboard';
-import { SeoVerificationDashboard } from '@/components/admin/seo-verification-dashboard';
 
 interface DashboardStats {
   totalArticles: number;
