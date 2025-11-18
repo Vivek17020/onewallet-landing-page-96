@@ -38,7 +38,6 @@ const AdminNewArticle = lazy(() => import("./pages/AdminNewArticle"));
 const AdminEditArticle = lazy(() => import("./pages/AdminEditArticle"));
 const AdminEngagement = lazy(() => import("./pages/AdminEngagement"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
-const AdminExams = lazy(() => import("./pages/AdminExams"));
 const NewsletterPreferencesPage = lazy(() => import("./pages/NewsletterPreferences"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));

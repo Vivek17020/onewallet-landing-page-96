@@ -80,12 +80,7 @@ export function PersonalizedFeed() {
                   Start reading articles to get personalized recommendations!
                 </p>
               </div>
-            )}
-          </TabsContent>
-        )}
-
-        <TabsContent value="videos" className="space-y-6">
-          <HomepageVideos />
+          )}
         </TabsContent>
 
         <TabsContent value="latest" className="space-y-6">
