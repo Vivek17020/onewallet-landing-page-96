@@ -6,7 +6,7 @@ const corsHeaders = {
 }
 
 interface AIRequest {
-  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news' | 'format-as-listicle' | 'format-as-scheme' | 'format-as-sports'
+  task: 'summary' | 'title' | 'keywords' | 'translation' | 'format-seo-content' | 'humanize-content' | 'seo-optimize' | 'bold-keywords' | 'extract-tags' | 'format-and-extract-all' | 'format-cricket' | 'format-as-news' | 'format-as-listicle' | 'format-as-scheme' | 'format-as-sports' | 'suggest-external-links'
   content: string
   title?: string
   targetLanguage?: string
@@ -1196,6 +1196,48 @@ FORMATTED CRICKET MATCH REPORT (clean HTML only, no code fences):`
         } catch (error) {
           console.error('Cricket format error:', error)
           throw new Error('Failed to format cricket match report')
+        }
+        break
+
+      case 'suggest-external-links':
+        try {
+          const systemPrompt = `You are an SEO and research assistant. Your job is to suggest 3-5 authoritative external sources for an article.
+
+STRICT RULES:
+- Only suggest official sources: government portals (.gov.in, .nic.in), official exam boards (SSC, UPSC, WBCHSE, CBSE, etc.), trusted news outlets (Indian Express, Times of India, Hindustan Times, The Hindu, etc.)
+- DO NOT copy any content from these sites
+- Only provide: title, URL, source type, and brief relevance note
+- Maximum 5 suggestions
+- No blogs, unofficial sites, or low-authority sources
+
+Return ONLY a JSON object with this structure:
+{
+  "suggestions": [
+    {
+      "title": "Exact title from the source",
+      "url": "https://official-url.com",
+      "source": "Government/News/Official",
+      "reason": "Why this source is relevant (1 line)"
+    }
+  ]
+}
+
+Base suggestions on the article topic. If no authoritative sources are relevant, return empty array.`;
+          
+          const userPrompt = `Article Title: ${title}\n\nArticle Content:\n${content.substring(0, 2000)}`;
+          
+          const aiResponse = await callLovableAI(systemPrompt + '\n\n' + userPrompt);
+          let parsed = JSON.parse(aiResponse.trim());
+          
+          // Ensure suggestions is always an array
+          if (!parsed.suggestions || !Array.isArray(parsed.suggestions)) {
+            parsed = { suggestions: [] };
+          }
+          
+          result = parsed;
+        } catch (error) {
+          console.error('External links suggestion error:', error);
+          result = { suggestions: [] };
         }
         break
 
