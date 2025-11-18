@@ -55,7 +55,6 @@ const AdminWebStories = lazy(() => import("@/pages/AdminWebStories"));
 const AdminNewWebStory = lazy(() => import("@/pages/AdminNewWebStory"));
 const AdminEditWebStory = lazy(() => import("@/pages/AdminEditWebStory"));
 const WebStoryIndex = lazy(() => import("@/pages/WebStoryIndex"));
-const WebStoryPage = lazy(() => import("@/pages/WebStoryPage"));
 const WebStoryPreview = lazy(() => import("@/pages/WebStoryPreview"));
 const JpgToPdf = lazy(() => import("@/pages/tools/JpgToPdf"));
 const YoutubeShortsDownloader = lazy(() => import("@/pages/tools/YoutubeShortsDownloader"));
@@ -72,16 +71,11 @@ const ImageResizer = lazy(() => import("@/pages/tools/ImageResizer"));
 const ImageCropper = lazy(() => import("@/pages/tools/ImageCropper"));
 const ConvertToWebp = lazy(() => import("@/pages/tools/ConvertToWebp"));
 const PdfToExcel = lazy(() => import("@/pages/tools/PdfToExcel"));
-const InstagramVideoDownloader = lazy(() => import("@/pages/tools/InstagramVideoDownloader"));
-const PdfWatermark = lazy(() => import("@/pages/tools/PdfWatermark"));
-const ToolsAuditReport = lazy(() => import("@/pages/ToolsAuditReport"));
 const Tools = lazy(() => import("./pages/Tools"));
 const VideoTools = lazy(() => import("./pages/tools/VideoTools"));
 const PdfTools = lazy(() => import("./pages/tools/PdfTools"));
 const ImageTools = lazy(() => import("./pages/tools/ImageTools"));
 const ComingSoon = lazy(() => import("@/pages/ComingSoon"));
-const AdminIndexingDashboard = lazy(() => import("@/pages/AdminIndexingDashboard"));
-const AdminSEOAudit = lazy(() => import("@/pages/AdminSEOAudit"));
 
 const App = () => {
   return (
