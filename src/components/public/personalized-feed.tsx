@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useArticles } from '@/hooks/use-articles';
 import { useAuth } from '@/hooks/use-auth';
 import { User, Play, Clock } from 'lucide-react';
-import { HomepageVideos } from '@/components/public/homepage-videos';
 
 export function PersonalizedFeed() {
   const { user } = useAuth();
