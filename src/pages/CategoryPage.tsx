@@ -324,11 +324,8 @@ export default function CategoryPage() {
               </div>
             )
           ) : (
-            // For regular categories, display article grid with cricket matches section if applicable
-            <>
-              {isCricketSubcategory && <CricketMatchesSection />}
-              <ArticleGrid categorySlug={categorySlug} />
-            </>
+            // For regular categories, display article grid
+            <ArticleGrid categorySlug={categorySlug} />
           )}
         </main>
       </div>

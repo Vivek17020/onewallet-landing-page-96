@@ -305,14 +305,6 @@ export default function AdminDashboard() {
             <AnalyticsExport />
           </div>
         </TabsContent>
-
-        <TabsContent value="seo">
-          <SeoHealthDashboard />
-        </TabsContent>
-
-        <TabsContent value="verification">
-          <SeoVerificationDashboard />
-        </TabsContent>
       </Tabs>
     </div>
   );

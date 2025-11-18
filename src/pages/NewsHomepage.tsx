@@ -164,7 +164,7 @@ export default function NewsHomepage() {
               </TabsList>
 
               <TabsContent value="for-you" className="space-y-8">
-                <HomepageVideos />
+                <PersonalizedFeed />
               </TabsContent>
 
               <TabsContent value="browse" className="space-y-8 article-grid-section">

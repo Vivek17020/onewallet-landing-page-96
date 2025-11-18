@@ -143,8 +143,6 @@ const App = () => {
           <Route path="/jobs/results" element={<ComingSoon title="Results" />} />
           <Route path="/jobs/syllabus" element={<ComingSoon title="Syllabus" />} />
           <Route path="/web-stories" element={<WebStoryIndex />} />
-          <Route path="/webstories/:category/:slug" element={<WebStoryPage />} />
-          <Route path="/web-stories/:slug" element={<WebStoryPage />} /> {/* Legacy support */}
           <Route path="/admin/web-stories/preview/:slug" element={<WebStoryPreview />} />
                     
                     {/* Admin Routes */}
