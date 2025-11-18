@@ -87,6 +87,12 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
   const [isFormattingNews, setIsFormattingNews] = useState(false);
   const [isFormattingScheme, setIsFormattingScheme] = useState(false);
   const [isFormattingSports, setIsFormattingSports] = useState(false);
+  const [isSuggestingLinks, setIsSuggestingLinks] = useState(false);
+  const [linkSuggestions, setLinkSuggestions] = useState<{
+    internal: Array<{ slug: string; title: string; suggestedAnchors: string[]; relevanceScore: number }>;
+    external: Array<{ title: string; url: string; source: string; reason: string }>;
+  } | null>(null);
+  const [showLinkPreview, setShowLinkPreview] = useState(false);
   const [isFormattingGovJob, setIsFormattingGovJob] = useState(false);
   const [isFormattingExam, setIsFormattingExam] = useState(false);
   const [isFormattingGadget, setIsFormattingGadget] = useState(false);
@@ -1478,6 +1484,103 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
     }
   };
 
+  const handleSuggestLinks = async () => {
+    const currentTitle = formData.title;
+    const currentContent = formData.content;
+    
+    if (!currentTitle?.trim() || !currentContent?.trim()) {
+      toast({
+        title: "Missing Content",
+        description: "Please enter a title and content first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSuggestingLinks(true);
+    try {
+      // Call both internal and external link functions in parallel
+      const [internalRes, externalRes] = await Promise.all([
+        supabase.functions.invoke('suggest-internal-links', {
+          body: { 
+            title: currentTitle,
+            content: currentContent,
+            currentArticleId: article?.id 
+          }
+        }),
+        supabase.functions.invoke('ai-proxy', {
+          body: { 
+            task: 'suggest-external-links', 
+            content: currentContent,
+            title: currentTitle
+          }
+        })
+      ]);
+
+      if (internalRes.error) throw internalRes.error;
+      if (externalRes.error) throw externalRes.error;
+
+      const externalResult = externalRes.data.result;
+
+      setLinkSuggestions({
+        internal: internalRes.data.suggestions || [],
+        external: externalResult.suggestions || []
+      });
+      setShowLinkPreview(true);
+      toast({
+        title: "Link Suggestions Generated",
+        description: `Found ${internalRes.data.suggestions?.length || 0} internal + ${externalResult.suggestions?.length || 0} external links`,
+      });
+    } catch (error: any) {
+      console.error('Suggest links error:', error);
+      toast({
+        title: "Suggestion Failed",
+        description: error?.message || "Failed to generate link suggestions",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSuggestingLinks(false);
+    }
+  };
+
+  const handleInsertLinks = () => {
+    if (!linkSuggestions) return;
+
+    let currentContent = formData.content;
+    
+    // Insert internal links into natural points
+    linkSuggestions.internal.slice(0, 5).forEach((link, index) => {
+      const anchor = link.suggestedAnchors[0] || link.title;
+      const linkHtml = `<a href="/article/${link.slug}">${anchor}</a>`;
+      
+      const paragraphs = currentContent.split('</p>');
+      if (paragraphs.length > index + 2) {
+        paragraphs[index + 2] = paragraphs[index + 2].replace(
+          /(<p[^>]*>)/,
+          `$1See also: ${linkHtml}. `
+        );
+      }
+      currentContent = paragraphs.join('</p>');
+    });
+
+    // Add external sources section at the end
+    if (linkSuggestions.external.length > 0) {
+      currentContent += '\n\n<h2>Sources & References</h2>\n<ul>\n';
+      linkSuggestions.external.forEach(link => {
+        currentContent += `<li><a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a> - ${link.source}</li>\n`;
+      });
+      currentContent += '</ul>';
+    }
+
+    updateFormData({ content: currentContent });
+    setShowLinkPreview(false);
+    setLinkSuggestions(null);
+    toast({
+      title: "Links Inserted",
+      description: "Internal and external links have been added to your article!",
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -1738,6 +1841,17 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   {isFormattingSports ? 'Formatting...' : '⚽ Format as Sports'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSuggestLinks}
+                  disabled={isSuggestingLinks || !formData.title?.trim() || !formData.content?.trim()}
+                  className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 hover:from-green-500/20 hover:to-emerald-500/20"
+                >
+                  <Link className="w-4 h-4 mr-2" />
+                  {isSuggestingLinks ? 'Analyzing...' : '🔗 Suggest Links (AI)'}
                 </Button>
               </div>
                 
@@ -2074,6 +2188,87 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           )}
         </div>
       </div>
+
+      {/* Link Suggestions Preview Dialog */}
+      {showLinkPreview && linkSuggestions && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background border rounded-lg max-w-3xl w-full max-h-[80vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">🔗 Link Suggestions</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowLinkPreview(false)}>
+                ✕
+              </Button>
+            </div>
+
+            {linkSuggestions.internal.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold mb-3 text-primary">Internal Links ({linkSuggestions.internal.length})</h4>
+                <div className="space-y-3">
+                  {linkSuggestions.internal.slice(0, 7).map((link, index) => (
+                    <div key={index} className="p-3 border rounded bg-muted/30">
+                      <p className="font-medium">{link.title}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        URL: /article/{link.slug}
+                      </p>
+                      <p className="text-sm mt-1">
+                        <span className="font-medium">Suggested Anchor:</span> "{link.suggestedAnchors[0]}"
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Relevance: {link.relevanceScore}/100
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {linkSuggestions.external.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold mb-3 text-primary">🌐 External References ({linkSuggestions.external.length})</h4>
+                <div className="space-y-3">
+                  {linkSuggestions.external.map((link, index) => (
+                    <div key={index} className="p-3 border rounded bg-muted/30">
+                      <p className="font-medium">{link.title}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        URL: {link.url}
+                      </p>
+                      <p className="text-sm mt-1">
+                        <span className="font-medium">Source:</span> {link.source}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {link.reason}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {linkSuggestions.internal.length === 0 && linkSuggestions.external.length === 0 && (
+              <p className="text-muted-foreground text-center py-8">
+                No relevant links found for this article.
+              </p>
+            )}
+
+            <div className="flex gap-3 mt-6">
+              <Button 
+                onClick={handleInsertLinks}
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                disabled={linkSuggestions.internal.length === 0 && linkSuggestions.external.length === 0}
+              >
+                ✔ Insert Automatically
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowLinkPreview(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
