@@ -45,15 +45,12 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const Disclaimer = lazy(() => import("./pages/Disclaimer"));
 const WebsiteAudit = lazy(() => import("./pages/WebsiteAudit"));
 const AuditReport = lazy(() => import("./pages/AuditReport"));
-const GovernmentExams = lazy(() => import("@/pages/GovernmentExams"));
-const GovernmentExamPapers = lazy(() => import("@/pages/GovernmentExamPapers"));
-const Tools = lazy(() => import("./pages/Tools"));
-const VideoTools = lazy(() => import("./pages/tools/VideoTools"));
-const PdfTools = lazy(() => import("./pages/tools/PdfTools"));
-const ImageTools = lazy(() => import("./pages/tools/ImageTools"));
-const PreviousYearPapers = lazy(() => import("@/pages/PreviousYearPapers"));
-const ExamPaperDetail = lazy(() => import("@/pages/ExamPaperDetail"));
-const ComingSoon = lazy(() => import("@/pages/ComingSoon"));
+const PdfToPpt = lazy(() => import("@/pages/tools/PdfToPpt"));
+const PptToPdf = lazy(() => import("@/pages/tools/PptToPdf"));
+const PdfToJpg = lazy(() => import("@/pages/tools/PdfToJpg"));
+const InstagramVideoDownloader = lazy(() => import("@/pages/tools/InstagramVideoDownloader"));
+const PdfWatermark = lazy(() => import("@/pages/tools/PdfWatermark"));
+const ToolsAuditReport = lazy(() => import("@/pages/ToolsAuditReport"));
 const AdminWebStories = lazy(() => import("@/pages/AdminWebStories"));
 const AdminNewWebStory = lazy(() => import("@/pages/AdminNewWebStory"));
 const AdminEditWebStory = lazy(() => import("@/pages/AdminEditWebStory"));
@@ -75,12 +72,14 @@ const ImageResizer = lazy(() => import("@/pages/tools/ImageResizer"));
 const ImageCropper = lazy(() => import("@/pages/tools/ImageCropper"));
 const ConvertToWebp = lazy(() => import("@/pages/tools/ConvertToWebp"));
 const PdfToExcel = lazy(() => import("@/pages/tools/PdfToExcel"));
-const PdfToPpt = lazy(() => import("@/pages/tools/PdfToPpt"));
-const PptToPdf = lazy(() => import("@/pages/tools/PptToPdf"));
-const PdfToJpg = lazy(() => import("@/pages/tools/PdfToJpg"));
 const InstagramVideoDownloader = lazy(() => import("@/pages/tools/InstagramVideoDownloader"));
 const PdfWatermark = lazy(() => import("@/pages/tools/PdfWatermark"));
 const ToolsAuditReport = lazy(() => import("@/pages/ToolsAuditReport"));
+const Tools = lazy(() => import("./pages/Tools"));
+const VideoTools = lazy(() => import("./pages/tools/VideoTools"));
+const PdfTools = lazy(() => import("./pages/tools/PdfTools"));
+const ImageTools = lazy(() => import("./pages/tools/ImageTools"));
+const ComingSoon = lazy(() => import("@/pages/ComingSoon"));
 const AdminIndexingDashboard = lazy(() => import("@/pages/AdminIndexingDashboard"));
 const AdminSEOAudit = lazy(() => import("@/pages/AdminSEOAudit"));
 
@@ -147,14 +146,8 @@ const App = () => {
           <Route path="/tools/instagram-video-downloader" element={<InstagramVideoDownloader />} />
           <Route path="/tools/pdf-watermark" element={<PdfWatermark />} />
           <Route path="/tools-audit-report" element={<ToolsAuditReport />} />
-          <Route path="/government-exams" element={<GovernmentExams />} />
-          <Route path="/government-exams/:slug" element={<GovernmentExamPapers />} />
-          <Route path="/jobs/previous-year-papers" element={<PreviousYearPapers />} />
-          <Route path="/jobs/previous-year-papers/:slug" element={<ExamPaperDetail />} />
-          <Route path="/admit-cards" element={<AdmitCards />} />
           <Route path="/jobs/results" element={<ComingSoon title="Results" />} />
           <Route path="/jobs/syllabus" element={<ComingSoon title="Syllabus" />} />
-          <Route path="/admin/pyq" element={<AdminExamPapers />} />
           <Route path="/web-stories" element={<WebStoryIndex />} />
           <Route path="/webstories/:category/:slug" element={<WebStoryPage />} />
           <Route path="/web-stories/:slug" element={<WebStoryPage />} /> {/* Legacy support */}
@@ -170,18 +163,9 @@ const App = () => {
                       <Route path="engagement" element={<AdminEngagement />} />
                       <Route path="audit-report" element={<AuditReport />} />
                       <Route path="settings" element={<AdminSettings />} />
-                      <Route path="exams" element={<AdminExams />} />
-                      <Route path="exam-papers" element={<AdminExamPapers />} />
-                      <Route path="upload-pyqs" element={<AdminExamPapers />} />
-                      <Route path="admit-cards" element={<AdminAdmitCards />} />
-                      <Route path="admit-cards/new" element={<AdminNewAdmitCard />} />
-                      <Route path="cricket-matches" element={<AdminCricketMatches />} />
-                      <Route path="videos" element={<AdminVideos />} />
                       <Route path="web-stories" element={<AdminWebStories />} />
                       <Route path="web-stories/new" element={<AdminNewWebStory />} />
                       <Route path="web-stories/:id/edit" element={<AdminEditWebStory />} />
-                      <Route path="indexing" element={<AdminIndexingDashboard />} />
-                      <Route path="seo-audit" element={<AdminSEOAudit />} />
                     </Route>
                     
                     {/* Catch-all route */}
