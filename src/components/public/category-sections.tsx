@@ -221,11 +221,24 @@ function CategorySection({ category, allCategories }: CategorySectionProps) {
         </div>
       </div>
 
-      {/* Subcategories or Article Tags & More Button */}
-      <div className="flex items-center justify-between gap-4 pt-6 border-t border-border">
+      {/* More Button */}
+      <div className="flex items-center justify-between pt-6 border-t border-border">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          {subcategories.length > 0 ? (
-            subcategories.map((subcat) => (
+          {/* Show article tags as quick links */}
+          {articles.slice(0, 5).flatMap(article => 
+            (article.tags || []).slice(0, 2)
+          )
+          .filter((tag, index, self) => self.indexOf(tag) === index)
+          .slice(0, 3)
+          .map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-accent/50 text-accent-foreground"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
               <button
                 key={subcat.id}
                 onClick={() => navigate(`/category/${subcat.slug}`)}
