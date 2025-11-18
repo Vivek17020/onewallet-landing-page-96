@@ -11,7 +11,6 @@ import { CommentsSection } from "@/components/public/comments-section";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { LikeButton } from "@/components/public/like-button";
 import { ArrowLeft, FileText, Calendar, Clock, Eye, User, ChevronRight } from "lucide-react";
-import { CricketMatchesSection } from "@/components/public/cricket-matches-section";
 import { formatDistanceToNow, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAutoTranslate } from "@/hooks/use-auto-translate";

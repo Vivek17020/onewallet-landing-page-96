@@ -8,7 +8,6 @@ const Footer = lazy(() => import('@/components/public/footer').then(module => ({
 import { PushNotificationButton } from '@/components/public/push-notification-button';
 import { SearchDialog } from '@/components/public/search-dialog';
 import { FloatingTranslationButton } from '@/components/public/floating-translation-button';
-import { HomepageVideos } from '@/components/public/homepage-videos';
 import { BreakingNews } from '@/components/public/breaking-news';
 import { FeaturedArticles } from '@/components/public/featured-articles';
 import { JustInSection } from '@/components/public/just-in-section';
