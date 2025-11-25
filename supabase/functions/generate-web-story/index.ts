@@ -229,11 +229,10 @@ Return ONLY valid JSON in this format:
         category: storyCategory,
         slides: slidesWithImages,
         status: autoPublish ? 'published' : 'draft',
-        user_id: userId || '00000000-0000-0000-0000-000000000000',
+        user_id: userId,
         auto_generated: true,
         generation_source: articleId ? 'article' : 'manual',
-        ai_confidence_score: 0.85,
-        source_article_id: articleId || null,
+        ai_confidence_score: Math.round(storyData.slides.length >= 5 ? 85 : 70),
         featured_image: slidesWithImages[0]?.image,
         published_at: autoPublish ? new Date().toISOString() : null
       })
