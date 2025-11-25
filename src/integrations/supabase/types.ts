@@ -982,6 +982,107 @@ export type Database = {
         }
         Relationships: []
       }
+      web_stories: {
+        Row: {
+          ai_confidence_score: number | null
+          auto_generated: boolean | null
+          canonical_url: string | null
+          category: string
+          created_at: string
+          description: string | null
+          featured_image: string | null
+          generation_source: string | null
+          id: string
+          published_at: string | null
+          slides: Json
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_confidence_score?: number | null
+          auto_generated?: boolean | null
+          canonical_url?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          generation_source?: string | null
+          id?: string
+          published_at?: string | null
+          slides?: Json
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_confidence_score?: number | null
+          auto_generated?: boolean | null
+          canonical_url?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          featured_image?: string | null
+          generation_source?: string | null
+          id?: string
+          published_at?: string | null
+          slides?: Json
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      web_stories_queue: {
+        Row: {
+          auto_publish: boolean | null
+          created_at: string
+          id: string
+          notes: string | null
+          priority: number | null
+          published_at: string | null
+          review_status: string
+          scheduled_at: string
+          story_id: string
+        }
+        Insert: {
+          auto_publish?: boolean | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          priority?: number | null
+          published_at?: string | null
+          review_status?: string
+          scheduled_at: string
+          story_id: string
+        }
+        Update: {
+          auto_publish?: boolean | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          priority?: number | null
+          published_at?: string | null
+          review_status?: string
+          scheduled_at?: string
+          story_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "web_stories_queue_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "web_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       public_profiles: {
