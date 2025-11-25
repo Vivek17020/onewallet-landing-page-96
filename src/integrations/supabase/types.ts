@@ -10,88 +10,10 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
-      admit_card_content_sections: {
-        Row: {
-          content: string
-          created_at: string
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          section_key: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          section_key: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          section_key?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      admit_cards: {
-        Row: {
-          author_id: string | null
-          content: string | null
-          created_at: string
-          download_link: string | null
-          exam_name: string
-          featured: boolean | null
-          id: string
-          published: boolean | null
-          published_date: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id?: string | null
-          content?: string | null
-          created_at?: string
-          download_link?: string | null
-          exam_name: string
-          featured?: boolean | null
-          id?: string
-          published?: boolean | null
-          published_date?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string | null
-          content?: string | null
-          created_at?: string
-          download_link?: string | null
-          exam_name?: string
-          featured?: boolean | null
-          id?: string
-          published?: boolean | null
-          published_date?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       affiliate_products: {
         Row: {
           affiliate_url: string
@@ -135,7 +57,15 @@ export type Database = {
           price?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       article_likes: {
         Row: {
@@ -159,7 +89,15 @@ export type Database = {
           ip_address?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "article_likes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       article_shares: {
         Row: {
@@ -186,228 +124,116 @@ export type Database = {
           platform?: string
           user_id?: string | null
         }
-        Relationships: []
-      }
-      article_translations: {
-        Row: {
-          ai_summary: string | null
-          article_id: string
-          content: string
-          created_at: string
-          excerpt: string | null
-          id: string
-          language_code: string
-          meta_description: string | null
-          meta_title: string | null
-          seo_keywords: string[] | null
-          slug: string
-          summary: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          ai_summary?: string | null
-          article_id: string
-          content: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          language_code: string
-          meta_description?: string | null
-          meta_title?: string | null
-          seo_keywords?: string[] | null
-          slug: string
-          summary?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          ai_summary?: string | null
-          article_id?: string
-          content?: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          language_code?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          seo_keywords?: string[] | null
-          slug?: string
-          summary?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "article_shares_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       articles: {
         Row: {
           ads_enabled: boolean | null
           affiliate_products_enabled: boolean | null
-          ai_keywords: string[] | null
-          ai_summary: string | null
-          article_schema: Json | null
-          author: string
+          author: string | null
           author_id: string | null
-          canonical_url: string | null
-          category_id: string
+          breaking_news: boolean | null
+          category_id: string | null
           comments_count: number | null
           content: string
           created_at: string
           excerpt: string | null
-          faq_schema: Json | null
           featured: boolean | null
-          has_translations: boolean | null
           id: string
           image_url: string | null
           is_premium: boolean | null
-          keyword_density: number | null
-          language: string | null
-          language_code: string | null
           likes_count: number | null
-          lsi_keywords: string[] | null
           meta_description: string | null
           meta_title: string | null
-          original_article_id: string | null
           premium_preview_length: number | null
-          primary_keyword: string | null
-          published: boolean | null
+          published: boolean
           published_at: string | null
           reading_time: number | null
-          secondary_keywords: string[] | null
           seo_keywords: string[] | null
-          seo_score: number | null
           shares_count: number | null
           slug: string
-          status: string | null
           summary: string | null
           tags: string[] | null
-          target_queries: string[] | null
           title: string
-          translations_available: boolean | null
           updated_at: string
           views_count: number | null
         }
         Insert: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
-          ai_keywords?: string[] | null
-          ai_summary?: string | null
-          article_schema?: Json | null
-          author?: string
+          author?: string | null
           author_id?: string | null
-          canonical_url?: string | null
-          category_id: string
+          breaking_news?: boolean | null
+          category_id?: string | null
           comments_count?: number | null
           content: string
           created_at?: string
           excerpt?: string | null
-          faq_schema?: Json | null
           featured?: boolean | null
-          has_translations?: boolean | null
           id?: string
           image_url?: string | null
           is_premium?: boolean | null
-          keyword_density?: number | null
-          language?: string | null
-          language_code?: string | null
           likes_count?: number | null
-          lsi_keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
-          original_article_id?: string | null
           premium_preview_length?: number | null
-          primary_keyword?: string | null
-          published?: boolean | null
+          published?: boolean
           published_at?: string | null
           reading_time?: number | null
-          secondary_keywords?: string[] | null
           seo_keywords?: string[] | null
-          seo_score?: number | null
           shares_count?: number | null
           slug: string
-          status?: string | null
           summary?: string | null
           tags?: string[] | null
-          target_queries?: string[] | null
           title: string
-          translations_available?: boolean | null
           updated_at?: string
           views_count?: number | null
         }
         Update: {
           ads_enabled?: boolean | null
           affiliate_products_enabled?: boolean | null
-          ai_keywords?: string[] | null
-          ai_summary?: string | null
-          article_schema?: Json | null
-          author?: string
+          author?: string | null
           author_id?: string | null
-          canonical_url?: string | null
-          category_id?: string
+          breaking_news?: boolean | null
+          category_id?: string | null
           comments_count?: number | null
           content?: string
           created_at?: string
           excerpt?: string | null
-          faq_schema?: Json | null
           featured?: boolean | null
-          has_translations?: boolean | null
           id?: string
           image_url?: string | null
           is_premium?: boolean | null
-          keyword_density?: number | null
-          language?: string | null
-          language_code?: string | null
           likes_count?: number | null
-          lsi_keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
-          original_article_id?: string | null
           premium_preview_length?: number | null
-          primary_keyword?: string | null
-          published?: boolean | null
+          published?: boolean
           published_at?: string | null
           reading_time?: number | null
-          secondary_keywords?: string[] | null
           seo_keywords?: string[] | null
-          seo_score?: number | null
           shares_count?: number | null
           slug?: string
-          status?: string | null
           summary?: string | null
           tags?: string[] | null
-          target_queries?: string[] | null
           title?: string
-          translations_available?: boolean | null
           updated_at?: string
           views_count?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "articles_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "articles_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "articles_original_article_id_fkey"
-            columns: ["original_article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
             referencedColumns: ["id"]
           },
         ]
@@ -419,7 +245,6 @@ export type Database = {
           description: string | null
           id: string
           name: string
-          parent_id: string | null
           slug: string
           updated_at: string
         }
@@ -429,7 +254,6 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
-          parent_id?: string | null
           slug: string
           updated_at?: string
         }
@@ -439,19 +263,10 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
-          parent_id?: string | null
           slug?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "categories_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       comments: {
         Row: {
@@ -497,99 +312,36 @@ export type Database = {
           },
         ]
       }
-      cricket_matches: {
-        Row: {
-          created_at: string
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          match_result: string | null
-          match_stage: string
-          match_time: string | null
-          points_table_link: string | null
-          schedule_link: string | null
-          sport_type: string
-          status_badge: string | null
-          status_color: string | null
-          team1_flag_url: string | null
-          team1_name: string
-          team1_score: string | null
-          team2_flag_url: string | null
-          team2_name: string
-          team2_score: string | null
-          tournament: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          match_result?: string | null
-          match_stage: string
-          match_time?: string | null
-          points_table_link?: string | null
-          schedule_link?: string | null
-          sport_type?: string
-          status_badge?: string | null
-          status_color?: string | null
-          team1_flag_url?: string | null
-          team1_name: string
-          team1_score?: string | null
-          team2_flag_url?: string | null
-          team2_name: string
-          team2_score?: string | null
-          tournament: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          match_result?: string | null
-          match_stage?: string
-          match_time?: string | null
-          points_table_link?: string | null
-          schedule_link?: string | null
-          sport_type?: string
-          status_badge?: string | null
-          status_color?: string | null
-          team1_flag_url?: string | null
-          team1_name?: string
-          team1_score?: string | null
-          team2_flag_url?: string | null
-          team2_name?: string
-          team2_score?: string | null
-          tournament?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       daily_trending_scores: {
         Row: {
           article_id: string
-          engagement_score: number
-          freshness_score: number
+          comments_24h: number | null
+          date: string
           id: string
-          score_date: string
-          trending_score: number
+          likes_24h: number | null
+          score: number
+          shares_24h: number | null
+          views_24h: number | null
         }
         Insert: {
           article_id: string
-          engagement_score?: number
-          freshness_score?: number
+          comments_24h?: number | null
+          date?: string
           id?: string
-          score_date?: string
-          trending_score?: number
+          likes_24h?: number | null
+          score?: number
+          shares_24h?: number | null
+          views_24h?: number | null
         }
         Update: {
           article_id?: string
-          engagement_score?: number
-          freshness_score?: number
+          comments_24h?: number | null
+          date?: string
           id?: string
-          score_date?: string
-          trending_score?: number
+          likes_24h?: number | null
+          score?: number
+          shares_24h?: number | null
+          views_24h?: number | null
         }
         Relationships: [
           {
@@ -600,258 +352,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      exam_list: {
-        Row: {
-          category: string
-          created_at: string
-          exam_name: string
-          id: string
-          logo_url: string | null
-          short_description: string | null
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          exam_name: string
-          id?: string
-          logo_url?: string | null
-          short_description?: string | null
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          exam_name?: string
-          id?: string
-          logo_url?: string | null
-          short_description?: string | null
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      exam_papers: {
-        Row: {
-          created_at: string
-          download_count: number | null
-          exam_id: string | null
-          exam_title: string | null
-          file_size: number | null
-          file_url: string
-          id: string
-          tier: string | null
-          updated_at: string
-          uploaded_by: string | null
-          year: number
-        }
-        Insert: {
-          created_at?: string
-          download_count?: number | null
-          exam_id?: string | null
-          exam_title?: string | null
-          file_size?: number | null
-          file_url: string
-          id?: string
-          tier?: string | null
-          updated_at?: string
-          uploaded_by?: string | null
-          year: number
-        }
-        Update: {
-          created_at?: string
-          download_count?: number | null
-          exam_id?: string | null
-          exam_title?: string | null
-          file_size?: number | null
-          file_url?: string
-          id?: string
-          tier?: string | null
-          updated_at?: string
-          uploaded_by?: string | null
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "exam_papers_exam_id_fkey"
-            columns: ["exam_id"]
-            isOneToOne: false
-            referencedRelation: "exam_list"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "exam_papers_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "exam_papers_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      gsc_config: {
-        Row: {
-          access_token: string | null
-          client_id: string | null
-          client_secret: string | null
-          created_at: string
-          id: string
-          is_active: boolean | null
-          refresh_token: string | null
-          site_url: string
-          token_expires_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          access_token?: string | null
-          client_id?: string | null
-          client_secret?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          refresh_token?: string | null
-          site_url: string
-          token_expires_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          access_token?: string | null
-          client_id?: string | null
-          client_secret?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          refresh_token?: string | null
-          site_url?: string
-          token_expires_at?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      homepage_videos: {
-        Row: {
-          category: string
-          created_at: string
-          description: string | null
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          title: string
-          updated_at: string
-          youtube_url: string
-        }
-        Insert: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          title: string
-          updated_at?: string
-          youtube_url: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          title?: string
-          updated_at?: string
-          youtube_url?: string
-        }
-        Relationships: []
-      }
-      keyword_performance: {
-        Row: {
-          article_id: string | null
-          clicks: number | null
-          created_at: string | null
-          ctr: number | null
-          id: string
-          impressions: number | null
-          keyword: string
-          last_checked: string | null
-          search_position: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          article_id?: string | null
-          clicks?: number | null
-          created_at?: string | null
-          ctr?: number | null
-          id?: string
-          impressions?: number | null
-          keyword: string
-          last_checked?: string | null
-          search_position?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          article_id?: string | null
-          clicks?: number | null
-          created_at?: string | null
-          ctr?: number | null
-          id?: string
-          impressions?: number | null
-          keyword?: string
-          last_checked?: string | null
-          search_position?: number | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "keyword_performance_article_id_fkey"
-            columns: ["article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      languages: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          is_active: boolean
-          is_default: boolean
-          name: string
-          native_name: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name: string
-          native_name: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name?: string
-          native_name?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       monetization_analytics: {
         Row: {
@@ -890,7 +390,15 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "monetization_analytics_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_preferences: {
         Row: {
@@ -946,144 +454,6 @@ export type Database = {
         }
         Relationships: []
       }
-      photo_stories: {
-        Row: {
-          alt_text: string
-          author_id: string | null
-          caption: string | null
-          created_at: string
-          id: string
-          media_url: string
-          publish_at: string | null
-          slug: string
-          status: string
-          theme: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          alt_text: string
-          author_id?: string | null
-          caption?: string | null
-          created_at?: string
-          id?: string
-          media_url: string
-          publish_at?: string | null
-          slug: string
-          status?: string
-          theme?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          alt_text?: string
-          author_id?: string | null
-          caption?: string | null
-          created_at?: string
-          id?: string
-          media_url?: string
-          publish_at?: string | null
-          slug?: string
-          status?: string
-          theme?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      private_jobs: {
-        Row: {
-          applies_count: number | null
-          apply_url: string
-          author_id: string | null
-          company: string
-          created_at: string | null
-          description: string
-          experience: string
-          id: string
-          is_new: boolean | null
-          is_published: boolean | null
-          job_type: string
-          location: string
-          logo: string | null
-          posted_at: string | null
-          recommended_score: number | null
-          salary: string
-          short_description: string
-          slug: string
-          source: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          views_count: number | null
-        }
-        Insert: {
-          applies_count?: number | null
-          apply_url: string
-          author_id?: string | null
-          company: string
-          created_at?: string | null
-          description: string
-          experience: string
-          id?: string
-          is_new?: boolean | null
-          is_published?: boolean | null
-          job_type: string
-          location: string
-          logo?: string | null
-          posted_at?: string | null
-          recommended_score?: number | null
-          salary: string
-          short_description: string
-          slug: string
-          source?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          views_count?: number | null
-        }
-        Update: {
-          applies_count?: number | null
-          apply_url?: string
-          author_id?: string | null
-          company?: string
-          created_at?: string | null
-          description?: string
-          experience?: string
-          id?: string
-          is_new?: boolean | null
-          is_published?: boolean | null
-          job_type?: string
-          location?: string
-          logo?: string | null
-          posted_at?: string | null
-          recommended_score?: number | null
-          salary?: string
-          short_description?: string
-          slug?: string
-          source?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          views_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "private_jobs_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "private_jobs_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           author_bio: string | null
@@ -1091,13 +461,19 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          display_name: string | null
           email: string | null
           full_name: string | null
           id: string
           job_title: string | null
-          role: string | null
+          linkedin_url: string | null
+          role: string
+          twitter_url: string | null
           updated_at: string
-          username: string
+          user_id: string
+          username: string | null
+          wallet_address: string
+          website_url: string | null
         }
         Insert: {
           author_bio?: string | null
@@ -1105,13 +481,19 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
-          id: string
+          id?: string
           job_title?: string | null
-          role?: string | null
+          linkedin_url?: string | null
+          role?: string
+          twitter_url?: string | null
           updated_at?: string
-          username: string
+          user_id: string
+          username?: string | null
+          wallet_address: string
+          website_url?: string | null
         }
         Update: {
           author_bio?: string | null
@@ -1119,46 +501,19 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          display_name?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
           job_title?: string | null
-          role?: string | null
+          linkedin_url?: string | null
+          role?: string
+          twitter_url?: string | null
           updated_at?: string
-          username?: string
-        }
-        Relationships: []
-      }
-      push_analytics: {
-        Row: {
-          clicks: number
-          created_at: string
-          ctr: number
-          date: string
-          delivered: number
-          id: string
-          subscribers: number
-          updated_at: string
-        }
-        Insert: {
-          clicks?: number
-          created_at?: string
-          ctr?: number
-          date: string
-          delivered?: number
-          id?: string
-          subscribers?: number
-          updated_at?: string
-        }
-        Update: {
-          clicks?: number
-          created_at?: string
-          ctr?: number
-          date?: string
-          delivered?: number
-          id?: string
-          subscribers?: number
-          updated_at?: string
+          user_id?: string
+          username?: string | null
+          wallet_address?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -1189,60 +544,43 @@ export type Database = {
         }
         Relationships: []
       }
-      saved_jobs: {
-        Row: {
-          id: string
-          job_id: string | null
-          saved_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          job_id?: string | null
-          saved_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          job_id?: string | null
-          saved_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_jobs_job_id_fkey"
-            columns: ["job_id"]
-            isOneToOne: false
-            referencedRelation: "private_jobs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       security_audit_log: {
         Row: {
           action: string
-          created_at: string | null
+          created_at: string
+          event_type: string
           id: string
-          ip_address: unknown
-          resource: string | null
+          ip_address: string | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string | null
+          status: string
           user_agent: string | null
           user_id: string | null
         }
         Insert: {
           action: string
-          created_at?: string | null
+          created_at?: string
+          event_type: string
           id?: string
-          ip_address?: unknown
-          resource?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          status: string
           user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           action?: string
-          created_at?: string | null
+          created_at?: string
+          event_type?: string
           id?: string
-          ip_address?: unknown
-          resource?: string | null
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          status?: string
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1251,62 +589,47 @@ export type Database = {
       seo_audit_reports: {
         Row: {
           ai_detection_accuracy: number | null
-          audit_completed_at: string | null
-          audit_started_at: string
-          audit_status: string
+          audit_completed_at: string
           auto_fix_success_rate: number | null
-          average_fix_time_seconds: number | null
+          auto_fixed_count: number
           created_at: string
           critical_issues: number
-          error_details: string | null
           id: string
           info_issues: number
-          issues_auto_fixed: number
-          issues_remaining: number
           reindex_success_rate: number | null
+          report_data: Json | null
           total_articles_scanned: number
           total_issues_found: number
-          updated_at: string
           warning_issues: number
         }
         Insert: {
           ai_detection_accuracy?: number | null
-          audit_completed_at?: string | null
-          audit_started_at?: string
-          audit_status?: string
+          audit_completed_at?: string
           auto_fix_success_rate?: number | null
-          average_fix_time_seconds?: number | null
+          auto_fixed_count?: number
           created_at?: string
           critical_issues?: number
-          error_details?: string | null
           id?: string
           info_issues?: number
-          issues_auto_fixed?: number
-          issues_remaining?: number
           reindex_success_rate?: number | null
+          report_data?: Json | null
           total_articles_scanned?: number
           total_issues_found?: number
-          updated_at?: string
           warning_issues?: number
         }
         Update: {
           ai_detection_accuracy?: number | null
-          audit_completed_at?: string | null
-          audit_started_at?: string
-          audit_status?: string
+          audit_completed_at?: string
           auto_fix_success_rate?: number | null
-          average_fix_time_seconds?: number | null
+          auto_fixed_count?: number
           created_at?: string
           critical_issues?: number
-          error_details?: string | null
           id?: string
           info_issues?: number
-          issues_auto_fixed?: number
-          issues_remaining?: number
           reindex_success_rate?: number | null
+          report_data?: Json | null
           total_articles_scanned?: number
           total_issues_found?: number
-          updated_at?: string
           warning_issues?: number
         }
         Relationships: []
@@ -1315,50 +638,35 @@ export type Database = {
         Row: {
           article_id: string | null
           created_at: string
-          fix_action: string
-          fix_applied_at: string
+          fix_attempted_at: string
           gsc_status: string | null
           id: string
-          internal_status: string
+          issue_id: string | null
           issue_type: string
-          last_error: string | null
-          recheck_notes: string | null
-          rechecked_at: string | null
-          retry_count: number | null
-          updated_at: string
-          url: string
+          verification_notes: string | null
+          verification_status: string
         }
         Insert: {
           article_id?: string | null
           created_at?: string
-          fix_action: string
-          fix_applied_at?: string
+          fix_attempted_at?: string
           gsc_status?: string | null
           id?: string
-          internal_status?: string
+          issue_id?: string | null
           issue_type: string
-          last_error?: string | null
-          recheck_notes?: string | null
-          rechecked_at?: string | null
-          retry_count?: number | null
-          updated_at?: string
-          url: string
+          verification_notes?: string | null
+          verification_status: string
         }
         Update: {
           article_id?: string | null
           created_at?: string
-          fix_action?: string
-          fix_applied_at?: string
+          fix_attempted_at?: string
           gsc_status?: string | null
           id?: string
-          internal_status?: string
+          issue_id?: string | null
           issue_type?: string
-          last_error?: string | null
-          recheck_notes?: string | null
-          rechecked_at?: string | null
-          retry_count?: number | null
-          updated_at?: string
-          url?: string
+          verification_notes?: string | null
+          verification_status?: string
         }
         Relationships: [
           {
@@ -1368,45 +676,11 @@ export type Database = {
             referencedRelation: "articles"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      seo_automation_logs: {
-        Row: {
-          action_type: string
-          article_id: string | null
-          created_at: string | null
-          error_message: string | null
-          id: string
-          retry_count: number | null
-          service_name: string
-          status: string
-        }
-        Insert: {
-          action_type: string
-          article_id?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          retry_count?: number | null
-          service_name: string
-          status: string
-        }
-        Update: {
-          action_type?: string
-          article_id?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          retry_count?: number | null
-          service_name?: string
-          status?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "seo_automation_logs_article_id_fkey"
-            columns: ["article_id"]
+            foreignKeyName: "seo_autofix_verification_issue_id_fkey"
+            columns: ["issue_id"]
             isOneToOne: false
-            referencedRelation: "articles"
+            referencedRelation: "seo_health_log"
             referencedColumns: ["id"]
           },
         ]
@@ -1414,44 +688,38 @@ export type Database = {
       seo_health_log: {
         Row: {
           article_id: string | null
-          auto_fix_attempted: boolean | null
           created_at: string
           detected_at: string
           id: string
           issue_type: string
           notes: string | null
-          resolution_status: string | null
-          severity: string | null
+          resolved_at: string | null
+          severity: string
           status: string
-          updated_at: string
           url: string
         }
         Insert: {
           article_id?: string | null
-          auto_fix_attempted?: boolean | null
           created_at?: string
           detected_at?: string
           id?: string
           issue_type: string
           notes?: string | null
-          resolution_status?: string | null
-          severity?: string | null
+          resolved_at?: string | null
+          severity: string
           status?: string
-          updated_at?: string
           url: string
         }
         Update: {
           article_id?: string | null
-          auto_fix_attempted?: boolean | null
           created_at?: string
           detected_at?: string
           id?: string
           issue_type?: string
           notes?: string | null
-          resolution_status?: string | null
-          severity?: string | null
+          resolved_at?: string | null
+          severity?: string
           status?: string
-          updated_at?: string
           url?: string
         }
         Relationships: [
@@ -1463,6 +731,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      transaction_notifications: {
+        Row: {
+          id: string
+          notification_type: string
+          sent_at: string
+          transaction_hash: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type: string
+          sent_at?: string
+          transaction_hash: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          transaction_hash?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_analytics: {
         Row: {
@@ -1523,73 +851,35 @@ export type Database = {
           },
         ]
       }
-      user_learning_path_progress: {
-        Row: {
-          completed_at: string | null
-          completed_steps: number[] | null
-          current_step: number | null
-          id: string
-          learning_path_id: string
-          started_at: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          completed_steps?: number[] | null
-          current_step?: number | null
-          id?: string
-          learning_path_id: string
-          started_at?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          completed_steps?: number[] | null
-          current_step?: number | null
-          id?: string
-          learning_path_id?: string
-          started_at?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_learning_path_progress_learning_path_id_fkey"
-            columns: ["learning_path_id"]
-            isOneToOne: false
-            referencedRelation: "web3_learning_paths"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_preferences: {
         Row: {
+          created_at: string
           id: string
           ip_address: string | null
-          last_updated: string
           preferred_categories: string[] | null
           preferred_tags: string[] | null
-          reading_frequency: Json | null
+          reading_frequency: string | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
+          created_at?: string
           id?: string
           ip_address?: string | null
-          last_updated?: string
           preferred_categories?: string[] | null
           preferred_tags?: string[] | null
-          reading_frequency?: Json | null
+          reading_frequency?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
+          created_at?: string
           id?: string
           ip_address?: string | null
-          last_updated?: string
           preferred_categories?: string[] | null
           preferred_tags?: string[] | null
-          reading_frequency?: Json | null
+          reading_frequency?: string | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -1632,34 +922,44 @@ export type Database = {
           },
         ]
       }
-      user_web3_badges: {
+      user_settings: {
         Row: {
-          badge_id: string
-          earned_at: string | null
+          created_at: string
+          default_currency: string
+          email_notifications: boolean
           id: string
+          notifications_enabled: boolean
+          price_alerts: boolean
+          theme: string
+          transaction_alerts: boolean
+          updated_at: string
           user_id: string
         }
         Insert: {
-          badge_id: string
-          earned_at?: string | null
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
           id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
           user_id: string
         }
         Update: {
-          badge_id?: string
-          earned_at?: string | null
+          created_at?: string
+          default_currency?: string
+          email_notifications?: boolean
           id?: string
+          notifications_enabled?: boolean
+          price_alerts?: boolean
+          theme?: string
+          transaction_alerts?: boolean
+          updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_web3_badges_badge_id_fkey"
-            columns: ["badge_id"]
-            isOneToOne: false
-            referencedRelation: "web3_badges"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vapid_config: {
         Row: {
@@ -1682,524 +982,6 @@ export type Database = {
         }
         Relationships: []
       }
-      visual_stories: {
-        Row: {
-          author_id: string | null
-          cover_image_url: string
-          created_at: string
-          excerpt: string | null
-          id: string
-          publish_at: string | null
-          slug: string
-          status: string
-          tags: string[] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id?: string | null
-          cover_image_url: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          publish_at?: string | null
-          slug: string
-          status?: string
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string | null
-          cover_image_url?: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          publish_at?: string | null
-          slug?: string
-          status?: string
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      visual_story_slides: {
-        Row: {
-          alt_text: string
-          animation: string | null
-          caption: string | null
-          created_at: string
-          duration_seconds: number | null
-          id: string
-          media_url: string
-          position: number
-          story_id: string
-          type: string
-        }
-        Insert: {
-          alt_text: string
-          animation?: string | null
-          caption?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          id?: string
-          media_url: string
-          position: number
-          story_id: string
-          type?: string
-        }
-        Update: {
-          alt_text?: string
-          animation?: string | null
-          caption?: string | null
-          created_at?: string
-          duration_seconds?: number | null
-          id?: string
-          media_url?: string
-          position?: number
-          story_id?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "visual_story_slides_story_id_fkey"
-            columns: ["story_id"]
-            isOneToOne: false
-            referencedRelation: "visual_stories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web_stories: {
-        Row: {
-          ai_confidence_score: number | null
-          auto_generated: boolean | null
-          avg_time_spent: number | null
-          canonical_url: string | null
-          category: string
-          completion_rate: number | null
-          created_at: string
-          description: string | null
-          featured_image: string | null
-          generation_source: string | null
-          id: string
-          published_at: string | null
-          scheduled_publish_at: string | null
-          slides: Json
-          slug: string
-          source_article_id: string | null
-          status: string
-          title: string
-          updated_at: string
-          user_id: string
-          views_count: number | null
-        }
-        Insert: {
-          ai_confidence_score?: number | null
-          auto_generated?: boolean | null
-          avg_time_spent?: number | null
-          canonical_url?: string | null
-          category: string
-          completion_rate?: number | null
-          created_at?: string
-          description?: string | null
-          featured_image?: string | null
-          generation_source?: string | null
-          id?: string
-          published_at?: string | null
-          scheduled_publish_at?: string | null
-          slides?: Json
-          slug: string
-          source_article_id?: string | null
-          status?: string
-          title: string
-          updated_at?: string
-          user_id: string
-          views_count?: number | null
-        }
-        Update: {
-          ai_confidence_score?: number | null
-          auto_generated?: boolean | null
-          avg_time_spent?: number | null
-          canonical_url?: string | null
-          category?: string
-          completion_rate?: number | null
-          created_at?: string
-          description?: string | null
-          featured_image?: string | null
-          generation_source?: string | null
-          id?: string
-          published_at?: string | null
-          scheduled_publish_at?: string | null
-          slides?: Json
-          slug?: string
-          source_article_id?: string | null
-          status?: string
-          title?: string
-          updated_at?: string
-          user_id?: string
-          views_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web_stories_source_article_id_fkey"
-            columns: ["source_article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web_stories_analytics: {
-        Row: {
-          browser: string | null
-          created_at: string
-          device_type: string | null
-          event_type: string
-          id: string
-          ip_address: string | null
-          session_id: string | null
-          slide_index: number | null
-          story_id: string
-          time_spent: number | null
-          user_id: string | null
-        }
-        Insert: {
-          browser?: string | null
-          created_at?: string
-          device_type?: string | null
-          event_type: string
-          id?: string
-          ip_address?: string | null
-          session_id?: string | null
-          slide_index?: number | null
-          story_id: string
-          time_spent?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          browser?: string | null
-          created_at?: string
-          device_type?: string | null
-          event_type?: string
-          id?: string
-          ip_address?: string | null
-          session_id?: string | null
-          slide_index?: number | null
-          story_id?: string
-          time_spent?: number | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web_stories_analytics_story_id_fkey"
-            columns: ["story_id"]
-            isOneToOne: false
-            referencedRelation: "web_stories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web_stories_config: {
-        Row: {
-          created_at: string
-          default_category: string | null
-          google_analytics_id: string | null
-          id: string
-          publisher_logo_height: number
-          publisher_logo_url: string
-          publisher_logo_width: number
-          publisher_name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_category?: string | null
-          google_analytics_id?: string | null
-          id?: string
-          publisher_logo_height?: number
-          publisher_logo_url?: string
-          publisher_logo_width?: number
-          publisher_name?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_category?: string | null
-          google_analytics_id?: string | null
-          id?: string
-          publisher_logo_height?: number
-          publisher_logo_url?: string
-          publisher_logo_width?: number
-          publisher_name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      web_stories_queue: {
-        Row: {
-          auto_publish: boolean | null
-          created_at: string | null
-          id: string
-          priority: number | null
-          review_status: string | null
-          scheduled_at: string
-          story_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          auto_publish?: boolean | null
-          created_at?: string | null
-          id?: string
-          priority?: number | null
-          review_status?: string | null
-          scheduled_at: string
-          story_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          auto_publish?: boolean | null
-          created_at?: string | null
-          id?: string
-          priority?: number | null
-          review_status?: string | null
-          scheduled_at?: string
-          story_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web_stories_queue_story_id_fkey"
-            columns: ["story_id"]
-            isOneToOne: false
-            referencedRelation: "web_stories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web3_article_progress: {
-        Row: {
-          article_id: string
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          id: string
-          reading_time: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          article_id: string
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          id?: string
-          reading_time?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          article_id?: string
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          id?: string
-          reading_time?: number | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web3_article_progress_article_id_fkey"
-            columns: ["article_id"]
-            isOneToOne: false
-            referencedRelation: "articles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web3_badges: {
-        Row: {
-          category: string
-          color: string | null
-          created_at: string | null
-          criteria: Json
-          description: string
-          icon: string
-          id: string
-          name: string
-          points: number | null
-        }
-        Insert: {
-          category: string
-          color?: string | null
-          created_at?: string | null
-          criteria: Json
-          description: string
-          icon: string
-          id?: string
-          name: string
-          points?: number | null
-        }
-        Update: {
-          category?: string
-          color?: string | null
-          created_at?: string | null
-          criteria?: Json
-          description?: string
-          icon?: string
-          id?: string
-          name?: string
-          points?: number | null
-        }
-        Relationships: []
-      }
-      web3_certificates: {
-        Row: {
-          certificate_data: Json
-          certificate_number: string
-          created_at: string
-          id: string
-          issued_at: string
-          learning_path_id: string
-          updated_at: string
-          user_id: string
-          verification_code: string
-        }
-        Insert: {
-          certificate_data: Json
-          certificate_number: string
-          created_at?: string
-          id?: string
-          issued_at?: string
-          learning_path_id: string
-          updated_at?: string
-          user_id: string
-          verification_code: string
-        }
-        Update: {
-          certificate_data?: Json
-          certificate_number?: string
-          created_at?: string
-          id?: string
-          issued_at?: string
-          learning_path_id?: string
-          updated_at?: string
-          user_id?: string
-          verification_code?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web3_certificates_learning_path_id_fkey"
-            columns: ["learning_path_id"]
-            isOneToOne: false
-            referencedRelation: "web3_learning_paths"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web3_code_snippets: {
-        Row: {
-          code: string
-          created_at: string
-          description: string | null
-          fork_count: number | null
-          forked_from: string | null
-          id: string
-          is_public: boolean | null
-          language: string | null
-          title: string
-          updated_at: string
-          user_id: string | null
-          view_count: number | null
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          description?: string | null
-          fork_count?: number | null
-          forked_from?: string | null
-          id?: string
-          is_public?: boolean | null
-          language?: string | null
-          title: string
-          updated_at?: string
-          user_id?: string | null
-          view_count?: number | null
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          description?: string | null
-          fork_count?: number | null
-          forked_from?: string | null
-          id?: string
-          is_public?: boolean | null
-          language?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string | null
-          view_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "web3_code_snippets_forked_from_fkey"
-            columns: ["forked_from"]
-            isOneToOne: false
-            referencedRelation: "web3_code_snippets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      web3_learning_paths: {
-        Row: {
-          category_ids: string[]
-          created_at: string | null
-          description: string
-          difficulty: string
-          display_order: number | null
-          duration: string | null
-          icon: string | null
-          id: string
-          is_published: boolean | null
-          slug: string | null
-          steps: Json
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          category_ids: string[]
-          created_at?: string | null
-          description: string
-          difficulty: string
-          display_order?: number | null
-          duration?: string | null
-          icon?: string | null
-          id?: string
-          is_published?: boolean | null
-          slug?: string | null
-          steps: Json
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          category_ids?: string[]
-          created_at?: string | null
-          description?: string
-          difficulty?: string
-          display_order?: number | null
-          duration?: string | null
-          icon?: string | null
-          id?: string
-          is_published?: boolean | null
-          slug?: string | null
-          steps?: Json
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       public_profiles: {
@@ -2207,58 +989,63 @@ export type Database = {
           author_bio: string | null
           author_image_url: string | null
           avatar_url: string | null
+          bio: string | null
           created_at: string | null
+          display_name: string | null
+          email: string | null
           full_name: string | null
           id: string | null
           job_title: string | null
+          linkedin_url: string | null
+          role: string | null
+          twitter_url: string | null
           updated_at: string | null
+          user_id: string | null
           username: string | null
+          website_url: string | null
         }
         Insert: {
           author_bio?: string | null
           author_image_url?: string | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string | null
           job_title?: string | null
+          linkedin_url?: string | null
+          role?: string | null
+          twitter_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
           username?: string | null
+          website_url?: string | null
         }
         Update: {
           author_bio?: string | null
           author_image_url?: string | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           full_name?: string | null
           id?: string | null
           job_title?: string | null
+          linkedin_url?: string | null
+          role?: string | null
+          twitter_url?: string | null
           updated_at?: string | null
+          user_id?: string | null
           username?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
     }
     Functions: {
-      calculate_seo_score: {
-        Args: {
-          article_content: string
-          article_keywords: string[]
-          article_meta_description: string
-          article_meta_title: string
-          article_title: string
-        }
-        Returns: number
-      }
-      can_manage_push_notifications: { Args: never; Returns: boolean }
-      check_and_award_badges: {
-        Args: { user_uuid: string }
-        Returns: undefined
-      }
-      generate_unique_username: {
-        Args: { user_full_name: string; user_id: string }
-        Returns: string
-      }
       get_article_engagement: {
         Args: { article_uuid: string }
         Returns: {
@@ -2267,27 +1054,17 @@ export type Database = {
           shares_count: number
         }[]
       }
-      get_author_profile: {
-        Args: { author_uuid: string }
-        Returns: {
-          author_bio: string
-          author_image_url: string
-          avatar_url: string
-          full_name: string
-          id: string
-          job_title: string
-          username: string
-        }[]
-      }
       get_current_user_role: { Args: never; Returns: string }
       get_public_comments: {
         Args: { article_uuid: string }
         Returns: {
           article_id: string
+          author_email: string
           author_name: string
           content: string
           created_at: string
           id: string
+          is_approved: boolean
           updated_at: string
           user_id: string
         }[]
@@ -2302,62 +1079,6 @@ export type Database = {
           id: string
           job_title: string
           username: string
-        }[]
-      }
-      get_safe_comments: {
-        Args: { article_uuid: string }
-        Returns: {
-          article_id: string
-          author_name: string
-          content: string
-          created_at: string
-          id: string
-          updated_at: string
-          user_id: string
-        }[]
-      }
-      get_user_web3_stats: {
-        Args: { user_uuid: string }
-        Returns: {
-          current_streak: number
-          learning_paths_completed: number
-          learning_paths_started: number
-          total_badges: number
-          total_completed: number
-          total_points: number
-        }[]
-      }
-      increment_job_applies: { Args: { job_uuid: string }; Returns: undefined }
-      increment_job_views: { Args: { job_uuid: string }; Returns: undefined }
-      increment_snippet_fork_count: {
-        Args: { snippet_uuid: string }
-        Returns: undefined
-      }
-      increment_snippet_view_count: {
-        Args: { snippet_uuid: string }
-        Returns: undefined
-      }
-      is_admin: { Args: never; Returns: boolean }
-      log_security_event: {
-        Args: { action_type: string; resource_name?: string }
-        Returns: undefined
-      }
-      security_check_status: {
-        Args: never
-        Returns: {
-          description: string
-          issue: string
-          requires_manual_action: boolean
-          status: string
-        }[]
-      }
-      validate_security_policies: {
-        Args: never
-        Returns: {
-          has_rls: boolean
-          policy_count: number
-          public_access: boolean
-          table_name: string
         }[]
       }
     }
