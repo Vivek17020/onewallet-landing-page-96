@@ -30,14 +30,15 @@ export function HomepageVideos() {
   const { data: allVideos, isLoading } = useQuery({
     queryKey: ['homepage-videos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('homepage_videos')
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from('homepage_videos' as any)
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
       
       if (error) throw error;
-      return data as Video[];
+      return (data || []) as Video[];
     },
     staleTime: 0,
   });

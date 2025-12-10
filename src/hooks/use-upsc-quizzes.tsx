@@ -60,11 +60,11 @@ export const useUPSCQuizzes = (category?: string) => {
   return useQuery({
     queryKey: ['upsc-quizzes', category],
     queryFn: async () => {
-      let query = supabase
-        .from('upsc_quizzes')
+      let query = (supabase
+        .from('upsc_quizzes' as any)
         .select('*')
         .eq('is_published', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
 
       if (category) {
         query = query.eq('category', category);
@@ -73,9 +73,9 @@ export const useUPSCQuizzes = (category?: string) => {
       const { data, error } = await query;
       if (error) throw error;
       
-      return data.map(quiz => ({
+      return ((data || []) as any[]).map(quiz => ({
         ...quiz,
-        questions: quiz.questions as unknown as QuizQuestion[]
+        questions: quiz.questions as QuizQuestion[]
       })) as Quiz[];
     },
   });
@@ -87,18 +87,18 @@ export const useQuiz = (quizId: string | undefined) => {
     queryFn: async () => {
       if (!quizId) return null;
       
-      const { data, error } = await supabase
-        .from('upsc_quizzes')
+      const { data, error } = await (supabase
+        .from('upsc_quizzes' as any)
         .select('*')
         .eq('id', quizId)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
       if (!data) return null;
       
       return {
         ...data,
-        questions: data.questions as unknown as QuizQuestion[]
+        questions: data.questions as QuizQuestion[]
       } as Quiz;
     },
     enabled: !!quizId,
@@ -109,23 +109,21 @@ export const useDailyQuiz = () => {
   return useQuery({
     queryKey: ['upsc-daily-quiz'],
     queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { data, error } = await supabase
-        .from('upsc_quizzes')
+      const { data, error } = await (supabase
+        .from('upsc_quizzes' as any)
         .select('*')
         .eq('is_daily_quiz', true)
         .eq('is_published', true)
         .order('created_at', { ascending: false })
         .limit(1)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
       if (!data) return null;
       
       return {
         ...data,
-        questions: data.questions as unknown as QuizQuestion[]
+        questions: data.questions as QuizQuestion[]
       } as Quiz;
     },
   });
@@ -155,11 +153,11 @@ export const useSubmitQuizAttempt = () => {
         is_completed: attempt.is_completed,
       };
       
-      const { data, error } = await supabase
-        .from('upsc_quiz_attempts')
+      const { data, error } = await (supabase
+        .from('upsc_quiz_attempts' as any)
         .insert([insertData])
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;
@@ -178,14 +176,14 @@ export const useUserQuizAttempts = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from('upsc_quiz_attempts')
-        .select('*, upsc_quizzes(title, category, subject)')
+      const { data, error } = await (supabase
+        .from('upsc_quiz_attempts' as any)
+        .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!user?.id,
   });

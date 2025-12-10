@@ -7,21 +7,32 @@ export function useWeb3Progress(articleId?: string) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
+  // Define interface for article progress
+  interface ArticleProgress {
+    id: string;
+    user_id: string;
+    article_id: string;
+    completed: boolean;
+    reading_time?: number;
+    created_at: string;
+  }
+
   // Get progress for a specific article
   const { data: articleProgress, isLoading: progressLoading } = useQuery({
     queryKey: ["web3-article-progress", user?.id, articleId],
     queryFn: async () => {
       if (!user?.id || !articleId) return null;
 
-      const { data, error } = await supabase
-        .from("web3_article_progress")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_article_progress" as any)
         .select("*")
         .eq("user_id", user.id)
         .eq("article_id", articleId)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
-      return data;
+      return data as ArticleProgress | null;
     },
     enabled: !!user?.id && !!articleId,
   });

@@ -28,11 +28,11 @@ export const useUPSCFlashcards = (subject?: string) => {
   return useQuery({
     queryKey: ['upsc-flashcards', subject],
     queryFn: async () => {
-      let query = supabase
-        .from('upsc_flashcards')
+      let query = (supabase
+        .from('upsc_flashcards' as any)
         .select('*')
         .eq('is_published', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
 
       if (subject) {
         query = query.eq('subject', subject);
@@ -40,7 +40,7 @@ export const useUPSCFlashcards = (subject?: string) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Flashcard[];
+      return (data || []) as Flashcard[];
     },
   });
 };
@@ -49,13 +49,13 @@ export const useAllFlashcards = () => {
   return useQuery({
     queryKey: ['upsc-flashcards-admin'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('upsc_flashcards')
+      const { data, error } = await (supabase
+        .from('upsc_flashcards' as any)
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
 
       if (error) throw error;
-      return data as Flashcard[];
+      return (data || []) as Flashcard[];
     },
   });
 };
@@ -65,11 +65,11 @@ export const useCreateFlashcard = () => {
 
   return useMutation({
     mutationFn: async (flashcard: Omit<Flashcard, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('upsc_flashcards')
+      const { data, error } = await (supabase
+        .from('upsc_flashcards' as any)
         .insert([flashcard])
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;
@@ -86,12 +86,12 @@ export const useUpdateFlashcard = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Flashcard> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('upsc_flashcards')
+      const { data, error } = await (supabase
+        .from('upsc_flashcards' as any)
         .update(updates)
         .eq('id', id)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;
@@ -108,10 +108,10 @@ export const useDeleteFlashcard = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('upsc_flashcards')
+      const { error } = await (supabase
+        .from('upsc_flashcards' as any)
         .delete()
-        .eq('id', id);
+        .eq('id', id) as any);
 
       if (error) throw error;
     },
@@ -130,13 +130,13 @@ export const useFlashcardProgress = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from('upsc_flashcard_progress')
+      const { data, error } = await (supabase
+        .from('upsc_flashcard_progress' as any)
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any);
 
       if (error) throw error;
-      return data as FlashcardProgress[];
+      return (data || []) as FlashcardProgress[];
     },
     enabled: !!user?.id,
   });
@@ -150,8 +150,8 @@ export const useUpdateFlashcardProgress = () => {
     mutationFn: async ({ flashcard_id, mastery_level }: { flashcard_id: string; mastery_level: number }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .from('upsc_flashcard_progress')
+      const { data, error } = await (supabase
+        .from('upsc_flashcard_progress' as any)
         .upsert({
           user_id: user.id,
           flashcard_id,
@@ -160,7 +160,7 @@ export const useUpdateFlashcardProgress = () => {
           review_count: 1,
         }, { onConflict: 'user_id,flashcard_id' })
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;

@@ -10,17 +10,14 @@ import { format } from "date-fns";
 
 interface VerificationRecord {
   id: string;
-  url: string;
   issue_type: string;
-  fix_action: string;
-  fix_applied_at: string;
-  internal_status: string;
-  gsc_status: string;
-  recheck_notes: string | null;
-  rechecked_at: string | null;
-  retry_count: number;
-  last_error: string | null;
+  verification_status: string;
+  gsc_status: string | null;
+  verification_notes: string | null;
+  fix_attempted_at: string;
+  created_at: string;
   article_id: string | null;
+  issue_id: string | null;
 }
 
 interface Stats {
@@ -64,15 +61,15 @@ export function SeoVerificationDashboard() {
       }
 
       console.log('Verification records fetched:', data?.length || 0);
-      setRecords(data || []);
+      setRecords((data || []) as VerificationRecord[]);
       
-      // Calculate stats
+      // Calculate stats based on actual column names
       const total = data?.length || 0;
-      const internalPassed = data?.filter(r => r.internal_status === 'passed').length || 0;
-      const internalFailed = data?.filter(r => r.internal_status === 'failed').length || 0;
+      const internalPassed = data?.filter(r => r.verification_status === 'passed').length || 0;
+      const internalFailed = data?.filter(r => r.verification_status === 'failed').length || 0;
       const gscIndexed = data?.filter(r => r.gsc_status === 'indexed').length || 0;
       const gscNotIndexed = data?.filter(r => r.gsc_status === 'not_indexed').length || 0;
-      const pending = data?.filter(r => r.internal_status === 'pending' || r.gsc_status === 'pending').length || 0;
+      const pending = data?.filter(r => r.verification_status === 'pending' || r.gsc_status === 'pending').length || 0;
 
       setStats({
         total,
@@ -268,26 +265,21 @@ export function SeoVerificationDashboard() {
                   </TableRow>
                 ) : (
                   records.map((record) => (
-                    <TableRow key={record.id} className={record.internal_status === 'failed' || record.gsc_status === 'not_indexed' ? 'bg-red-50 dark:bg-red-950/10' : ''}>
+                    <TableRow key={record.id} className={record.verification_status === 'failed' || record.gsc_status === 'not_indexed' ? 'bg-red-50 dark:bg-red-950/10' : ''}>
                       <TableCell className="max-w-xs truncate">
-                        <a href={record.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline">
-                          {record.url}
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                        <span className="text-sm">{record.issue_type}</span>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{record.issue_type}</Badge>
                       </TableCell>
-                      <TableCell className="max-w-xs text-sm">{record.fix_action}</TableCell>
-                      <TableCell>{getStatusBadge(record.internal_status)}</TableCell>
-                      <TableCell>{getStatusBadge(record.gsc_status)}</TableCell>
+                      <TableCell className="max-w-xs text-sm">{record.verification_notes || '-'}</TableCell>
+                      <TableCell>{getStatusBadge(record.verification_status)}</TableCell>
+                      <TableCell>{getStatusBadge(record.gsc_status || 'pending')}</TableCell>
                       <TableCell className="text-sm">
-                        {record.rechecked_at ? format(new Date(record.rechecked_at), 'MMM d, HH:mm') : 'Not checked'}
+                        {record.fix_attempted_at ? format(new Date(record.fix_attempted_at), 'MMM d, HH:mm') : 'Not checked'}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={record.retry_count >= 3 ? 'destructive' : 'secondary'}>
-                          {record.retry_count}/3
-                        </Badge>
+                        <Badge variant="secondary">-</Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -303,8 +295,8 @@ export function SeoVerificationDashboard() {
                             <Button 
                               size="sm" 
                               variant="outline"
-                              onClick={() => handleForceReindex(record.url)}
-                              disabled={refreshing}
+                              onClick={() => handleForceReindex(record.article_id || '')}
+                              disabled={refreshing || !record.article_id}
                             >
                               Force Reindex
                             </Button>
