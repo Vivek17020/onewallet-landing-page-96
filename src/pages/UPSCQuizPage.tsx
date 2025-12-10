@@ -46,24 +46,24 @@ const UPSCQuizPage = () => {
   };
 
   const handleQuizComplete = async (attemptId: string) => {
-    const { data } = await supabase
-      .from('upsc_quiz_attempts')
+    const { data } = await (supabase
+      .from('upsc_quiz_attempts' as any)
       .select('*')
       .eq('id', attemptId)
-      .single();
+      .single() as any);
 
     if (data) {
       setResult({
-        total_questions: data.total_questions,
-        attempted: data.attempted,
-        correct: data.correct,
-        incorrect: data.incorrect,
-        skipped: data.skipped,
-        score: Number(data.score),
-        max_score: Number(data.max_score),
-        percentage: Number(data.percentage),
-        time_taken_seconds: data.time_taken_seconds || 0,
-        answers: data.answers as unknown as UserAnswer[],
+        total_questions: (data as any).total_questions,
+        attempted: (data as any).attempted,
+        correct: (data as any).correct,
+        incorrect: (data as any).incorrect,
+        skipped: (data as any).skipped,
+        score: Number((data as any).score),
+        max_score: Number((data as any).max_score),
+        percentage: Number((data as any).percentage),
+        time_taken_seconds: (data as any).time_taken_seconds || 0,
+        answers: (data as any).answers as unknown as UserAnswer[],
       });
       setQuizState('result');
     }

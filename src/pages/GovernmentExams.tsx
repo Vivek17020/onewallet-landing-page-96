@@ -11,19 +11,29 @@ import { Search, FileText, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BreadcrumbSchema } from "@/components/seo/breadcrumb-schema";
 
+// Define interface for exam
+interface Exam {
+  id: string;
+  exam_name: string;
+  category: string;
+  short_description?: string;
+  logo_url?: string;
+  slug: string;
+}
+
 export default function GovernmentExams() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: exams, isLoading } = useQuery({
     queryKey: ["exam-list"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_list")
+      const { data, error } = await (supabase
+        .from("exam_list" as any)
         .select("*")
-        .order("exam_name");
+        .order("exam_name") as any);
       
       if (error) throw error;
-      return data;
+      return data as Exam[];
     },
   });
 

@@ -78,12 +78,12 @@ export default function WebStoryPage() {
 
       if (!story) return;
 
-      await supabase.from('web_stories_analytics').insert({
+      await (supabase.from('web_stories_analytics' as any).insert({
         story_id: story.id,
         event_type: 'view',
         device_type: /Mobile/.test(navigator.userAgent) ? 'mobile' : 'desktop',
         browser: navigator.userAgent,
-      });
+      }) as any);
     } catch (error) {
       console.error('Failed to track web story view:', error);
     }

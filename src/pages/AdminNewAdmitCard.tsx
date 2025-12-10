@@ -36,13 +36,13 @@ export default function AdminNewAdmitCard() {
 
       const slug = slugify(formData.title, { lower: true, strict: true });
 
-      const { error } = await supabase
-        .from("admit_cards")
+      const { error } = await (supabase
+        .from("admit_cards" as any)
         .insert({
           ...formData,
           slug,
           author_id: user.id,
-        });
+        }) as any);
 
       if (error) throw error;
 

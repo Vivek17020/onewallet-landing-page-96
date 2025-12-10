@@ -12,6 +12,18 @@ import { Link } from "react-router-dom";
 import { BreadcrumbSchema } from "@/components/seo/breadcrumb-schema";
 import { format } from "date-fns";
 
+// Define interface for admit card
+interface AdmitCard {
+  id: string;
+  title: string;
+  exam_name: string;
+  slug: string;
+  download_link?: string;
+  published_date?: string;
+  content?: string;
+  published: boolean;
+}
+
 export default function AdmitCards() {
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -20,14 +32,14 @@ export default function AdmitCards() {
   const { data: admitCards, isLoading } = useQuery({
     queryKey: ["admit-cards"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("admit_cards")
+      const { data, error } = await (supabase
+        .from("admit_cards" as any)
         .select("*")
         .eq("published", true)
-        .order("published_date", { ascending: false });
+        .order("published_date", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as AdmitCard[];
     },
   });
 

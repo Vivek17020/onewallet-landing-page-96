@@ -60,11 +60,11 @@ export class JobsAPI {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    let query = supabase
-      .from('private_jobs')
+    let query = (supabase
+      .from('private_jobs' as any)
       .select('*', { count: 'exact' })
       .eq('is_published', true)
-      .range(from, to);
+      .range(from, to) as any);
 
     // Apply filters
     if (filters?.q) {
@@ -121,10 +121,10 @@ export class JobsAPI {
    */
   static async getJob(idOrSlug: string): Promise<Job> {
     // Try to fetch by ID first, then by slug
-    let query = supabase
-      .from('private_jobs')
+    let query = (supabase
+      .from('private_jobs' as any)
       .select('*')
-      .eq('is_published', true);
+      .eq('is_published', true) as any);
 
     // Check if it's a UUID
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
@@ -152,7 +152,7 @@ export class JobsAPI {
    */
   private static async incrementViews(jobId: string): Promise<void> {
     try {
-      await supabase.rpc('increment_job_views', { job_uuid: jobId });
+      await (supabase.rpc as any)('increment_job_views', { job_uuid: jobId });
     } catch (error) {
       console.error('Failed to increment views:', error);
     }
@@ -162,11 +162,11 @@ export class JobsAPI {
    * Create new job (admin only) in Supabase
    */
   static async createJob(payload: CreateJobPayload): Promise<Job> {
-    const { data, error } = await supabase
-      .from('private_jobs')
+    const { data, error } = await (supabase
+      .from('private_jobs' as any)
       .insert([mapJobToDb(payload)])
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Failed to create job: ${error.message}`);
@@ -179,12 +179,12 @@ export class JobsAPI {
    * Update existing job (admin only) in Supabase
    */
   static async updateJob(id: string, payload: Partial<CreateJobPayload>): Promise<Job> {
-    const { data, error } = await supabase
-      .from('private_jobs')
+    const { data, error } = await (supabase
+      .from('private_jobs' as any)
       .update(mapJobToDb(payload as CreateJobPayload))
       .eq('id', id)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Failed to update job: ${error.message}`);
@@ -197,12 +197,12 @@ export class JobsAPI {
    * Publish job (admin only) in Supabase
    */
   static async publishJob(id: string): Promise<Job> {
-    const { data, error } = await supabase
-      .from('private_jobs')
+    const { data, error } = await (supabase
+      .from('private_jobs' as any)
       .update({ is_published: true })
       .eq('id', id)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Failed to publish job: ${error.message}`);
@@ -215,12 +215,12 @@ export class JobsAPI {
    * Unpublish job (admin only) in Supabase
    */
   static async unpublishJob(id: string): Promise<Job> {
-    const { data, error } = await supabase
-      .from('private_jobs')
+    const { data, error } = await (supabase
+      .from('private_jobs' as any)
       .update({ is_published: false })
       .eq('id', id)
       .select()
-      .single();
+      .single() as any);
 
     if (error) {
       throw new Error(`Failed to unpublish job: ${error.message}`);
@@ -233,10 +233,10 @@ export class JobsAPI {
    * Delete job (admin only)
    */
   static async deleteJob(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('private_jobs')
+    const { error } = await (supabase
+      .from('private_jobs' as any)
       .delete()
-      .eq('id', id);
+      .eq('id', id) as any);
 
     if (error) {
       throw new Error(`Failed to delete job: ${error.message}`);
@@ -248,7 +248,7 @@ export class JobsAPI {
    */
   static async trackApplyClick(id: string): Promise<void> {
     try {
-      await supabase.rpc('increment_job_applies', { job_uuid: id });
+      await (supabase.rpc as any)('increment_job_applies', { job_uuid: id });
     } catch (error) {
       console.error('Failed to track apply click:', error);
     }
@@ -258,12 +258,12 @@ export class JobsAPI {
    * Get recommended jobs for user from Supabase
    */
   static async getRecommendedJobs(userId?: string): Promise<Job[]> {
-    const { data, error } = await supabase
-      .from('private_jobs')
+    const { data, error } = await (supabase
+      .from('private_jobs' as any)
       .select('*')
       .eq('is_published', true)
       .order('recommended_score', { ascending: false })
-      .limit(10);
+      .limit(10) as any);
 
     if (error) {
       throw new Error(`Failed to fetch recommended jobs: ${error.message}`);
@@ -276,9 +276,9 @@ export class JobsAPI {
    * Save job for user (authenticated users)
    */
   static async saveJob(jobId: string): Promise<void> {
-    const { error } = await supabase
-      .from('saved_jobs')
-      .insert([{ job_id: jobId }]);
+    const { error } = await (supabase
+      .from('saved_jobs' as any)
+      .insert([{ job_id: jobId }]) as any);
 
     if (error) {
       throw new Error(`Failed to save job: ${error.message}`);
@@ -289,10 +289,10 @@ export class JobsAPI {
    * Unsave job for user (authenticated users)
    */
   static async unsaveJob(jobId: string): Promise<void> {
-    const { error } = await supabase
-      .from('saved_jobs')
+    const { error } = await (supabase
+      .from('saved_jobs' as any)
       .delete()
-      .eq('job_id', jobId);
+      .eq('job_id', jobId) as any);
 
     if (error) {
       throw new Error(`Failed to unsave job: ${error.message}`);
@@ -303,13 +303,13 @@ export class JobsAPI {
    * Get saved jobs for user (authenticated users)
    */
   static async getSavedJobs(): Promise<Job[]> {
-    const { data, error } = await supabase
-      .from('saved_jobs')
+    const { data, error } = await (supabase
+      .from('saved_jobs' as any)
       .select(`
         job_id,
         private_jobs (*)
       `)
-      .order('saved_at', { ascending: false });
+      .order('saved_at', { ascending: false }) as any);
 
     if (error) {
       throw new Error(`Failed to fetch saved jobs: ${error.message}`);
