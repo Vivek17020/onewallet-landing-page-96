@@ -10,6 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
+// Define interface for exam
+interface Exam {
+  id: string;
+  exam_name: string;
+  category: string;
+  short_description?: string;
+  logo_url?: string;
+  slug: string;
+  created_at: string;
+}
+
 export default function AdminExams() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExam, setEditingExam] = useState<any>(null);
@@ -26,19 +37,19 @@ export default function AdminExams() {
   const { data: exams, isLoading } = useQuery({
     queryKey: ["exam-list"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_list")
+      const { data, error } = await (supabase
+        .from("exam_list" as any)
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as Exam[];
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData & { slug: string }) => {
-      const { error } = await supabase.from("exam_list").insert([data]);
+      const { error } = await (supabase.from("exam_list" as any).insert([data]) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -53,10 +64,10 @@ export default function AdminExams() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData & { slug: string } }) => {
-      const { error } = await supabase
-        .from("exam_list")
+      const { error } = await (supabase
+        .from("exam_list" as any)
         .update(data)
-        .eq("id", id);
+        .eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -71,7 +82,7 @@ export default function AdminExams() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("exam_list").delete().eq("id", id);
+      const { error } = await (supabase.from("exam_list" as any).delete().eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {

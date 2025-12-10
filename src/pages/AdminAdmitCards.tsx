@@ -9,6 +9,18 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
+// Define interface for admit cards
+interface AdmitCard {
+  id: string;
+  title: string;
+  exam_name: string;
+  published_date?: string;
+  published: boolean;
+  featured?: boolean;
+  download_link?: string;
+  created_at: string;
+}
+
 export default function AdminAdmitCards() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
@@ -16,23 +28,23 @@ export default function AdminAdmitCards() {
   const { data: admitCards, isLoading, refetch } = useQuery({
     queryKey: ["admin-admit-cards"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("admit_cards")
+      const { data, error } = await (supabase
+        .from("admit_cards" as any)
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as AdmitCard[];
     },
   });
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this admit card?")) return;
 
-    const { error } = await supabase
-      .from("admit_cards")
+    const { error } = await (supabase
+      .from("admit_cards" as any)
       .delete()
-      .eq("id", id);
+      .eq("id", id) as any);
 
     if (error) {
       toast({

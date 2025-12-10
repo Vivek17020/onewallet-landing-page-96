@@ -11,6 +11,21 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, ArrowLeft, Upload } from "lucide-react";
 import { toast } from "sonner";
 
+// Define interface for exam paper
+interface ExamPaper {
+  id: string;
+  exam_title?: string;
+  year: number;
+  tier?: string;
+  file_url: string;
+  download_count?: number;
+  created_at: string;
+  exam_list?: {
+    exam_name: string;
+    category: string;
+  };
+}
+
 export default function AdminExamPapers() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPaper, setEditingPaper] = useState<any>(null);
@@ -27,8 +42,8 @@ export default function AdminExamPapers() {
   const { data: papers, isLoading } = useQuery({
     queryKey: ["exam-papers"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_papers")
+      const { data, error } = await (supabase
+        .from("exam_papers" as any)
         .select(`
           *,
           exam_list (
@@ -37,16 +52,16 @@ export default function AdminExamPapers() {
           )
         `)
         .order("year", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as ExamPaper[];
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase.from("exam_papers").insert([data]);
+      const { error } = await (supabase.from("exam_papers" as any).insert([data]) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -61,10 +76,10 @@ export default function AdminExamPapers() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      const { error } = await supabase
-        .from("exam_papers")
+      const { error } = await (supabase
+        .from("exam_papers" as any)
         .update(data)
-        .eq("id", id);
+        .eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -79,7 +94,7 @@ export default function AdminExamPapers() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("exam_papers").delete().eq("id", id);
+      const { error } = await (supabase.from("exam_papers" as any).delete().eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {

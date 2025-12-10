@@ -67,10 +67,10 @@ export default function AdminCricketMatches() {
   const { data: matches, isLoading } = useQuery({
     queryKey: ["cricket-matches"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cricket_matches")
+      const { data, error } = await (supabase
+        .from("cricket_matches" as any)
         .select("*")
-        .order("display_order", { ascending: true });
+        .order("display_order", { ascending: true }) as any);
       
       if (error) throw error;
       return data as CricketMatch[];
@@ -80,15 +80,15 @@ export default function AdminCricketMatches() {
   const saveMutation = useMutation({
     mutationFn: async (match: CricketMatch) => {
       if (match.id) {
-        const { error } = await supabase
-          .from("cricket_matches")
+        const { error } = await (supabase
+          .from("cricket_matches" as any)
           .update(match)
-          .eq("id", match.id);
+          .eq("id", match.id) as any);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("cricket_matches")
-          .insert([match]);
+        const { error } = await (supabase
+          .from("cricket_matches" as any)
+          .insert([match]) as any);
         if (error) throw error;
       }
     },
@@ -104,10 +104,10 @@ export default function AdminCricketMatches() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("cricket_matches")
+      const { error } = await (supabase
+        .from("cricket_matches" as any)
         .delete()
-        .eq("id", id);
+        .eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -470,16 +470,16 @@ export default function AdminCricketMatches() {
                 id="display_order"
                 type="number"
                 value={formData.display_order}
-                onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
               />
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={resetForm}>
                 Cancel
               </Button>
               <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? "Saving..." : "Save Match"}
+                {saveMutation.isPending ? "Saving..." : editingMatch ? "Update Match" : "Add Match"}
               </Button>
             </div>
           </form>
