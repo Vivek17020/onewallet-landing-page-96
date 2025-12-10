@@ -23,7 +23,6 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id || !articleId) return null;
 
-      // Use type assertion for table not in generated types
       const { data, error } = await (supabase
         .from("web3_article_progress" as any)
         .select("*")
@@ -43,7 +42,7 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id) return null;
 
-      const { data, error } = await supabase.rpc("get_user_web3_stats", {
+      const { data, error } = await (supabase.rpc as any)("get_user_web3_stats", {
         user_uuid: user.id,
       });
 
@@ -59,8 +58,8 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from("user_web3_badges")
+      const { data, error } = await (supabase
+        .from("user_web3_badges" as any)
         .select(
           `
           *,
@@ -68,7 +67,7 @@ export function useWeb3Progress(articleId?: string) {
         `
         )
         .eq("user_id", user.id)
-        .order("earned_at", { ascending: false });
+        .order("earned_at", { ascending: false }) as any);
 
       if (error) throw error;
       return data || [];
@@ -80,10 +79,10 @@ export function useWeb3Progress(articleId?: string) {
   const { data: availableBadges } = useQuery({
     queryKey: ["web3-all-badges"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("web3_badges")
+      const { data, error } = await (supabase
+        .from("web3_badges" as any)
         .select("*")
-        .order("points", { ascending: true });
+        .order("points", { ascending: true }) as any);
 
       if (error) throw error;
       return data || [];
@@ -96,8 +95,8 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from("web3_certificates")
+      const { data, error } = await (supabase
+        .from("web3_certificates" as any)
         .select(
           `
           *,
@@ -109,7 +108,7 @@ export function useWeb3Progress(articleId?: string) {
         `
         )
         .eq("user_id", user.id)
-        .order("issued_at", { ascending: false });
+        .order("issued_at", { ascending: false }) as any);
 
       if (error) throw error;
       return data || [];
@@ -128,8 +127,8 @@ export function useWeb3Progress(articleId?: string) {
     }) => {
       if (!user?.id) throw new Error("User not authenticated");
 
-      const { data, error } = await supabase
-        .from("web3_article_progress")
+      const { data, error } = await (supabase
+        .from("web3_article_progress" as any)
         .upsert(
           {
             user_id: user.id,
@@ -143,12 +142,12 @@ export function useWeb3Progress(articleId?: string) {
           }
         )
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
       // Check for new badges
-      await supabase.rpc("check_and_award_badges", { user_uuid: user.id });
+      await (supabase.rpc as any)("check_and_award_badges", { user_uuid: user.id });
 
       return data;
     },
@@ -171,8 +170,8 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from("web3_article_progress")
+      const { data, error } = await (supabase
+        .from("web3_article_progress" as any)
         .select(
           `
           *,
@@ -189,7 +188,7 @@ export function useWeb3Progress(articleId?: string) {
         )
         .eq("user_id", user.id)
         .eq("completed", true)
-        .order("completed_at", { ascending: false });
+        .order("completed_at", { ascending: false }) as any);
 
       if (error) throw error;
       return data || [];
@@ -201,11 +200,11 @@ export function useWeb3Progress(articleId?: string) {
   const { data: learningPaths, isLoading: pathsLoading } = useQuery({
     queryKey: ["web3-learning-paths"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("web3_learning_paths")
+      const { data, error } = await (supabase
+        .from("web3_learning_paths" as any)
         .select("*")
         .eq("is_published", true)
-        .order("display_order", { ascending: true });
+        .order("display_order", { ascending: true }) as any);
 
       if (error) throw error;
       return data || [];
@@ -218,10 +217,10 @@ export function useWeb3Progress(articleId?: string) {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from("user_learning_path_progress")
+      const { data, error } = await (supabase
+        .from("user_learning_path_progress" as any)
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id) as any);
 
       if (error) throw error;
       return data || [];
@@ -241,30 +240,30 @@ export function useWeb3Progress(articleId?: string) {
       if (!user?.id) throw new Error("User not authenticated");
 
       // Get current progress
-      const { data: existing } = await supabase
-        .from("user_learning_path_progress")
+      const { data: existing } = await (supabase
+        .from("user_learning_path_progress" as any)
         .select("*")
         .eq("user_id", user.id)
         .eq("learning_path_id", pathId)
-        .maybeSingle();
+        .maybeSingle() as any);
 
-      const completedSteps = existing?.completed_steps || [];
+      const completedSteps = (existing as any)?.completed_steps || [];
       const newCompletedSteps = [...completedSteps, stepIndex].filter(
         (v, i, a) => a.indexOf(v) === i
       ); // unique
 
       // Get total steps count
-      const { data: path } = await supabase
-        .from("web3_learning_paths")
+      const { data: path } = await (supabase
+        .from("web3_learning_paths" as any)
         .select("steps, title")
         .eq("id", pathId)
-        .single();
+        .single() as any);
 
-      const totalSteps = (path?.steps as any[])?.length || 0;
+      const totalSteps = ((path as any)?.steps as any[])?.length || 0;
       const isCompleted = newCompletedSteps.length >= totalSteps;
 
-      const { data, error } = await supabase
-        .from("user_learning_path_progress")
+      const { data, error } = await (supabase
+        .from("user_learning_path_progress" as any)
         .upsert(
           {
             user_id: user.id,
@@ -278,13 +277,13 @@ export function useWeb3Progress(articleId?: string) {
           }
         )
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
       // Generate certificate if just completed
-      if (isCompleted && !existing?.completed_at) {
-        await generateCertificate(pathId, path?.title || "Learning Path");
+      if (isCompleted && !(existing as any)?.completed_at) {
+        await generateCertificate(pathId, (path as any)?.title || "Learning Path");
       }
 
       return data;
@@ -335,17 +334,17 @@ export function useWeb3Progress(articleId?: string) {
         }),
         certificateNumber,
         verificationCode,
-        totalArticles: userStats?.total_completed || 0,
-        totalPoints: userStats?.total_points || 0,
+        totalArticles: (userStats as any)?.total_completed || 0,
+        totalPoints: (userStats as any)?.total_points || 0,
       };
 
-      const { error } = await supabase.from("web3_certificates").insert({
+      const { error } = await (supabase.from("web3_certificates" as any).insert({
         user_id: user.id,
         learning_path_id: pathId,
         certificate_number: certificateNumber,
         verification_code: verificationCode,
         certificate_data: certificateData,
-      });
+      }) as any);
 
       if (error) throw error;
 
