@@ -202,14 +202,16 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       .order('name');
     
     if (data) {
-      setCategories(data);
+      // Cast to include parent_id which was added via migration
+      const categoriesWithParent = data as Array<typeof data[0] & { parent_id?: string | null }>;
+      setCategories(categoriesWithParent);
       
       // Auto-detect article type based on current category
       if (article?.category_id) {
-        const currentCategory = data.find(cat => cat.id === article.category_id);
+        const currentCategory = categoriesWithParent.find(cat => cat.id === article.category_id);
         if (currentCategory) {
           // Check if category has web3forindia or upscbriefs parent
-          const parentCategory = data.find(cat => cat.id === currentCategory.parent_id);
+          const parentCategory = categoriesWithParent.find(cat => cat.id === currentCategory.parent_id);
           if (parentCategory?.slug === 'web3forindia') {
             setArticleType('web3');
           } else if (parentCategory?.slug === 'upscbriefs') {
