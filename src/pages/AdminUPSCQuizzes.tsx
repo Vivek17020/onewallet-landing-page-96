@@ -40,12 +40,12 @@ const AdminUPSCQuizzes = () => {
   const { data: quizzes, isLoading } = useQuery({
     queryKey: ["upsc-quizzes-admin"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("upsc_quizzes")
+      const { data, error } = await (supabase
+        .from("upsc_quizzes" as any)
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
       if (error) throw error;
-      return data.map(q => ({
+      return (data as any[]).map(q => ({
         ...q,
         questions: q.questions as unknown as QuizQuestion[]
       })) as Quiz[];
@@ -54,10 +54,10 @@ const AdminUPSCQuizzes = () => {
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const { error } = await supabase.from("upsc_quizzes").insert([{
+      const { error } = await (supabase.from("upsc_quizzes" as any).insert([{
         ...data,
         questions: JSON.parse(JSON.stringify(data.questions)),
-      }]);
+      }]) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -70,13 +70,13 @@ const AdminUPSCQuizzes = () => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...data }: typeof formData & { id: string }) => {
-      const { error } = await supabase
-        .from("upsc_quizzes")
+      const { error } = await (supabase
+        .from("upsc_quizzes" as any)
         .update({
           ...data,
           questions: JSON.parse(JSON.stringify(data.questions)),
         })
-        .eq("id", id);
+        .eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -89,7 +89,7 @@ const AdminUPSCQuizzes = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("upsc_quizzes").delete().eq("id", id);
+      const { error } = await (supabase.from("upsc_quizzes" as any).delete().eq("id", id) as any);
       if (error) throw error;
     },
     onSuccess: () => {

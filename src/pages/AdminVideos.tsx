@@ -42,10 +42,10 @@ export default function AdminVideos() {
   const { data: videos, isLoading } = useQuery({
     queryKey: ['admin-videos'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('homepage_videos')
+      const { data, error } = await (supabase
+        .from('homepage_videos' as any)
         .select('*')
-        .order('display_order', { ascending: true });
+        .order('display_order', { ascending: true }) as any);
       
       if (error) throw error;
       return data as Video[];
@@ -56,15 +56,15 @@ export default function AdminVideos() {
     mutationFn: async () => {
       const maxOrder = videos?.reduce((max, v) => Math.max(max, v.display_order), 0) || 0;
       
-      const { error } = await supabase
-        .from('homepage_videos')
+      const { error } = await (supabase
+        .from('homepage_videos' as any)
         .insert({
           title: newVideo.title,
           youtube_url: newVideo.youtube_url,
           description: newVideo.description || null,
           display_order: maxOrder + 1,
           category: newVideo.category,
-        });
+        }) as any);
       
       if (error) throw error;
     },
@@ -80,10 +80,10 @@ export default function AdminVideos() {
 
   const deleteVideoMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('homepage_videos')
+      const { error } = await (supabase
+        .from('homepage_videos' as any)
         .delete()
-        .eq('id', id);
+        .eq('id', id) as any);
       
       if (error) throw error;
     },
@@ -98,10 +98,10 @@ export default function AdminVideos() {
 
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from('homepage_videos')
+      const { error } = await (supabase
+        .from('homepage_videos' as any)
         .update({ is_active: !is_active })
-        .eq('id', id);
+        .eq('id', id) as any);
       
       if (error) throw error;
     },

@@ -9,20 +9,39 @@ import { toast } from "sonner";
 import { Navbar } from "@/components/public/navbar";
 import { Footer } from "@/components/public/footer";
 
+// Define interfaces
+interface Exam {
+  id: string;
+  exam_name: string;
+  category: string;
+  short_description?: string;
+  logo_url?: string;
+  slug: string;
+}
+
+interface ExamPaper {
+  id: string;
+  exam_id: string;
+  year: number;
+  tier?: string;
+  file_url: string;
+  download_count?: number;
+}
+
 export default function ExamPaperDetail() {
   const { slug } = useParams();
 
   const { data: exam, isLoading: examLoading } = useQuery({
     queryKey: ["exam", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_list")
+      const { data, error } = await (supabase
+        .from("exam_list" as any)
         .select("*")
         .eq("slug", slug)
-        .single();
+        .single() as any);
       
       if (error) throw error;
-      return data;
+      return data as Exam;
     },
   });
 
@@ -31,15 +50,15 @@ export default function ExamPaperDetail() {
     queryFn: async () => {
       if (!exam?.id) return [];
       
-      const { data, error } = await supabase
-        .from("exam_papers")
+      const { data, error } = await (supabase
+        .from("exam_papers" as any)
         .select("*")
         .eq("exam_id", exam.id)
         .order("year", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as ExamPaper[];
     },
     enabled: !!exam?.id,
   });
@@ -47,10 +66,10 @@ export default function ExamPaperDetail() {
   const handleDownload = async (paperId: string, fileUrl: string) => {
     try {
       // Increment download count
-      await supabase
-        .from("exam_papers")
+      await (supabase
+        .from("exam_papers" as any)
         .update({ download_count: (papers?.find(p => p.id === paperId)?.download_count || 0) + 1 })
-        .eq("id", paperId);
+        .eq("id", paperId) as any);
 
       // Open PDF in new tab
       window.open(fileUrl, '_blank');

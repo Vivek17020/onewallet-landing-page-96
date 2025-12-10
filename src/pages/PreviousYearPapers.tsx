@@ -9,17 +9,27 @@ import { Navbar } from "@/components/public/navbar";
 import { Footer } from "@/components/public/footer";
 import { BreadcrumbSchema } from "@/components/seo/breadcrumb-schema";
 
+// Define interface for exam
+interface Exam {
+  id: string;
+  exam_name: string;
+  category: string;
+  short_description?: string;
+  logo_url?: string;
+  slug: string;
+}
+
 export default function PreviousYearPapers() {
   const { data: exams, isLoading } = useQuery({
     queryKey: ["exam-list"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_list")
+      const { data, error } = await (supabase
+        .from("exam_list" as any)
         .select("*")
-        .order("exam_name");
+        .order("exam_name") as any);
       
       if (error) throw error;
-      return data;
+      return data as Exam[];
     },
   });
 

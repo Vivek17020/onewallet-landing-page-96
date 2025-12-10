@@ -10,20 +10,39 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, Home, ChevronRight } from "lucide-react";
 import { BreadcrumbSchema } from "@/components/seo/breadcrumb-schema";
 
+// Define interfaces
+interface Exam {
+  id: string;
+  exam_name: string;
+  category: string;
+  short_description?: string;
+  logo_url?: string;
+  slug: string;
+}
+
+interface ExamPaper {
+  id: string;
+  exam_id: string;
+  year: number;
+  tier?: string;
+  file_url: string;
+  download_count?: number;
+}
+
 export default function GovernmentExamPapers() {
   const { slug } = useParams();
 
   const { data: exam, isLoading: examLoading } = useQuery({
     queryKey: ["exam", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("exam_list")
+      const { data, error } = await (supabase
+        .from("exam_list" as any)
         .select("*")
         .eq("slug", slug)
-        .single();
+        .single() as any);
       
       if (error) throw error;
-      return data;
+      return data as Exam;
     },
   });
 
@@ -32,15 +51,15 @@ export default function GovernmentExamPapers() {
     queryFn: async () => {
       if (!exam?.id) return [];
       
-      const { data, error } = await supabase
-        .from("exam_papers")
+      const { data, error } = await (supabase
+        .from("exam_papers" as any)
         .select("*")
         .eq("exam_id", exam.id)
         .order("year", { ascending: false })
-        .order("created_at", { ascending: false});
+        .order("created_at", { ascending: false }) as any);
       
       if (error) throw error;
-      return data;
+      return data as ExamPaper[];
     },
     enabled: !!exam?.id,
   });

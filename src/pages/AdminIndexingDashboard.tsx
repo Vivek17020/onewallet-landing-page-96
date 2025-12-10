@@ -64,18 +64,18 @@ export default function AdminIndexingDashboard() {
 
   const loadLogs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('seo_automation_logs')
+      const { data, error } = await (supabase
+        .from('seo_automation_logs' as any)
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(20) as any);
       
       if (error) throw error;
       setLogs(data || []);
       
       // Calculate stats
-      const successCount = data?.filter(log => log.status === 'success').length || 0;
-      const failedCount = data?.filter(log => log.status === 'failed').length || 0;
+      const successCount = data?.filter((log: any) => log.status === 'success').length || 0;
+      const failedCount = data?.filter((log: any) => log.status === 'failed').length || 0;
       
       setStats({
         total: data?.length || 0,

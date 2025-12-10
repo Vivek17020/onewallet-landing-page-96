@@ -19,6 +19,18 @@ interface PathStep {
   completed?: boolean;
 }
 
+// Define interface for learning path
+interface LearningPath {
+  id: string;
+  title: string;
+  description?: string;
+  slug: string;
+  steps: PathStep[];
+  difficulty?: string;
+  duration?: string;
+  is_published: boolean;
+}
+
 export default function Web3LearningPathDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
@@ -27,15 +39,15 @@ export default function Web3LearningPathDetail() {
   const { data: learningPath, isLoading } = useQuery({
     queryKey: ["learning-path", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("web3_learning_paths")
+      const { data, error } = await (supabase
+        .from("web3_learning_paths" as any)
         .select("*")
         .eq("slug", slug)
         .eq("is_published", true)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
-      return data;
+      return data as LearningPath | null;
     },
     enabled: !!slug,
   });

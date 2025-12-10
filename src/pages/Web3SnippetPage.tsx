@@ -12,7 +12,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useState } from "react";
 
-type CodeSnippet = Database['public']['Tables']['web3_code_snippets']['Row'];
+// Define interface for code snippet
+interface CodeSnippet {
+  id: string;
+  title: string;
+  slug: string;
+  code: string;
+  language: string;
+  description?: string;
+  category?: string;
+  tags?: string[];
+  view_count?: number;
+  fork_count?: number;
+  created_at: string;
+}
 
 export default function Web3SnippetPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -23,22 +36,22 @@ export default function Web3SnippetPage() {
     queryFn: async (): Promise<CodeSnippet | null> => {
       if (!slug) return null;
       
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .select("*")
         .eq("slug", slug)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
       
       // Increment view count if snippet exists
       if (data?.id) {
-        await supabase.rpc("increment_snippet_view_count", {
+        await (supabase.rpc as any)("increment_snippet_view_count", {
           snippet_uuid: data.id
         });
       }
       
-      return data;
+      return data as CodeSnippet | null;
     },
     enabled: !!slug,
   });

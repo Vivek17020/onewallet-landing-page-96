@@ -6,6 +6,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle, XCircle, Award } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 
+// Define interface for certificate
+interface Certificate {
+  id: string;
+  user_id: string;
+  learning_path_id: string;
+  certificate_number: string;
+  verification_code: string;
+  certificate_data: any;
+  issued_at: string;
+  learning_path?: {
+    title: string;
+    description: string;
+  };
+}
+
 export default function Web3CertificateVerify() {
   const { code } = useParams<{ code: string }>();
 
@@ -14,8 +29,8 @@ export default function Web3CertificateVerify() {
     queryFn: async () => {
       if (!code) throw new Error("No verification code provided");
 
-      const { data, error } = await supabase
-        .from("web3_certificates")
+      const { data, error } = await (supabase
+        .from("web3_certificates" as any)
         .select(
           `
           *,
@@ -23,10 +38,10 @@ export default function Web3CertificateVerify() {
         `
         )
         .eq("verification_code", code)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
-      return data;
+      return data as Certificate | null;
     },
     enabled: !!code,
   });
