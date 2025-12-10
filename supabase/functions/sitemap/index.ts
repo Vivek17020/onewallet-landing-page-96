@@ -340,6 +340,119 @@ function generateSitemap(articles: Article[], categories: Category[], webStories
   </url>`;
   });
 
+  // UPSC Briefs Section
+  urls += `
+  <url>
+    <loc>${baseUrl}/upscbriefs</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/dashboard</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/about</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/current-affairs</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/prelims</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/mains</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/optional</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/practice</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/resources</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/flashcards</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/quiz</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/upscbriefs/contact</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>`;
+
+  // UPSC category pages (polity, economy, geography, history, environment, science-tech, art-culture, international-relations, society)
+  const upscCategories = categories.filter(c => 
+    c.slug === 'upscbriefs' || 
+    categories.some(parent => parent.slug === 'upscbriefs' && parent.id === c.parent_id)
+  );
+
+  upscCategories.forEach(category => {
+    if (category.slug !== 'upscbriefs') {
+      urls += `
+  <url>
+    <loc>${baseUrl}/upscbriefs/${category.slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    }
+  });
+
+  // UPSC articles
+  const upscCategoryIds = upscCategories.map(c => c.id);
+  articles
+    .filter(article => article.published && upscCategoryIds.includes((article as any).category_id))
+    .forEach(article => {
+      const articleCategory = categories.find(c => c.id === (article as any).category_id);
+      const categorySlug = articleCategory?.slug || 'general';
+      const lastmod = article.updated_at 
+        ? new Date(article.updated_at).toISOString().split("T")[0] 
+        : today;
+      
+      urls += `
+  <url>
+    <loc>${baseUrl}/upscbriefs/${categorySlug}/${article.slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    });
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls}

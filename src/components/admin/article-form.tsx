@@ -2642,67 +2642,69 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
               });
             }}
           />
-          {/* Featured Image */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Featured Image</CardTitle>
-            </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => document.getElementById('image-upload')?.click()}
-                      disabled={isGeneratingImage}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Image
-                    </Button>
+          {/* Featured Image - Hidden for UPSC articles */}
+          {articleType !== 'upsc' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Featured Image</CardTitle>
+              </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="image-upload"
+                    />
                     
-                    <Button
-                      variant="outline"
-                      className="w-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20 hover:border-purple-500/40"
-                      onClick={handleGenerateFeaturedImage}
-                      disabled={isGeneratingImage || !formData.title.trim()}
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      {isGeneratingImage ? 'Generating...' : 'AI Generate'}
-                    </Button>
-                  </div>
-                  
-                  {imagePreview && (
-                    <div className="space-y-2">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-48 object-cover rounded-lg border border-border"
-                      />
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="outline"
-                        size="sm"
                         className="w-full"
-                        onClick={() => {
-                          setImagePreview('');
-                          setImageFile(null);
-                          updateFormData({ image_url: '' });
-                        }}
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        disabled={isGeneratingImage}
                       >
-                        Remove Image
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload Image
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        className="w-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20 hover:border-purple-500/40"
+                        onClick={handleGenerateFeaturedImage}
+                        disabled={isGeneratingImage || !formData.title.trim()}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        {isGeneratingImage ? 'Generating...' : 'AI Generate'}
                       </Button>
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    
+                    {imagePreview && (
+                      <div className="space-y-2">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full h-48 object-cover rounded-lg border border-border"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setImagePreview('');
+                            setImageFile(null);
+                            updateFormData({ image_url: '' });
+                          }}
+                        >
+                          Remove Image
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+          )}
 
           {/* Article Type Selection */}
           <Card>
