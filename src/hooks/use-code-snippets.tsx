@@ -36,10 +36,11 @@ export const useCodeSnippets = (isPublic = true) => {
   return useQuery({
     queryKey: ["code-snippets", isPublic],
     queryFn: async () => {
-      let query = supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      let query = (supabase
+        .from("web3_code_snippets" as any)
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
 
       if (isPublic) {
         query = query.eq("is_public", true);
@@ -48,7 +49,7 @@ export const useCodeSnippets = (isPublic = true) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as CodeSnippet[];
+      return (data || []) as CodeSnippet[];
     },
   });
 };
@@ -60,14 +61,15 @@ export const useMyCodeSnippets = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any);
 
       if (error) throw error;
-      return data as CodeSnippet[];
+      return (data || []) as CodeSnippet[];
     },
   });
 };
@@ -76,16 +78,21 @@ export const useCodeSnippet = (id: string) => {
   return useQuery({
     queryKey: ["code-snippet", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .select("*")
         .eq("id", id)
-        .single();
+        .single() as any);
 
       if (error) throw error;
 
-      // Increment view count
-      await supabase.rpc("increment_snippet_view_count", { snippet_uuid: id });
+      // Increment view count (ignore errors as function may not exist)
+      try {
+        await (supabase.rpc as any)("increment_snippet_view_count", { snippet_uuid: id });
+      } catch (e) {
+        console.log("View count increment not available");
+      }
 
       return data as CodeSnippet;
     },
@@ -112,11 +119,12 @@ export const useSaveCodeSnippet = () => {
         slug: generateSlug(snippet.title || "snippet"),
       };
 
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .insert(insertData)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data as CodeSnippet;
@@ -137,12 +145,13 @@ export const useUpdateCodeSnippet = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...snippet }: Partial<CodeSnippet> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .update(snippet)
         .eq("id", id)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data as CodeSnippet;
@@ -167,12 +176,16 @@ export const useForkCodeSnippet = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("You must be logged in to fork snippets");
 
-      // Increment fork count on original
-      await supabase.rpc("increment_snippet_fork_count", { snippet_uuid: snippet.id });
+      // Increment fork count on original (ignore errors as function may not exist)
+      try {
+        await (supabase.rpc as any)("increment_snippet_fork_count", { snippet_uuid: snippet.id });
+      } catch (e) {
+        console.log("Fork count increment not available");
+      }
 
-      // Create fork
-      const { data, error } = await supabase
-        .from("web3_code_snippets")
+      // Create fork - use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("web3_code_snippets" as any)
         .insert({
           title: `${snippet.title} (Fork)`,
           description: snippet.description,
@@ -184,7 +197,7 @@ export const useForkCodeSnippet = () => {
           slug: generateSlug(`${snippet.title} (Fork)`),
         })
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data as CodeSnippet;
@@ -205,10 +218,11 @@ export const useDeleteCodeSnippet = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("web3_code_snippets")
+      // Use type assertion for table not in generated types
+      const { error } = await (supabase
+        .from("web3_code_snippets" as any)
         .delete()
-        .eq("id", id);
+        .eq("id", id) as any);
 
       if (error) throw error;
     },

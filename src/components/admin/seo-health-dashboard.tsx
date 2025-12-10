@@ -555,15 +555,15 @@ export function SeoHealthDashboard() {
                     <CardContent className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Auto-Fixed</span>
-                        <span className="font-semibold text-green-600">{latestAudit.issues_auto_fixed}</span>
+                        <span className="font-semibold text-green-600">{latestAudit.auto_fixed_count}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Remaining</span>
-                        <span className="font-semibold">{latestAudit.issues_remaining}</span>
+                        <span className="font-semibold">{latestAudit.total_issues_found - latestAudit.auto_fixed_count}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Avg Fix Time</span>
-                        <span className="font-semibold">{latestAudit.average_fix_time_seconds}s</span>
+                        <span className="text-muted-foreground">Fix Success Rate</span>
+                        <span className="font-semibold">{latestAudit.auto_fix_success_rate?.toFixed(1) || 0}%</span>
                       </div>
                     </CardContent>
                   </Card>

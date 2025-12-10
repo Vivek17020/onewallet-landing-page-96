@@ -17,15 +17,24 @@ function getYouTubeId(url: string): string | null {
 export function RelatedVideos({ category, limit = 3 }: RelatedVideosProps) {
   const queryClient = useQueryClient();
   
+  interface Video {
+    id: string;
+    title: string;
+    youtube_url: string;
+    category: string;
+    description: string | null;
+  }
+
   const { data: videos, isLoading } = useQuery({
     queryKey: ["related-videos", category],
     queryFn: async () => {
-      let query = supabase
-        .from("homepage_videos")
+      // Use type assertion for table not in generated types
+      let query = (supabase
+        .from("homepage_videos" as any)
         .select("id, title, youtube_url, category, description")
         .eq("is_active", true)
         .order("display_order", { ascending: true })
-        .limit(limit);
+        .limit(limit) as any);
 
       // Filter by category if provided
       if (category) {
@@ -37,16 +46,16 @@ export function RelatedVideos({ category, limit = 3 }: RelatedVideosProps) {
       
       // If no category match, get any videos
       if (!data || data.length === 0) {
-        const { data: anyVideos } = await supabase
-          .from("homepage_videos")
+        const { data: anyVideos } = await (supabase
+          .from("homepage_videos" as any)
           .select("id, title, youtube_url, category, description")
           .eq("is_active", true)
           .order("display_order", { ascending: true })
-          .limit(limit);
-        return anyVideos || [];
+          .limit(limit) as any);
+        return (anyVideos || []) as Video[];
       }
       
-      return data;
+      return data as Video[];
     },
     staleTime: 0, // Always fetch fresh data
   });

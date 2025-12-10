@@ -39,11 +39,11 @@ export const useStudyStreak = () => {
     queryFn: async () => {
       if (!user?.id) return null;
 
-      const { data, error } = await supabase
-        .from('upsc_study_streaks')
+      const { data, error } = await (supabase
+        .from('upsc_study_streaks' as any)
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
       return data as StudyStreak | null;
@@ -56,13 +56,13 @@ export const useBadges = () => {
   return useQuery({
     queryKey: ['upsc-badges'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('upsc_badges')
+      const { data, error } = await (supabase
+        .from('upsc_badges' as any)
         .select('*')
-        .order('xp_required', { ascending: true });
+        .order('xp_required', { ascending: true }) as any);
 
       if (error) throw error;
-      return data as Badge[];
+      return (data || []) as Badge[];
     },
   });
 };
@@ -75,17 +75,14 @@ export const useUserBadges = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from('upsc_user_badges')
-        .select(`
-          *,
-          badge:upsc_badges(*)
-        `)
+      const { data, error } = await (supabase
+        .from('upsc_user_badges' as any)
+        .select('*')
         .eq('user_id', user.id)
-        .order('earned_at', { ascending: false });
+        .order('earned_at', { ascending: false }) as any);
 
       if (error) throw error;
-      return data as UserBadge[];
+      return (data || []) as UserBadge[];
     },
     enabled: !!user?.id,
   });
@@ -101,17 +98,15 @@ export const useUpdateStreak = () => {
 
       const today = new Date().toISOString().split('T')[0];
 
-      // Check if streak exists
-      const { data: existing } = await supabase
-        .from('upsc_study_streaks')
+      const { data: existing } = await (supabase
+        .from('upsc_study_streaks' as any)
         .select('*')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (!existing) {
-        // Create new streak
-        const { data, error } = await supabase
-          .from('upsc_study_streaks')
+        const { data, error } = await (supabase
+          .from('upsc_study_streaks' as any)
           .insert({
             user_id: user.id,
             current_streak: 1,
@@ -120,13 +115,12 @@ export const useUpdateStreak = () => {
             total_xp: 5,
           })
           .select()
-          .single();
+          .single() as any);
 
         if (error) throw error;
         return data;
       }
 
-      // Update existing streak
       const lastDate = existing.last_activity_date;
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -136,19 +130,16 @@ export const useUpdateStreak = () => {
       let xpToAdd = 5;
 
       if (lastDate === today) {
-        // Already updated today
         return existing;
       } else if (lastDate === yesterdayStr) {
-        // Consecutive day
         newStreak = existing.current_streak + 1;
-        xpToAdd = 10 + (newStreak >= 7 ? 5 : 0); // Bonus XP for 7+ streak
+        xpToAdd = 10 + (newStreak >= 7 ? 5 : 0);
       } else {
-        // Streak broken
         newStreak = 1;
       }
 
-      const { data, error } = await supabase
-        .from('upsc_study_streaks')
+      const { data, error } = await (supabase
+        .from('upsc_study_streaks' as any)
         .update({
           current_streak: newStreak,
           longest_streak: Math.max(existing.longest_streak, newStreak),
@@ -158,7 +149,7 @@ export const useUpdateStreak = () => {
         })
         .eq('user_id', user.id)
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;
@@ -179,27 +170,24 @@ export const useUPSCStats = () => {
     queryFn: async () => {
       if (!user?.id) return null;
 
-      // Get completed articles count
-      const { count: articlesCompleted } = await supabase
-        .from('upsc_user_progress')
+      const { count: articlesCompleted } = await (supabase
+        .from('upsc_user_progress' as any)
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any);
 
-      // Get bookmarks count
-      const { count: bookmarksCount } = await supabase
-        .from('upsc_bookmarks')
+      const { count: bookmarksCount } = await (supabase
+        .from('upsc_bookmarks' as any)
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any);
 
-      // Get quiz attempts
-      const { data: quizAttempts } = await supabase
-        .from('upsc_quiz_attempts')
+      const { data: quizAttempts } = await (supabase
+        .from('upsc_quiz_attempts' as any)
         .select('score, percentage')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any);
 
       const totalQuizzes = quizAttempts?.length || 0;
       const avgScore = totalQuizzes > 0 
-        ? Math.round(quizAttempts!.reduce((acc, q) => acc + (q.percentage || 0), 0) / totalQuizzes)
+        ? Math.round(quizAttempts!.reduce((acc: number, q: any) => acc + (q.percentage || 0), 0) / totalQuizzes)
         : 0;
 
       return {

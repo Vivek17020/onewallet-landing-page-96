@@ -26,13 +26,13 @@ export const useUserProgress = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from('upsc_user_progress')
+      const { data, error } = await (supabase
+        .from('upsc_user_progress' as any)
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id) as any);
 
       if (error) throw error;
-      return data as UserProgress[];
+      return (data || []) as UserProgress[];
     },
     enabled: !!user?.id,
   });
@@ -46,8 +46,8 @@ export const useMarkArticleComplete = () => {
     mutationFn: async ({ article_id, time_spent_seconds = 0 }: { article_id: string; time_spent_seconds?: number }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
-        .from('upsc_user_progress')
+      const { data, error } = await (supabase
+        .from('upsc_user_progress' as any)
         .upsert({
           user_id: user.id,
           article_id,
@@ -55,7 +55,7 @@ export const useMarkArticleComplete = () => {
           completed_at: new Date().toISOString(),
         }, { onConflict: 'user_id,article_id' })
         .select()
-        .single();
+        .single() as any);
 
       if (error) throw error;
       return data;
@@ -74,14 +74,14 @@ export const useBookmarks = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
-        .from('upsc_bookmarks')
+      const { data, error } = await (supabase
+        .from('upsc_bookmarks' as any)
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false }) as any);
 
       if (error) throw error;
-      return data as Bookmark[];
+      return (data || []) as Bookmark[];
     },
     enabled: !!user?.id,
   });
@@ -95,28 +95,25 @@ export const useToggleBookmark = () => {
     mutationFn: async (article_id: string) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      // Check if bookmark exists
-      const { data: existing } = await supabase
-        .from('upsc_bookmarks')
+      const { data: existing } = await (supabase
+        .from('upsc_bookmarks' as any)
         .select('id')
         .eq('user_id', user.id)
         .eq('article_id', article_id)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (existing) {
-        // Remove bookmark
-        const { error } = await supabase
-          .from('upsc_bookmarks')
+        const { error } = await (supabase
+          .from('upsc_bookmarks' as any)
           .delete()
-          .eq('id', existing.id);
+          .eq('id', existing.id) as any);
 
         if (error) throw error;
         return { action: 'removed' };
       } else {
-        // Add bookmark
-        const { error } = await supabase
-          .from('upsc_bookmarks')
-          .insert({ user_id: user.id, article_id });
+        const { error } = await (supabase
+          .from('upsc_bookmarks' as any)
+          .insert({ user_id: user.id, article_id }) as any);
 
         if (error) throw error;
         return { action: 'added' };

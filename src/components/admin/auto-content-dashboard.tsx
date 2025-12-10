@@ -64,26 +64,38 @@ export function AutoContentDashboard() {
   const fetchArticles = async () => {
     setLoading(true);
     try {
-      // Fetch scheduled articles
+      // Fetch scheduled articles (using published_at in future as proxy for scheduled)
       const { data: scheduled } = await supabase
         .from('articles')
-        .select('id, title, slug, published, status, published_at, created_at, category_id')
-        .eq('status', 'scheduled')
+        .select('id, title, slug, published, published_at, created_at, category_id')
         .eq('published', false)
+        .not('published_at', 'is', null)
+        .gt('published_at', new Date().toISOString())
         .order('published_at', { ascending: true })
         .limit(20);
 
       // Fetch recently auto-generated articles (last 7 days)
       const { data: recent } = await supabase
         .from('articles')
-        .select('id, title, slug, published, status, published_at, created_at, category_id')
+        .select('id, title, slug, published, published_at, created_at, category_id')
         .eq('author', 'TheBulletinBriefs AI')
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false })
         .limit(50);
 
-      setScheduledArticles(scheduled || []);
-      setRecentGenerated(recent || []);
+      // Map to ScheduledArticle type with inferred status
+      const scheduledWithStatus = (scheduled || []).map(a => ({
+        ...a,
+        status: 'scheduled'
+      })) as ScheduledArticle[];
+      
+      const recentWithStatus = (recent || []).map(a => ({
+        ...a,
+        status: a.published ? 'published' : 'draft'
+      })) as ScheduledArticle[];
+
+      setScheduledArticles(scheduledWithStatus);
+      setRecentGenerated(recentWithStatus);
     } catch (error) {
       console.error('Error fetching articles:', error);
     } finally {

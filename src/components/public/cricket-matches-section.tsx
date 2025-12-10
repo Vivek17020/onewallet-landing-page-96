@@ -36,14 +36,15 @@ export function CricketMatchesSection() {
   const { data: matches, isLoading } = useQuery({
     queryKey: ["cricket-matches-public"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cricket_matches")
+      // Use type assertion for table not in generated types
+      const { data, error } = await (supabase
+        .from("cricket_matches" as any)
         .select("*")
         .eq("is_active", true)
-        .order("display_order", { ascending: true });
+        .order("display_order", { ascending: true }) as any);
       
       if (error) throw error;
-      return data as CricketMatch[];
+      return (data || []) as CricketMatch[];
     },
   });
 
