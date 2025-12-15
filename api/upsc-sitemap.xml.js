@@ -6,8 +6,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const supabaseUrl = 'https://tadcyglvsjycpgsjkywj.supabase.co';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://lprwzdiczcoklwjjwhal.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
     if (!supabaseKey) {
       throw new Error('Missing Supabase service role key');
