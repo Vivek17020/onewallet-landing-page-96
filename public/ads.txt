@@ -1,0 +1,5 @@
+# ads.txt file for TheBulletinBriefs
+# This file authorizes ad networks to sell inventory on this domain
+
+# Google AdSense
+google.com, pub-8705825692661561, DIRECT, f08c47fec0942fa0
